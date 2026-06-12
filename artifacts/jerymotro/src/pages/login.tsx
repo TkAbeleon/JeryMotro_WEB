@@ -15,7 +15,8 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
-const DEMO_USER = {
+const DEMO_CREDENTIALS = { email: "demo@jerymotro.mg", password: "demo1234" };
+const DEMO_TOKEN_DATA = {
   access_token: "demo-token-jerymotro-2026",
   token_type: "bearer",
   user: {
@@ -23,7 +24,7 @@ const DEMO_USER = {
     email: "demo@jerymotro.mg",
     full_name: "Rakoto Andriamahefa",
     organization: "Ministère de l'Environnement",
-    role: "admin",
+    role: "admin" as const,
     is_active: true,
     phone_number: "+261 34 00 000 00",
     whatsapp_number: "+261 34 00 000 00",
@@ -46,8 +47,9 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     setError("");
-    if (data.email === "demo@jerymotro.mg" && data.password === "demo1234") {
-      login(DEMO_USER);
+    // Demo shortcut — does not touch the backend
+    if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) {
+      login(DEMO_TOKEN_DATA);
       setLocation("/dashboard");
       return;
     }
@@ -55,13 +57,13 @@ export default function LoginPage() {
       const result = await loginMutation.mutateAsync({ data });
       login(result);
       setLocation("/dashboard");
-    } catch {
-      if (data.email && data.password) {
-        login(DEMO_USER);
-        setLocation("/dashboard");
-      } else {
-        setError(t("auth.login.error"));
-      }
+    } catch (err: unknown) {
+      // Show the real API error message when available
+      const apiMsg =
+        (err as { data?: { detail?: string; message?: string } })?.data?.detail ??
+        (err as { data?: { detail?: string; message?: string } })?.data?.message ??
+        (err as { message?: string })?.message;
+      setError(apiMsg || t("auth.login.error"));
     }
   };
 
