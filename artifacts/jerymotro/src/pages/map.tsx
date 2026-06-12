@@ -152,7 +152,7 @@ export default function MapPage() {
       lat: d.latitude,
       lng: d.longitude,
       risk: d.risk_score ?? 0,
-      confidence: d.confidence_num ?? (d.confidence ? parseInt(d.confidence) : 0) || 0,
+      confidence: d.confidence_num ?? (d.confidence ? parseInt(d.confidence) : 0) ?? 0,
       brightness: d.brightness ?? 0,
       source: (d.source === "VIIRS" ? "VIIRS" : "MODIS") as "MODIS" | "VIIRS",
       region: d.region || "Inconnue",
