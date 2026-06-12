@@ -11,17 +11,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const DEMO_USER: UserProfile = {
-  id: 1,
-  email: "demo@jerymotro.mg",
-  full_name: "Rakoto Andriamahefa",
-  organization: "Ministère de l'Environnement",
-  role: "admin",
-  is_active: true,
-  phone_number: "+261 34 00 000 00",
-  whatsapp_number: "+261 34 00 000 00",
-};
-const DEMO_TOKEN = "demo-token-jerymotro-2026";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -60,7 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (

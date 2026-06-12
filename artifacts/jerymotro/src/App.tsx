@@ -38,6 +38,15 @@ const queryClient = new QueryClient({
       },
       staleTime: 30000,
     },
+    mutations: {
+      onError: (error: unknown) => {
+        if ((error as { status?: number })?.status === 401) {
+          localStorage.removeItem("jerymotro_token");
+          localStorage.removeItem("jerymotro_user");
+          window.location.href = "/login";
+        }
+      },
+    },
   },
 });
 
