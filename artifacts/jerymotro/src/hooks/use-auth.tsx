@@ -40,12 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("jerymotro_token");
         localStorage.removeItem("jerymotro_user");
       }
-    } else {
-      // Auto-login with demo account for prototype preview
-      setToken(DEMO_TOKEN);
-      setUser(DEMO_USER);
-      localStorage.setItem("jerymotro_token", DEMO_TOKEN);
-      localStorage.setItem("jerymotro_user", JSON.stringify(DEMO_USER));
     }
     setIsLoading(false);
   }, []);

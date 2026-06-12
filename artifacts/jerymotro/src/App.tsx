@@ -31,13 +31,19 @@ setAuthTokenGetter(() => localStorage.getItem("jerymotro_token"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error: unknown) => {
+        // Never retry 401 (invalid/expired token)
+        if ((error as { status?: number })?.status === 401) return false;
+        return failureCount < 1;
+      },
       staleTime: 30000,
     },
   },
 });
 
 function AuthedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Redirect to="/login" />;
   return (
     <AppShell>
       <Component />
