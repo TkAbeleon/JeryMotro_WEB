@@ -71,7 +71,7 @@ export const getHealthCheckUrl = () => {
 
 
 
-  return `/api/healthz`
+  return `/healthz`
 }
 
 /**
@@ -95,7 +95,7 @@ export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus>
 
 export const getHealthCheckQueryKey = () => {
     return [
-    `/api/healthz`
+    `/healthz`
     ] as const;
     }
 
@@ -149,7 +149,7 @@ export const getRegisterUserUrl = () => {
 
 
 
-  return `/api/auth/register`
+  return `/auth/register`
 }
 
 /**
@@ -220,7 +220,7 @@ export const getLoginUserUrl = () => {
 
 
 
-  return `/api/auth/login`
+  return `/auth/login`
 }
 
 /**
@@ -291,7 +291,7 @@ export const getGetMeUrl = () => {
 
 
 
-  return `/api/auth/me`
+  return `/auth/me`
 }
 
 /**
@@ -314,7 +314,7 @@ export const getMe = async ( options?: RequestInit): Promise<UserProfile> => {
 
 export const getGetMeQueryKey = () => {
     return [
-    `/api/auth/me`
+    `/auth/me`
     ] as const;
     }
 
@@ -368,7 +368,7 @@ export const getDeleteAccountUrl = () => {
 
 
 
-  return `/api/auth/me`
+  return `/auth/me`
 }
 
 /**
@@ -438,7 +438,7 @@ export const getUpdateProfileUrl = () => {
 
 
 
-  return `/api/auth/me/profile`
+  return `/auth/me/profile`
 }
 
 /**
@@ -509,7 +509,7 @@ export const getUpdateContactsUrl = () => {
 
 
 
-  return `/api/auth/me/contacts`
+  return `/auth/me/contacts`
 }
 
 /**
@@ -580,7 +580,7 @@ export const getRequestOtpUrl = () => {
 
 
 
-  return `/api/auth/otp/request`
+  return `/auth/otp/request`
 }
 
 /**
@@ -651,7 +651,7 @@ export const getVerifyOtpUrl = () => {
 
 
 
-  return `/api/auth/otp/verify`
+  return `/auth/otp/verify`
 }
 
 /**
@@ -729,7 +729,7 @@ export const getListDetectionsUrl = (params?: ListDetectionsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/detections?${stringifiedParams}` : `/api/detections`
+  return stringifiedParams.length > 0 ? `/detections?${stringifiedParams}` : `/detections`
 }
 
 /**
@@ -752,7 +752,7 @@ export const listDetections = async (params?: ListDetectionsParams, options?: Re
 
 export const getListDetectionsQueryKey = (params?: ListDetectionsParams,) => {
     return [
-    `/api/detections`, ...(params ? [params] : [])
+    `/detections`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -806,7 +806,7 @@ export const getGetDetectionUrl = (id: number,) => {
 
 
 
-  return `/api/detections/${id}`
+  return `/detections/${id}`
 }
 
 /**
@@ -829,7 +829,7 @@ export const getDetection = async (id: number, options?: RequestInit): Promise<D
 
 export const getGetDetectionQueryKey = (id: number,) => {
     return [
-    `/api/detections/${id}`
+    `/detections/${id}`
     ] as const;
     }
 
@@ -890,7 +890,7 @@ export const getGetDailyStatsUrl = (params?: GetDailyStatsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/detections/stats/daily?${stringifiedParams}` : `/api/detections/stats/daily`
+  return stringifiedParams.length > 0 ? `/detections/stats/daily?${stringifiedParams}` : `/detections/stats/daily`
 }
 
 /**
@@ -913,7 +913,7 @@ export const getDailyStats = async (params?: GetDailyStatsParams, options?: Requ
 
 export const getGetDailyStatsQueryKey = (params?: GetDailyStatsParams,) => {
     return [
-    `/api/detections/stats/daily`, ...(params ? [params] : [])
+    `/detections/stats/daily`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -974,7 +974,7 @@ export const getListClustersUrl = (params?: ListClustersParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/clusters?${stringifiedParams}` : `/api/clusters`
+  return stringifiedParams.length > 0 ? `/clusters?${stringifiedParams}` : `/clusters`
 }
 
 /**
@@ -997,7 +997,7 @@ export const listClusters = async (params?: ListClustersParams, options?: Reques
 
 export const getListClustersQueryKey = (params?: ListClustersParams,) => {
     return [
-    `/api/clusters`, ...(params ? [params] : [])
+    `/clusters`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1051,7 +1051,7 @@ export const getGetClusterDetectionsUrl = (id: number,) => {
 
 
 
-  return `/api/clusters/${id}/detections`
+  return `/clusters/${id}/detections`
 }
 
 /**
@@ -1074,7 +1074,7 @@ export const getClusterDetections = async (id: number, options?: RequestInit): P
 
 export const getGetClusterDetectionsQueryKey = (id: number,) => {
     return [
-    `/api/clusters/${id}/detections`
+    `/clusters/${id}/detections`
     ] as const;
     }
 
@@ -1135,7 +1135,7 @@ export const getListPredictionsUrl = (params?: ListPredictionsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/predictions?${stringifiedParams}` : `/api/predictions`
+  return stringifiedParams.length > 0 ? `/predictions?${stringifiedParams}` : `/predictions`
 }
 
 /**
@@ -1158,7 +1158,7 @@ export const listPredictions = async (params?: ListPredictionsParams, options?: 
 
 export const getListPredictionsQueryKey = (params?: ListPredictionsParams,) => {
     return [
-    `/api/predictions`, ...(params ? [params] : [])
+    `/predictions`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1219,7 +1219,7 @@ export const getGetRiskMapUrl = (params: GetRiskMapParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/predictions/risk-map?${stringifiedParams}` : `/api/predictions/risk-map`
+  return stringifiedParams.length > 0 ? `/predictions/risk-map?${stringifiedParams}` : `/predictions/risk-map`
 }
 
 /**
@@ -1242,7 +1242,7 @@ export const getRiskMap = async (params: GetRiskMapParams, options?: RequestInit
 
 export const getGetRiskMapQueryKey = (params?: GetRiskMapParams,) => {
     return [
-    `/api/predictions/risk-map`, ...(params ? [params] : [])
+    `/predictions/risk-map`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1303,7 +1303,7 @@ export const getListAlertsUrl = (params?: ListAlertsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/alerts?${stringifiedParams}` : `/api/alerts`
+  return stringifiedParams.length > 0 ? `/alerts?${stringifiedParams}` : `/alerts`
 }
 
 /**
@@ -1326,7 +1326,7 @@ export const listAlerts = async (params?: ListAlertsParams, options?: RequestIni
 
 export const getListAlertsQueryKey = (params?: ListAlertsParams,) => {
     return [
-    `/api/alerts`, ...(params ? [params] : [])
+    `/alerts`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1380,7 +1380,7 @@ export const getSubscribeAlertUrl = () => {
 
 
 
-  return `/api/alerts/subscribe`
+  return `/alerts/subscribe`
 }
 
 /**
@@ -1451,7 +1451,7 @@ export const getGetMyAlertsUrl = () => {
 
 
 
-  return `/api/alerts/me`
+  return `/alerts/me`
 }
 
 /**
@@ -1474,7 +1474,7 @@ export const getMyAlerts = async ( options?: RequestInit): Promise<MyAlerts> => 
 
 export const getGetMyAlertsQueryKey = () => {
     return [
-    `/api/alerts/me`
+    `/alerts/me`
     ] as const;
     }
 
@@ -1528,7 +1528,7 @@ export const getTriggerAlertUrl = () => {
 
 
 
-  return `/api/alerts/trigger`
+  return `/alerts/trigger`
 }
 
 /**
@@ -1599,7 +1599,7 @@ export const getDeleteSubscriptionUrl = (id: number,) => {
 
 
 
-  return `/api/alerts/subscribe/${id}`
+  return `/alerts/subscribe/${id}`
 }
 
 /**
@@ -1669,7 +1669,7 @@ export const getListZonesUrl = () => {
 
 
 
-  return `/api/zones`
+  return `/zones`
 }
 
 /**
@@ -1692,7 +1692,7 @@ export const listZones = async ( options?: RequestInit): Promise<Zone[]> => {
 
 export const getListZonesQueryKey = () => {
     return [
-    `/api/zones`
+    `/zones`
     ] as const;
     }
 
@@ -1746,7 +1746,7 @@ export const getCreateZoneUrl = () => {
 
 
 
-  return `/api/zones`
+  return `/zones`
 }
 
 /**
@@ -1817,7 +1817,7 @@ export const getDeleteZoneUrl = (id: number,) => {
 
 
 
-  return `/api/zones/${id}`
+  return `/zones/${id}`
 }
 
 /**
@@ -1887,7 +1887,7 @@ export const getChatWithAIUrl = () => {
 
 
 
-  return `/api/chat`
+  return `/chat`
 }
 
 /**
@@ -1958,7 +1958,7 @@ export const getGetDashboardSummaryUrl = () => {
 
 
 
-  return `/api/dashboard/summary`
+  return `/dashboard/summary`
 }
 
 /**
@@ -1981,7 +1981,7 @@ export const getDashboardSummary = async ( options?: RequestInit): Promise<Dashb
 
 export const getGetDashboardSummaryQueryKey = () => {
     return [
-    `/api/dashboard/summary`
+    `/dashboard/summary`
     ] as const;
     }
 

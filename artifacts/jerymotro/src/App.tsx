@@ -1,6 +1,6 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { setAuthTokenGetter } from "@workspace/api-client-react";
+import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
@@ -24,7 +24,8 @@ import SubscriptionsPage from "@/pages/subscriptions";
 import ProfilePage from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
-// Wire auth token to every API call — reads from localStorage on each request
+// Wire auth token and backend URL to every API call
+setBaseUrl("http://35.192.27.164/jerymotro-api");
 setAuthTokenGetter(() => localStorage.getItem("jerymotro_token"));
 
 const queryClient = new QueryClient({

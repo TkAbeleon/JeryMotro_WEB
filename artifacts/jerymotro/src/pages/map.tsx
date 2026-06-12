@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaf
 import { Filter, X, Layers, ChevronDown } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { format, subDays, subMonths, isAfter } from "date-fns";
+import { useListDetections } from "@workspace/api-client-react";
 
 // --- Types ---
 type RiskLevel = "critical" | "high" | "medium" | "low";
@@ -140,16 +141,35 @@ export default function MapPage() {
     });
   };
 
+  const detectionsQuery = useListDetections({ limit: 200 });
+
+  const fires = useMemo(() => {
+    if (!detectionsQuery.data?.detections || detectionsQuery.data.detections.length === 0) {
+      return MOCK_FIRES;
+    }
+    return detectionsQuery.data.detections.map((d) => ({
+      id: d.id,
+      lat: d.latitude,
+      lng: d.longitude,
+      risk: d.risk_score ?? 0,
+      confidence: d.confidence_num ?? (d.confidence ? parseInt(d.confidence) : 0) || 0,
+      brightness: d.brightness ?? 0,
+      source: (d.source === "VIIRS" ? "VIIRS" : "MODIS") as "MODIS" | "VIIRS",
+      region: d.region || "Inconnue",
+      detectedAt: d.inserted_at ? new Date(d.inserted_at) : new Date(d.acq_date),
+    }));
+  }, [detectionsQuery.data]);
+
   const filtered = useMemo(() => {
     const cutoff = getPeriodCutoff(period);
-    return MOCK_FIRES.filter(p => {
+    return fires.filter(p => {
       if (!isAfter(p.detectedAt, cutoff)) return false;
       if (!selectedRisks.has(getRiskLevel(p.risk))) return false;
       if (selectedRegion !== "all" && p.region !== selectedRegion) return false;
       if (selectedSource !== "all" && p.source !== selectedSource) return false;
       return true;
     });
-  }, [period, selectedRisks, selectedRegion, selectedSource]);
+  }, [fires, period, selectedRisks, selectedRegion, selectedSource]);
 
   const criticalCount = filtered.filter(p => p.risk >= 0.7).length;
 
