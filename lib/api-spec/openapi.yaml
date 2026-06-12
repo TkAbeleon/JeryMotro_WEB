@@ -1,0 +1,1157 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 2.3.0
+  description: JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication & user management
+  - name: detections
+    description: FIRMS fire detections
+  - name: clusters
+    description: Fire event clusters
+  - name: predictions
+    description: ML risk predictions
+  - name: alerts
+    description: Alert history and subscriptions
+  - name: zones
+    description: Priority monitored zones (Premium)
+  - name: chat
+    description: JeryMotro AI (RAG)
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [auth]
+      summary: Register a new standard user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistration"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        "409":
+          description: Email already exists
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogin"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        "401":
+          description: Invalid credentials
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+    delete:
+      operationId: deleteAccount
+      tags: [auth]
+      summary: Delete current user account
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: No content
+
+  /auth/me/profile:
+    put:
+      operationId: updateProfile
+      tags: [auth]
+      summary: Update profile info
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /auth/me/contacts:
+    put:
+      operationId: updateContacts
+      tags: [auth]
+      summary: Update alert contacts (Premium)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactUpdate"
+      responses:
+        "200":
+          description: OK
+
+  /auth/otp/request:
+    post:
+      operationId: requestOtp
+      tags: [auth]
+      summary: Request OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpRequest"
+      responses:
+        "200":
+          description: OK
+
+  /auth/otp/verify:
+    post:
+      operationId: verifyOtp
+      tags: [auth]
+      summary: Verify OTP code and get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpVerify"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+
+  /detections:
+    get:
+      operationId: listDetections
+      tags: [detections]
+      summary: List fire detections with filters
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: date_to
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: min_frp
+          in: query
+          schema:
+            type: ["number", "null"]
+        - name: max_frp
+          in: query
+          schema:
+            type: ["number", "null"]
+        - name: min_risk
+          in: query
+          schema:
+            type: ["number", "null"]
+        - name: max_risk
+          in: query
+          schema:
+            type: ["number", "null"]
+        - name: source
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: region
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: exclude_noise
+          in: query
+          schema:
+            type: ["boolean", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectionList"
+
+  /detections/{id}:
+    get:
+      operationId: getDetection
+      tags: [detections]
+      summary: Get a detection by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Detection"
+        "404":
+          description: Not found
+
+  /detections/stats/daily:
+    get:
+      operationId: getDailyStats
+      tags: [detections]
+      summary: Daily detection statistics
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: date_to
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyStatsResponse"
+
+  /clusters:
+    get:
+      operationId: listClusters
+      tags: [clusters]
+      summary: List fire event clusters
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: region
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: active_only
+          in: query
+          schema:
+            type: ["boolean", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClusterList"
+
+  /clusters/{id}/detections:
+    get:
+      operationId: getClusterDetections
+      tags: [clusters]
+      summary: Get detections belonging to a cluster
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClusterDetections"
+        "404":
+          description: Not found
+
+  /predictions:
+    get:
+      operationId: listPredictions
+      tags: [predictions]
+      summary: List ML predictions
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: region
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: min_risk
+          in: query
+          schema:
+            type: ["number", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionList"
+
+  /predictions/risk-map:
+    get:
+      operationId: getRiskMap
+      tags: [predictions]
+      summary: Get GeoJSON risk map for J+1
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: min_risk
+          in: query
+          schema:
+            type: ["number", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskMapResponse"
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: channel
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertList"
+
+  /alerts/subscribe:
+    post:
+      operationId: subscribeAlert
+      tags: [alerts]
+      summary: Subscribe to alerts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertSubscription"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "403":
+          description: Premium required for WhatsApp/SMS
+
+  /alerts/me:
+    get:
+      operationId: getMyAlerts
+      tags: [alerts]
+      summary: Get personal alerts and subscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyAlerts"
+
+  /alerts/trigger:
+    post:
+      operationId: triggerAlert
+      tags: [alerts]
+      summary: Manually trigger an alert (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertTrigger"
+      responses:
+        "201":
+          description: Created
+        "403":
+          description: Admin only
+
+  /alerts/subscribe/{id}:
+    delete:
+      operationId: deleteSubscription
+      tags: [alerts]
+      summary: Delete an alert subscription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  /zones:
+    get:
+      operationId: listZones
+      tags: [zones]
+      summary: List monitored priority zones (Premium)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Zone"
+    post:
+      operationId: createZone
+      tags: [zones]
+      summary: Create a priority zone (Premium)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ZoneInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Zone"
+        "403":
+          description: Premium only
+
+  /zones/{id}:
+    delete:
+      operationId: deleteZone
+      tags: [zones]
+      summary: Delete a priority zone (Premium)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  /chat:
+    post:
+      operationId: chatWithAI
+      tags: [chat]
+      summary: Chat with JeryMotro AI (RAG)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessage"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [detections]
+      summary: Dashboard overview stats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        version:
+          type: ["string", "null"]
+        uptime_seconds:
+          type: ["number", "null"]
+      required:
+        - status
+
+    UserRegistration:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        full_name:
+          type: ["string", "null"]
+        organization:
+          type: ["string", "null"]
+
+    UserLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    UserProfile:
+      type: object
+      required: [id, email, role, is_active]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        full_name:
+          type: ["string", "null"]
+        organization:
+          type: ["string", "null"]
+        role:
+          type: string
+        is_active:
+          type: boolean
+        phone_number:
+          type: ["string", "null"]
+        whatsapp_number:
+          type: ["string", "null"]
+
+    AuthToken:
+      type: object
+      required: [access_token, token_type, user]
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserProfile"
+
+    ProfileUpdate:
+      type: object
+      properties:
+        full_name:
+          type: ["string", "null"]
+        organization:
+          type: ["string", "null"]
+
+    ContactUpdate:
+      type: object
+      properties:
+        phone_number:
+          type: ["string", "null"]
+        whatsapp_number:
+          type: ["string", "null"]
+
+    OtpRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+        via:
+          type: ["string", "null"]
+
+    OtpVerify:
+      type: object
+      required: [email, code]
+      properties:
+        email:
+          type: string
+        code:
+          type: string
+
+    Detection:
+      type: object
+      required: [id, latitude, longitude, source, acq_date]
+      properties:
+        id:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        brightness:
+          type: ["number", "null"]
+        frp:
+          type: ["number", "null"]
+        frp_log:
+          type: ["number", "null"]
+        confidence:
+          type: ["string", "null"]
+        confidence_num:
+          type: ["integer", "null"]
+        acq_date:
+          type: string
+        acq_time:
+          type: ["string", "null"]
+        local_hour:
+          type: ["integer", "null"]
+        satellite:
+          type: ["string", "null"]
+        instrument:
+          type: ["string", "null"]
+        daynight:
+          type: ["string", "null"]
+        source:
+          type: string
+        risk_score:
+          type: ["number", "null"]
+        fire_label:
+          type: ["integer", "null"]
+        cluster_id:
+          type: ["integer", "null"]
+        cluster_size:
+          type: ["integer", "null"]
+        cluster_frp_total:
+          type: ["number", "null"]
+        cluster_frp_max:
+          type: ["number", "null"]
+        is_noise:
+          type: ["integer", "null"]
+        is_dry_season:
+          type: ["boolean", "null"]
+        temperature_2m:
+          type: ["number", "null"]
+        relative_humidity:
+          type: ["number", "null"]
+        wind_speed:
+          type: ["number", "null"]
+        landcover:
+          type: ["string", "null"]
+        ndvi_10m:
+          type: ["number", "null"]
+        region:
+          type: ["string", "null"]
+        inserted_at:
+          type: ["string", "null"]
+
+    DetectionList:
+      type: object
+      required: [detections, count, total, limit, offset]
+      properties:
+        detections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Detection"
+        count:
+          type: integer
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        filters_applied:
+          type: object
+          additionalProperties: true
+
+    DailyStats:
+      type: object
+      required: [date, total_detections, high_risk_count, active_clusters, regions_affected]
+      properties:
+        date:
+          type: string
+        total_detections:
+          type: integer
+        high_risk_count:
+          type: integer
+        avg_frp:
+          type: ["number", "null"]
+        max_frp:
+          type: ["number", "null"]
+        active_clusters:
+          type: integer
+        regions_affected:
+          type: array
+          items:
+            type: string
+
+    DailyStatsResponse:
+      type: object
+      required: [stats]
+      properties:
+        stats:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyStats"
+
+    Cluster:
+      type: object
+      required: [id, center_latitude, center_longitude, cluster_status, first_seen, last_seen]
+      properties:
+        id:
+          type: integer
+        fire_id:
+          type: ["string", "null"]
+        center_latitude:
+          type: number
+        center_longitude:
+          type: number
+        radius_km:
+          type: ["number", "null"]
+        region:
+          type: ["string", "null"]
+        cluster_size:
+          type: ["integer", "null"]
+        cluster_frp_total:
+          type: ["number", "null"]
+        cluster_frp_max:
+          type: ["number", "null"]
+        risk_score_max:
+          type: ["number", "null"]
+        risk_level:
+          type: ["string", "null"]
+        first_seen:
+          type: string
+        last_seen:
+          type: string
+        duration_hours:
+          type: ["number", "null"]
+        hours_since_last_seen:
+          type: ["number", "null"]
+        cluster_status:
+          type: string
+        status_reason:
+          type: ["string", "null"]
+        reactivation_count:
+          type: integer
+
+    ClusterList:
+      type: object
+      required: [clusters, count, total]
+      properties:
+        clusters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Cluster"
+        count:
+          type: integer
+        total:
+          type: integer
+
+    ClusterDetections:
+      type: object
+      required: [cluster_id, detections, count]
+      properties:
+        cluster_id:
+          type: integer
+        detections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Detection"
+        count:
+          type: integer
+
+    Prediction:
+      type: object
+      required: [id, prediction_date, latitude, longitude, risk_score_j1, created_at]
+      properties:
+        id:
+          type: integer
+        prediction_date:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        grid_cell_id:
+          type: ["string", "null"]
+        risk_score_j1:
+          type: number
+        confidence:
+          type: ["number", "null"]
+        model_version:
+          type: ["string", "null"]
+        input_window_days:
+          type: ["integer", "null"]
+        region:
+          type: ["string", "null"]
+        created_at:
+          type: string
+
+    PredictionList:
+      type: object
+      required: [predictions, count]
+      properties:
+        predictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Prediction"
+        count:
+          type: integer
+        prediction_date:
+          type: ["string", "null"]
+        model_info:
+          type: ["object", "null"]
+          additionalProperties: true
+
+    RiskMapFeatureProps:
+      type: object
+      properties:
+        risk_score_j1:
+          type: ["number", "null"]
+        grid_cell_id:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        prediction_date:
+          type: ["string", "null"]
+
+    RiskMapMetadata:
+      type: object
+      required: [prediction_date, total_cells, high_risk_cells]
+      properties:
+        prediction_date:
+          type: string
+        total_cells:
+          type: integer
+        high_risk_cells:
+          type: integer
+        model_version:
+          type: ["string", "null"]
+
+    RiskMapResponse:
+      type: object
+      required: [type, features, metadata]
+      properties:
+        type:
+          type: string
+        features:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        metadata:
+          $ref: "#/components/schemas/RiskMapMetadata"
+
+    Alert:
+      type: object
+      required: [id, alert_level, channel, status, created_at]
+      properties:
+        id:
+          type: integer
+        alert_level:
+          type: string
+        region:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        risk_score:
+          type: ["number", "null"]
+        frp:
+          type: ["number", "null"]
+        message:
+          type: ["string", "null"]
+        images:
+          type: ["array", "null"]
+          items:
+            type: string
+        channel:
+          type: string
+        destination:
+          type: ["string", "null"]
+        status:
+          type: string
+        sent_at:
+          type: ["string", "null"]
+        created_at:
+          type: string
+
+    AlertList:
+      type: object
+      required: [alerts, count, total]
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        count:
+          type: integer
+        total:
+          type: integer
+
+    AlertSubscription:
+      type: object
+      required: [channel, destination]
+      properties:
+        channel:
+          type: string
+        destination:
+          type: string
+        min_risk:
+          type: ["number", "null"]
+        min_frp:
+          type: ["number", "null"]
+
+    Subscription:
+      type: object
+      required: [id, channel, destination, enabled]
+      properties:
+        id:
+          type: integer
+        channel:
+          type: string
+        destination:
+          type: string
+        enabled:
+          type: boolean
+        min_risk:
+          type: number
+        min_frp:
+          type: number
+
+    MyAlerts:
+      type: object
+      required: [subscriptions, alerts_history]
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subscription"
+        alerts_history:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+
+    AlertTrigger:
+      type: object
+      required: [risk_score, frp, region, latitude, longitude]
+      properties:
+        fire_event_id:
+          type: ["integer", "null"]
+        risk_score:
+          type: number
+        frp:
+          type: number
+        region:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        force_send:
+          type: boolean
+
+    Zone:
+      type: object
+      required: [id, user_id, name, latitude, longitude, radius_km, created_at]
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        radius_km:
+          type: number
+        min_risk:
+          type: ["number", "null"]
+        min_frp:
+          type: ["number", "null"]
+        custom_ai_prompt:
+          type: ["string", "null"]
+        created_at:
+          type: string
+
+    ZoneInput:
+      type: object
+      required: [name, latitude, longitude, radius_km]
+      properties:
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        radius_km:
+          type: number
+        min_risk:
+          type: ["number", "null"]
+        min_frp:
+          type: ["number", "null"]
+        custom_ai_prompt:
+          type: ["string", "null"]
+
+    ChatMessage:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        conversation_id:
+          type: ["string", "null"]
+        temperature:
+          type: ["number", "null"]
+        zone_id:
+          type: ["integer", "null"]
+
+    ChatResponse:
+      type: object
+      required: [response, sources]
+      properties:
+        response:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+        data_context:
+          type: ["object", "null"]
+          additionalProperties: true
+        model_used:
+          type: ["string", "null"]
+        tokens_used:
+          type: ["integer", "null"]
+        response_time_ms:
+          type: ["integer", "null"]
+
+    DashboardSummary:
+      type: object
+      required: [total_detections_today, active_clusters, critical_alerts, ai_response_time_ms]
+      properties:
+        total_detections_today:
+          type: integer
+        active_clusters:
+          type: integer
+        critical_alerts:
+          type: integer
+        ai_response_time_ms:
+          type: integer
+        xgboost_accuracy:
+          type: ["number", "null"]
+        regions_affected_today:
+          type: array
+          items:
+            type: string
+        pipeline_status:
+          type: string
