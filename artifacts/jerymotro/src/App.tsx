@@ -25,7 +25,7 @@ import ProfilePage from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 // Wire auth token and backend URL to every API call
-setBaseUrl("http://35.192.27.164/jerymotro-api");
+setBaseUrl(import.meta.env.VITE_API_URL || "/jerymotro-api");
 setAuthTokenGetter(() => localStorage.getItem("jerymotro_token"));
 
 const queryClient = new QueryClient({

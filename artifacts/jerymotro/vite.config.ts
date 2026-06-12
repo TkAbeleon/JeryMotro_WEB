@@ -38,10 +38,22 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: {
+      "/jerymotro-api": {
+        target: "http://35.192.27.164",
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    proxy: {
+      "/jerymotro-api": {
+        target: "http://35.192.27.164",
+        changeOrigin: true,
+      },
+    },
   },
 });
