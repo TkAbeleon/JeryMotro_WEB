@@ -300,10 +300,11 @@ Le volet Chatbot permet de poser des questions naturelles sur les feux et prédi
   {
     "message": "Fais-moi un résumé de la situation dans le Menabe.",
     "temperature": 0.1,
-    "zone_id": null // Passer l'ID de zone si ouvert depuis une Zone Prioritaire
+    "zone_id": null, // Passer l'ID de zone si ouvert depuis une Zone Prioritaire
+    "conversation_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6" // Optionnel : UUID pour le suivi de la session de chat
   }
   ```
-- **Format de réponse :**
+- **Format de réponse standard :**
   ```json
   {
     "response": "### Situation dans le Menabe\n...\n",
@@ -316,7 +317,9 @@ Le volet Chatbot permet de poser des questions naturelles sur les feux et prédi
   }
   ```
 - **Logique UI :**
-  - Rendre `response` en Markdown propre.
+  - **Gestion de la latence :** Le timeout maximal du webhook RAG a été porté à **60 secondes** (au lieu de 30) pour tolérer les démarrages à froid de l'infrastructure LLM (Hugging Face / n8n). Le frontend doit utiliser un *loading spinner* ou *skeleton* persistant d'au moins 60s avant d'émettre un timeout.
+  - **Compatibilité des données :** L'API backend JeryMotro normalise de façon autonome les formats hétérogènes de n8n (recherche des clés `"output"`, `"text"`, ou `"response"` dans le payload du webhook). Le frontend est ainsi garanti de toujours recevoir le texte généré dans la propriété racine `"response"`.
+  - **Rendu :** Rendre la valeur de `"response"` en Markdown propre.
   - Afficher la liste des `sources` sous forme de badges cliquables.
 
 ---
