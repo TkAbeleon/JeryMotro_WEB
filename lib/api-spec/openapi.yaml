@@ -451,7 +451,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MyAlerts"
+                $ref: "#/components/schemas/AlertList"
+
+  /alerts/subscriptions:
+    get:
+      operationId: getMySubscriptions
+      tags: [alerts]
+      summary: Get active alert subscriptions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
 
   /alerts/trigger:
     post:

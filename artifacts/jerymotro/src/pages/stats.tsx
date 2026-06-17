@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useGetDailyStats, useListDetections, useListClusters } from "@workspace/api-client-react";
-import { generateMockDailyStats, generateMockDetections, generateMockClusters } from "@/lib/mock-data";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend
 } from "recharts";
@@ -13,9 +12,9 @@ export default function StatsPage() {
   const detectionsQ = useListDetections({ limit: 200 });
   const clustersQ = useListClusters({ limit: 50 });
 
-  const daily = (dailyQ.data ?? generateMockDailyStats()).stats || [];
-  const detections = (detectionsQ.data ?? generateMockDetections()).detections || [];
-  const clusters = (clustersQ.data ?? generateMockClusters()).clusters || [];
+  const daily = dailyQ.data?.stats || [];
+  const detections = detectionsQ.data?.detections || [];
+  const clusters = clustersQ.data?.clusters || [];
 
   const last30 = daily.slice(-30);
   const last7 = daily.slice(-7);
@@ -41,7 +40,10 @@ export default function StatsPage() {
 
   const sourceStats = useMemo(() => {
     const map: Record<string, number> = {};
-    detections.forEach(d => { map[d.source] = (map[d.source] || 0) + 1; });
+    detections.forEach(d => {
+      const src = d.source?.toLowerCase().includes("viirs") ? "VIIRS" : "MODIS";
+      map[src] = (map[src] || 0) + 1;
+    });
     return Object.entries(map).map(([source, count]) => ({ source, count }));
   }, [detections]);
 
@@ -54,20 +56,28 @@ export default function StatsPage() {
     }));
   }, [last7]);
 
+  if (dailyQ.isLoading || detectionsQ.isLoading || clustersQ.isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   const totalDetections = last30.reduce((s, d) => s + d.total_detections, 0);
   const totalHighRisk = last30.reduce((s, d) => s + d.high_risk_count, 0);
   const avgPerDay = Math.round(totalDetections / 30);
   const maxDay = last30.reduce((m, d) => d.total_detections > m.total_detections ? d : m, last30[0] || { total_detections: 0, date: "" });
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div>
         <h1 className="font-heading text-2xl font-bold">{t("stats.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("stats.subtitle")}</p>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: t("stats.kpi.total30"), value: totalDetections.toLocaleString(), color: "text-primary" },
           { label: t("stats.kpi.highRisk30"), value: totalHighRisk.toLocaleString(), color: "text-destructive" },

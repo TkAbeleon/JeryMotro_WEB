@@ -326,6 +326,18 @@ export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
 ): Promise<T> {
+  if (typeof input === "string") {
+    if (input === "/zones") {
+      input = "/zones/";
+    } else if (input.startsWith("/zones?")) {
+      input = input.replace("/zones?", "/zones/?");
+    }
+  } else if (typeof URL !== "undefined" && input instanceof URL) {
+    if (input.pathname === "/zones") {
+      input.pathname = "/zones/";
+    }
+  }
+
   input = applyBaseUrl(input);
   const { responseType = "auto", headers: headersInit, ...init } = options;
 

@@ -429,15 +429,7 @@ export const SubscribeAlertBody = zod.object({
  * @summary Get personal alerts and subscriptions
  */
 export const GetMyAlertsResponse = zod.object({
-  "subscriptions": zod.array(zod.object({
-  "id": zod.number(),
-  "channel": zod.string(),
-  "destination": zod.string(),
-  "enabled": zod.boolean(),
-  "min_risk": zod.number().optional(),
-  "min_frp": zod.number().optional()
-})),
-  "alerts_history": zod.array(zod.object({
+  "alerts": zod.array(zod.object({
   "id": zod.number(),
   "alert_level": zod.string(),
   "region": zod.string().nullish(),
@@ -452,8 +444,24 @@ export const GetMyAlertsResponse = zod.object({
   "status": zod.string(),
   "sent_at": zod.string().nullish(),
   "created_at": zod.string()
-}))
+})),
+  "count": zod.number(),
+  "total": zod.number()
 })
+
+
+/**
+ * @summary Get active alert subscriptions
+ */
+export const GetMySubscriptionsResponseItem = zod.object({
+  "id": zod.number(),
+  "channel": zod.string(),
+  "destination": zod.string(),
+  "enabled": zod.boolean(),
+  "min_risk": zod.number().optional(),
+  "min_frp": zod.number().optional()
+})
+export const GetMySubscriptionsResponse = zod.array(GetMySubscriptionsResponseItem)
 
 
 /**

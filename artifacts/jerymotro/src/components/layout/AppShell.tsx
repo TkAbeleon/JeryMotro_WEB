@@ -20,7 +20,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         style={{ marginLeft }}
       >
         <Topbar />
-        <main className="flex-1 mt-[58px] p-4 sm:p-6 overflow-auto">
+        <main className="flex-1 mt-[58px] overflow-auto">
           {children}
         </main>
       </div>

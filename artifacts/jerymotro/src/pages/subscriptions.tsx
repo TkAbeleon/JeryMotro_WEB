@@ -46,22 +46,24 @@ export default function SubscriptionsPage() {
   ];
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="p-4 sm:p-6 space-y-8 max-w-4xl">
       <div>
         <h1 className="font-heading text-2xl font-bold">{t("subscriptions.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("subscriptions.subtitle")}</p>
       </div>
 
       {isPremium && (
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <Shield className="w-5 h-5 text-primary" />
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Shield className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <div className="font-medium text-sm">{t("subscriptions.plan.premium")} actif</div>
+              <div className="text-xs text-muted-foreground">Toutes les fonctionnalités sont débloquées. Renouvellement le 11/07/2026.</div>
+            </div>
           </div>
-          <div>
-            <div className="font-medium text-sm">{t("subscriptions.plan.premium")} actif</div>
-            <div className="text-xs text-muted-foreground">Toutes les fonctionnalités sont débloquées. Renouvellement le 11/07/2026.</div>
-          </div>
-          <span className="ml-auto text-xs bg-primary/15 text-primary px-2 py-1 rounded-full font-medium">{t("common.active")}</span>
+          <span className="text-xs bg-primary/15 text-primary px-2 py-1 rounded-full font-medium w-fit flex-shrink-0">{t("common.active")}</span>
         </div>
       )}
 
@@ -142,46 +144,50 @@ export default function SubscriptionsPage() {
         <div className="p-4 border-b border-border">
           <h2 className="font-heading font-semibold">Comparaison détaillée</h2>
         </div>
-        <div className="grid grid-cols-3 text-xs text-muted-foreground font-medium border-b border-border px-4 py-2 bg-secondary/30">
-          <span>Fonctionnalité</span>
-          <span className="text-center">{t("subscriptions.plan.free")}</span>
-          <span className="text-center">{t("subscriptions.plan.premium")}</span>
-        </div>
-        <div className="divide-y divide-border">
-          {[
-            { feature: t("nav.detections"), free: true, premium: true },
-            { feature: t("nav.clusters"), free: true, premium: true },
-            { feature: t("nav.stats"), free: "30 jours", premium: "12 mois" },
-            { feature: "Alertes email", free: "1/jour", premium: "Illimité" },
-            { feature: `${t("channel.sms")}/${t("channel.whatsapp")}`, free: false, premium: true },
-            { feature: t("nav.predictions"), free: false, premium: true },
-            { feature: t("nav.chat"), free: false, premium: "Illimité" },
-            { feature: t("nav.zones"), free: false, premium: "Illimité" },
-            { feature: "Export données", free: false, premium: "CSV, JSON" },
-            { feature: "Délai alerte", free: "1h", premium: "<5 min" },
-          ].map(row => (
-            <div key={row.feature} className="grid grid-cols-3 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">{row.feature}</span>
-              <span className="text-center">
-                {row.free === true ? (
-                  <Check className="w-4 h-4 text-accent inline" />
-                ) : row.free === false ? (
-                  <span className="text-muted-foreground text-xs">—</span>
-                ) : (
-                  <span className="text-xs font-medium">{row.free}</span>
-                )}
-              </span>
-              <span className="text-center">
-                {row.premium === true ? (
-                  <Check className="w-4 h-4 text-primary inline" />
-                ) : row.premium === false ? (
-                  <span className="text-muted-foreground text-xs">—</span>
-                ) : (
-                  <span className="text-xs font-medium text-primary">{row.premium}</span>
-                )}
-              </span>
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-[500px]">
+            <div className="grid grid-cols-3 text-xs text-muted-foreground font-medium border-b border-border px-4 py-2 bg-secondary/30">
+              <span>Fonctionnalité</span>
+              <span className="text-center">{t("subscriptions.plan.free")}</span>
+              <span className="text-center">{t("subscriptions.plan.premium")}</span>
             </div>
-          ))}
+            <div className="divide-y divide-border">
+              {[
+                { feature: t("nav.detections"), free: true, premium: true },
+                { feature: t("nav.clusters"), free: true, premium: true },
+                { feature: t("nav.stats"), free: "30 jours", premium: "12 mois" },
+                { feature: "Alertes email", free: "1/jour", premium: "Illimité" },
+                { feature: `${t("channel.sms")}/${t("channel.whatsapp")}`, free: false, premium: true },
+                { feature: t("nav.predictions"), free: false, premium: true },
+                { feature: t("nav.chat"), free: false, premium: "Illimité" },
+                { feature: t("nav.zones"), free: false, premium: "Illimité" },
+                { feature: "Export données", free: false, premium: "CSV, JSON" },
+                { feature: "Délai alerte", free: "1h", premium: "<5 min" },
+              ].map(row => (
+                <div key={row.feature} className="grid grid-cols-3 px-4 py-3 text-sm">
+                  <span className="text-muted-foreground">{row.feature}</span>
+                  <span className="text-center">
+                    {row.free === true ? (
+                      <Check className="w-4 h-4 text-accent inline" />
+                    ) : row.free === false ? (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    ) : (
+                      <span className="text-xs font-medium">{row.free}</span>
+                    )}
+                  </span>
+                  <span className="text-center">
+                    {row.premium === true ? (
+                      <Check className="w-4 h-4 text-primary inline" />
+                    ) : row.premium === false ? (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    ) : (
+                      <span className="text-xs font-medium text-primary">{row.premium}</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

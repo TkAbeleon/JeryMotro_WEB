@@ -1,8 +1,76 @@
 import { useState, useRef, useEffect } from "react";
 import { useChatWithAI } from "@workspace/api-client-react";
-import { mockChatResponse } from "@/lib/mock-data";
 import { Bot, Send, User, Zap, BookOpen, AlertTriangle } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import mermaid from "mermaid";
+
+// Initialize mermaid for premium dynamic diagrams
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "dark",
+  securityLevel: "loose",
+  fontFamily: "inherit",
+});
+
+function Mermaid({ chart }: { chart: string }) {
+  const [svg, setSvg] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const elementId = useRef(`mermaid-${Math.random().toString(36).substring(2, 11)}`);
+
+  useEffect(() => {
+    let active = true;
+    const renderChart = async () => {
+      try {
+        setError(null);
+        const { svg: renderedSvg } = await mermaid.render(elementId.current, chart);
+        if (active) {
+          setSvg(renderedSvg);
+        }
+      } catch (err) {
+        console.error("Mermaid render error:", err);
+        if (active) {
+          setError("Erreur de rendu du diagramme Mermaid.");
+        }
+      }
+    };
+
+    renderChart();
+
+    return () => {
+      active = false;
+      const element = document.getElementById(elementId.current);
+      if (element) {
+        element.remove();
+      }
+    };
+  }, [chart]);
+
+  if (error) {
+    return (
+      <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive font-mono whitespace-pre-wrap">
+        {error}
+        <pre className="mt-2 text-[10px] text-muted-foreground">{chart}</pre>
+      </div>
+    );
+  }
+
+  if (!svg) {
+    return (
+      <div className="flex items-center justify-center p-6 bg-secondary/50 rounded-lg animate-pulse">
+        <span className="text-xs text-muted-foreground">Chargement du diagramme...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="mermaid-chart flex justify-center bg-secondary/30 p-4 rounded-xl border border-border/50 my-3 overflow-x-auto"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+}
 
 interface Message {
   id: number;
@@ -57,27 +125,23 @@ export default function ChatPage() {
         time_ms: res.response_time_ms ?? undefined,
       }]);
     } catch {
-      const mock = mockChatResponse(text);
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         role: "assistant",
-        content: mock.response,
-        sources: mock.sources,
-        model: mock.model_used ?? undefined,
-        time_ms: mock.response_time_ms ?? undefined,
+        content: "Désolé, une erreur est survenue lors de la communication avec l'assistant.",
       }]);
     }
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0" style={{ height: "calc(100vh - 58px - 48px)" }}>
+    <div className="p-4 sm:p-6 flex flex-col h-full min-h-0" style={{ height: "calc(100vh - 58px)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 flex-shrink-0 gap-3">
         <div>
           <h1 className="font-heading text-2xl font-bold">{t("chat.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t("chat.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-2 text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full self-start sm:self-auto">
           <Zap className="w-3 h-3" />
           {t("chat.badge")}
         </div>
@@ -92,9 +156,73 @@ export default function ChatPage() {
             </div>
             <div className={`max-w-[75%] space-y-2 ${msg.role === "user" ? "items-end flex flex-col" : ""}`}>
               <div className={`px-4 py-3 rounded-xl text-sm leading-relaxed ${msg.role === "assistant" ? "bg-secondary text-foreground" : "bg-primary text-primary-foreground"}`}>
-                {msg.content.split("\n").map((line, i) => (
-                  <p key={i} className={i > 0 ? "mt-2" : ""}>{line}</p>
-                ))}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      code({ className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
+                        const lang = match ? match[1] : "";
+                        const codeString = String(children).replace(/\n$/, "");
+                        const isBlock = !!className || codeString.includes("\n");
+
+                        if (isBlock) {
+                          if (lang === "mermaid") {
+                            return <Mermaid chart={codeString} />;
+                          }
+                          return (
+                            <div className="relative group">
+                              <pre className="bg-secondary/50 p-4 rounded-xl border border-border/50 text-xs font-mono overflow-x-auto my-2">
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              </pre>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <code className="bg-secondary/80 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      h1: ({ children }) => <h1 className="text-lg font-bold mt-4 mb-2 font-heading">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-semibold mt-3 mb-1.5 font-heading text-primary">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-medium mt-2 mb-1 font-heading">{children}</h3>,
+                      p: ({ children }) => <p className="text-sm leading-relaxed mb-2 last:mb-0">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc pl-5 mb-2.5 space-y-1 text-sm">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-5 mb-2.5 space-y-1 text-sm">{children}</ol>,
+                      li: ({ children }) => <li className="text-sm">{children}</li>,
+                      table: ({ children }) => (
+                        <div className="overflow-x-auto my-3 border border-border rounded-lg bg-card/50">
+                          <table className="w-full text-xs text-left border-collapse">{children}</table>
+                        </div>
+                      ),
+                      thead: ({ children }) => <thead className="bg-secondary text-muted-foreground uppercase text-[10px] font-semibold border-b border-border">{children}</thead>,
+                      tbody: ({ children }) => <tbody className="divide-y divide-border/60">{children}</tbody>,
+                      tr: ({ children }) => <tr className="hover:bg-secondary/20 transition-colors">{children}</tr>,
+                      th: ({ children }) => <th className="px-3 py-2 font-medium">{children}</th>,
+                      td: ({ children }) => <td className="px-3 py-2 text-foreground/90">{children}</td>,
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-2 border-primary pl-3 italic my-2 text-muted-foreground bg-primary/5 py-1 rounded-r-md">
+                          {children}
+                        </blockquote>
+                      ),
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content.split("\n").map((line, i) => (
+                    <p key={i} className={i > 0 ? "mt-2" : ""}>{line}</p>
+                  ))
+                )}
               </div>
               {msg.sources && msg.sources.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">

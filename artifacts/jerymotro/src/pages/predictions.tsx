@@ -1,6 +1,5 @@
 import { useMemo } from "react";
-import { useListPredictions } from "@workspace/api-client-react";
-import { generateMockPredictions } from "@/lib/mock-data";
+import { useListPredictions, Prediction } from "@workspace/api-client-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Brain, Calendar, TrendingUp, Target } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
@@ -30,7 +29,8 @@ export default function PredictionsPage() {
   };
 
   const query = useListPredictions({ limit: 50 });
-  const data = query.data ?? generateMockPredictions();
+
+  const data = query.data ?? { predictions: [] as Prediction[] };
   const predictions = data.predictions || [];
 
   const tomorrow = useMemo(() => {
@@ -58,11 +58,19 @@ export default function PredictionsPage() {
     return Object.entries(map).map(([region, d]) => ({ region, ...d })).sort((a, b) => b.maxRisk - a.maxRisk);
   }, [predictions]);
 
+  if (query.isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   const sortedByRisk = [...predictions].sort((a, b) => b.risk_score_j1 - a.risk_score_j1);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold">{t("predictions.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -70,14 +78,14 @@ export default function PredictionsPage() {
             {tomorrow} — {t("predictions.model")}
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 text-accent text-xs px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 text-accent text-xs px-3 py-1.5 rounded-full self-start sm:self-auto">
           <Brain className="w-3.5 h-3.5" />
           <span>{t("predictions.accuracy")}: {(stats.avgConf * 100).toFixed(0)}%</span>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: t("predictions.kpi.critical"), value: stats.critical, color: "text-destructive", bg: "bg-destructive/10", icon: Target },
           { label: t("predictions.kpi.high"), value: stats.high, color: "text-primary", bg: "bg-primary/10", icon: TrendingUp },

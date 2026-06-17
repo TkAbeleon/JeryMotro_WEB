@@ -30,7 +30,8 @@ export default function RegisterPage() {
     defaultValues: { full_name: "", email: "", password: "", organization: "" },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FormData, event?: React.BaseSyntheticEvent) => {
+    event?.preventDefault();
     setError("");
     try {
       const result = await registerMutation.mutateAsync({ data });
@@ -101,7 +102,7 @@ export default function RegisterPage() {
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit)(e); }} className="space-y-4">
               <FormField control={form.control} name="full_name" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("profile.info.fullName")}</FormLabel>

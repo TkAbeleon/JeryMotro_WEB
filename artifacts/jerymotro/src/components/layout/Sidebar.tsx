@@ -191,7 +191,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar flex flex-col z-20 transition-[width] duration-300 overflow-hidden relative"
+      className="fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar flex flex-col z-20 transition-[width] duration-300 overflow-hidden"
       style={{ width: isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL }}
     >
       {sidebarContent}

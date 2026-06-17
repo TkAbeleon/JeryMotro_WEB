@@ -45,7 +45,8 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FormData, event?: React.BaseSyntheticEvent) => {
+    event?.preventDefault();
     setError("");
     // Demo shortcut — does not touch the backend
     if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) {
@@ -129,7 +130,7 @@ export default function LoginPage() {
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit)(e); }} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"

@@ -13,17 +13,17 @@ export default function NotFound() {
         <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
           {t("notfound.subtitle")}
         </p>
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
           >
             <Home className="w-4 h-4" />
             {t("common.back")}
           </Link>
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 border border-border px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-secondary transition-colors"
+            className="flex items-center justify-center gap-2 border border-border px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-secondary transition-colors"
           >
             <Search className="w-4 h-4" />
             {t("notfound.cta")}

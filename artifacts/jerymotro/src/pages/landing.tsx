@@ -40,14 +40,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md h-[58px] flex items-center justify-between px-8">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md h-[58px] flex items-center justify-between px-4 sm:px-8">
         <div className="flex items-center gap-3">
           <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
-          <span className="font-heading font-bold text-lg">JeryMotro</span>
+          <span className="font-heading font-bold text-base sm:text-lg">JeryMotro</span>
         </div>
         <div className="flex items-center gap-4">
           <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Se connecter</Link>
-          <Link href="/register" className="text-sm bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium">
+          <Link href="/register" className="text-sm bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium">
             Commencer
           </Link>
         </div>
@@ -58,43 +58,43 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         
-        <div className="max-w-5xl mx-auto px-8 pt-20 pb-24 text-center relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center relative">
           <div className="inline-flex items-center gap-2 border border-primary/30 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full mb-6">
             <Zap className="w-3 h-3" />
             <span>Plateforme de surveillance en temps réel</span>
           </div>
           
-          <h1 className="font-heading text-5xl md:text-6xl font-bold leading-tight mb-6">
+          <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
             Surveillance des feux<br />
             <span className="text-primary">de brousse à Madagascar</span>
           </h1>
           
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
             JeryMotro agrège les données satellites FIRMS, applique des modèles ML avancés 
             et vous alerte en temps réel pour protéger les forêts malgaches.
           </p>
           
-          <div className="flex items-center justify-center gap-4">
-            <Link href="/register" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
               Démarrer gratuitement
               <ChevronRight className="w-4 h-4" />
             </Link>
-            <Link href="/login" className="inline-flex items-center gap-2 border border-border px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors">
+            <Link href="/login" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors">
               Se connecter
             </Link>
           </div>
         </div>
 
         {/* Dashboard preview mockup */}
-        <div className="max-w-5xl mx-auto px-8 pb-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-20">
           <div className="rounded-xl border border-border overflow-hidden shadow-2xl bg-card">
             <div className="border-b border-border px-4 py-3 flex items-center gap-2 bg-secondary/30">
               <div className="w-3 h-3 rounded-full bg-destructive" />
               <div className="w-3 h-3 rounded-full bg-[#f59e0b]" />
               <div className="w-3 h-3 rounded-full bg-accent" />
-              <span className="text-xs text-muted-foreground ml-2 font-mono">dashboard.jerymotro.mg</span>
+              <span className="text-xs text-muted-foreground ml-2 font-mono truncate">dashboard.jerymotro.mg</span>
             </div>
-            <div className="p-6 grid grid-cols-4 gap-4">
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: "Détections aujourd'hui", value: "127", color: "text-primary", sub: "+12% vs hier" },
                 { label: "Clusters actifs", value: "23", color: "text-destructive", sub: "8 critiques" },

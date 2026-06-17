@@ -40,7 +40,6 @@ import type {
   ListClustersParams,
   ListDetectionsParams,
   ListPredictionsParams,
-  MyAlerts,
   OtpRequest,
   OtpVerify,
   PredictionList,
@@ -1457,9 +1456,9 @@ export const getGetMyAlertsUrl = () => {
 /**
  * @summary Get personal alerts and subscriptions
  */
-export const getMyAlerts = async ( options?: RequestInit): Promise<MyAlerts> => {
+export const getMyAlerts = async ( options?: RequestInit): Promise<AlertList> => {
 
-  return customFetch<MyAlerts>(getGetMyAlertsUrl(),
+  return customFetch<AlertList>(getGetMyAlertsUrl(),
   {
     ...options,
     method: 'GET'
@@ -1511,6 +1510,83 @@ export function useGetMyAlerts<TData = Awaited<ReturnType<typeof getMyAlerts>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetMyAlertsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetMySubscriptionsUrl = () => {
+
+
+
+
+  return `/alerts/subscriptions`
+}
+
+/**
+ * @summary Get active alert subscriptions
+ */
+export const getMySubscriptions = async ( options?: RequestInit): Promise<Subscription[]> => {
+
+  return customFetch<Subscription[]>(getGetMySubscriptionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMySubscriptionsQueryKey = () => {
+    return [
+    `/alerts/subscriptions`
+    ] as const;
+    }
+
+
+export const getGetMySubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getMySubscriptions>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMySubscriptions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMySubscriptionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMySubscriptions>>> = ({ signal }) => getMySubscriptions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMySubscriptions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMySubscriptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getMySubscriptions>>>
+export type GetMySubscriptionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get active alert subscriptions
+ */
+
+export function useGetMySubscriptions<TData = Awaited<ReturnType<typeof getMySubscriptions>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMySubscriptions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMySubscriptionsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

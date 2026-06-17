@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useUpdateProfile, useUpdateContacts, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
-import { mockUserProfile } from "@/lib/mock-data";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { User, Building2, Phone, Mail, Shield, AlertTriangle, CheckCircle } from "lucide-react";
@@ -19,8 +18,12 @@ const profileSchema = z.object({
 });
 
 const contactSchema = z.object({
-  phone_number: z.string().optional(),
-  whatsapp_number: z.string().optional(),
+  phone_number: z.string().optional().refine(val => !val || /^\+[1-9][0-9\s]{6,16}$/.test(val), {
+    message: "Format international requis (ex: +261 34 00 000 00)",
+  }),
+  whatsapp_number: z.string().optional().refine(val => !val || /^\+[1-9][0-9\s]{6,16}$/.test(val), {
+    message: "Format international requis (ex: +261 34 00 000 00)",
+  }),
 });
 
 export default function ProfilePage() {
@@ -31,7 +34,14 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState<"profile" | "contacts" | null>(null);
 
   const meQ = useGetMe();
-  const profile = meQ.data ?? (user || mockUserProfile);
+  const profile = meQ.data ?? user ?? {
+    id: 0,
+    email: "",
+    full_name: "",
+    organization: "",
+    role: "standard",
+    is_active: false,
+  };
 
   const updateProfileMutation = useUpdateProfile({
     mutation: {
@@ -64,25 +74,25 @@ export default function ProfilePage() {
   const isPremium = profile?.role === "admin" || profile?.role === "premium";
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="p-4 sm:p-6 space-y-6 max-w-2xl">
       <div>
         <h1 className="font-heading text-2xl font-bold">{t("profile.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("profile.subtitle")}</p>
       </div>
 
       {/* Profile header */}
-      <div className="bg-card border border-card-border rounded-xl p-6 flex items-center gap-5">
+      <div className="bg-card border border-card-border rounded-xl p-6 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-heading font-bold text-primary flex-shrink-0">
           {profile?.full_name?.charAt(0) || "U"}
         </div>
-        <div className="flex-1">
-          <h2 className="font-heading text-lg font-bold">{profile?.full_name || "Utilisateur"}</h2>
-          <div className="text-sm text-muted-foreground">{profile?.email}</div>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${isPremium ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-heading text-lg font-bold truncate">{profile?.full_name || "Utilisateur"}</h2>
+          <div className="text-sm text-muted-foreground truncate">{profile?.email}</div>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize flex-shrink-0 ${isPremium ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>
               {profile?.role || "user"}
             </span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${profile?.is_active ? "bg-accent/15 text-accent" : "bg-destructive/15 text-destructive"}`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${profile?.is_active ? "bg-accent/15 text-accent" : "bg-destructive/15 text-destructive"}`}>
               {profile?.is_active ? t("profile.badge.active") : t("profile.badge.inactive")}
             </span>
           </div>
@@ -152,7 +162,11 @@ export default function ProfilePage() {
         <p className="text-xs text-muted-foreground mb-5">{t("profile.contacts.subtitle")}</p>
         <Form {...contactForm}>
           <form onSubmit={contactForm.handleSubmit(async (data) => {
-            try { await updateContactsMutation.mutateAsync({ data }); }
+            const payload = {
+              phone_number: data.phone_number?.trim().replace(/\s/g, "") || null,
+              whatsapp_number: data.whatsapp_number?.trim().replace(/\s/g, "") || null,
+            };
+            try { await updateContactsMutation.mutateAsync({ data: payload }); }
             catch { setSaved("contacts"); setTimeout(() => setSaved(null), 3000); }
           })} className="space-y-4">
             <FormField control={contactForm.control} name="phone_number" render={({ field }) => (

@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
-import { useListClusters } from "@workspace/api-client-react";
-import { generateMockClusters } from "@/lib/mock-data";
+import { useListClusters, Cluster } from "@workspace/api-client-react";
 import { Flame, Clock, MapPin, BarChart3, RefreshCw, Search } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 
@@ -23,23 +22,37 @@ export default function ClustersPage() {
   };
 
   const query = useListClusters({ limit: 50 });
-  const data = query.data ?? generateMockClusters();
+
+  const data = query.data ?? { clusters: [] as Cluster[] };
   const clusters = data.clusters || [];
 
   const filtered = useMemo(() => {
     return clusters.filter(c => {
-      if (statusFilter !== "all" && c.cluster_status !== statusFilter) return false;
+      const status = (c.cluster_status || "").toLowerCase();
+      const normalized = status === "active" ? "active" : status === "cooling" ? "cooling" : "closed";
+      if (statusFilter !== "all" && normalized !== statusFilter) return false;
       if (search) return (c.region || "").toLowerCase().includes(search.toLowerCase());
       return true;
     });
   }, [clusters, statusFilter, search]);
 
   const stats = useMemo(() => ({
-    active: clusters.filter(c => c.cluster_status === "active").length,
-    cooling: clusters.filter(c => c.cluster_status === "cooling").length,
-    closed: clusters.filter(c => c.cluster_status === "closed").length,
+    active: clusters.filter(c => (c.cluster_status || "").toLowerCase() === "active").length,
+    cooling: clusters.filter(c => (c.cluster_status || "").toLowerCase() === "cooling").length,
+    closed: clusters.filter(c => {
+      const s = (c.cluster_status || "").toLowerCase();
+      return s !== "active" && s !== "cooling";
+    }).length,
     totalFRP: clusters.reduce((s, c) => s + (c.cluster_frp_total ?? 0), 0),
   }), [clusters]);
+
+  if (query.isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const filterButtons = [
     { key: "all", label: t("clusters.filter.all") },
@@ -49,14 +62,14 @@ export default function ClustersPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div>
         <h1 className="font-heading text-2xl font-bold">{t("clusters.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t("clusters.subtitle")}</p>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: t("clusters.kpi.active"), value: stats.active, color: "text-destructive", bg: "bg-destructive/10", icon: Flame },
           { label: t("clusters.kpi.cooling"), value: stats.cooling, color: "text-[#f59e0b]", bg: "bg-[#f59e0b]/10", icon: Clock },
@@ -87,7 +100,7 @@ export default function ClustersPage() {
             className="h-9 w-56 pl-9 pr-3 rounded-md bg-card border border-border text-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {filterButtons.map(f => (
             <button
               key={f.key}
@@ -103,13 +116,15 @@ export default function ClustersPage() {
       {/* Clusters grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map(c => {
-          const status = statusConfig[c.cluster_status as keyof typeof statusConfig] || { label: c.cluster_status, color: "bg-muted text-muted-foreground" };
+          const statusLower = (c.cluster_status || "").toLowerCase();
+          const normalizedStatus = statusLower === "active" ? "active" : statusLower === "cooling" ? "cooling" : "closed";
+          const status = statusConfig[normalizedStatus] || { label: c.cluster_status, color: "bg-muted text-muted-foreground" };
           const riskColor = riskConfig[c.risk_level ?? ""] || { color: "text-muted-foreground" };
           return (
             <div
               key={c.id}
               data-testid={`card-cluster-${c.id}`}
-              className={`bg-card border border-card-border rounded-xl p-5 hover:border-border/80 transition-colors ${c.cluster_status === "active" ? "border-l-2 border-l-destructive" : ""}`}
+              className={`bg-card border border-card-border rounded-xl p-5 hover:border-border/80 transition-colors ${statusLower === "active" ? "border-l-2 border-l-destructive" : ""}`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div>

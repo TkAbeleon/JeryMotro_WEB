@@ -1,45 +1,131 @@
-# [Project name]
+# JeryMotro Platform — Surveillance des Feux de Brousse à Madagascar
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Plateforme de surveillance environnementale utilisant l'IA et les données satellitaires NASA FIRMS pour détecter, prédire et alerter sur les feux de brousse à Madagascar.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+### Backend FastAPI
+```bash
+cd Backend
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend React
+```bash
+# Development server
+pnpm --filter @workspace/api-client-react run dev
+
+# Build for production
+pnpm run build
+
+# Typecheck
+pnpm run typecheck
+
+# Regenerate API client from OpenAPI
+pnpm --filter @workspace/api-spec run codegen
+```
+
+### API Production
+- **URL:** `http://35.192.27.164/jerymotro-api`
+- **Swagger UI:** `http://35.192.27.164/jerymotro-api/docs`
+- **Health Check:** `GET /healthz`
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+### Backend
+- **Framework:** FastAPI (Python)
+- **Database:** PostgreSQL + SQLAlchemy async
+- **Auth:** JWT + OTP (One-Time Password)
+- **ML/DL:** Services externes (XGBoost, ConvLSTM) via HTTP
+- **RAG:** Vertex AI (Gemini 1.5 Flash) + ChromaDB
+- **Alertes:** SMTP (Email) + Twilio (SMS/WhatsApp)
+
+### Frontend
+- **Framework:** React + Vite + TypeScript 5.9
+- **Package Manager:** pnpm workspaces
+- **API Client:** Orval (auto-generated from OpenAPI)
+- **Validation:** Zod schemas
+- **Maps:** Leaflet
+- **Build:** esbuild
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+```
+├── Conception/                    # Documentation complète
+│   ├── FastAPI_Conception_Principale.md
+│   ├── FastAPI_Contrats_API.md
+│   ├── FastAPI_Modeles_BDD.md
+│   ├── FastAPI_Schemas_Pydantic.md
+│   ├── FastAPI_Services_Metier.md
+│   ├── JeryMotro_Design_System.md
+│   └── PLAN_IMPL_STATUS.md
+├── lib/
+│   ├── api-spec/                  # OpenAPI specification
+│   │   └── openapi.yaml
+│   ├── api-zod/                   # Zod schemas generated
+│   └── api-client-react/          # React API client
+└── Backend/                       # FastAPI application
+    ├── api/
+    │   ├── routers/               # API endpoints
+    │   ├── models/                # SQLAlchemy models
+    │   ├── schemas/               # Pydantic schemas
+    │   └── services/              # Business logic
+    └── scripts/                   # Data import scripts
+```
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **ML Services External:** Les modèles ML (XGBoost, ConvLSTM) sont déployés comme microservices indépendants, appelés via HTTP. Cela permet de changer de modèle sans modifier le backend.
+- **Layered Architecture:** Séparation claire entre Routers → Schemas → Services → Models → Database pour la testabilité et la maintenabilité.
+- **RAG with Vertex AI:** Utilisation de Gemini 1.5 Flash avec ChromaDB pour le chat IA, permettant des réponses basées sur les données du projet.
+- **3 Rôles Utilisateurs:** Visiteur (lecture seule), Standard (alertes email), Premium (WhatsApp/SMS + zones prioritaires).
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+### Fonctionnalités Principales
+
+**Pour tous les utilisateurs (Visiteur, Standard, Premium):**
+- 🗺️ Carte interactive des détections de feux en temps réel
+- 📊 Clusters de feux avec statuts (ACTIVE, COOLING, LIKELY_OUT)
+- 🔮 Prédictions de risque J+1 (ConvLSTM)
+- 💬 Chat IA JeryMotro (RAG) pour interroger les données
+
+**Utilisateurs Standard:**
+- 📧 Alertes email personnalisables
+- 📈 Historique personnel des alertes
+- 👤 Gestion du profil
+
+**Utilisateurs Premium (ONG, Parcs Nationaux):**
+- 📱 Alertes WhatsApp et SMS
+- 🎯 Zones prioritaires de surveillance personnalisées
+- 🤖 Agent IA personnalisé par zone
+- 📤 Export de données
+
+### Comptes de Test
+
+| Rôle | Email | Mot de passe |
+|------|-------|-------------|
+| Admin | randriamanantenatsikynyantsa@gmail.com | password123 |
+| Premium | tkabeleon@gmail.com | password123 |
+| Premium | rtsikynyantsa@gmail.com | password123 |
+| Standard | tsikynyantsa1@outlook.fr | password123 |
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Le mode sombre est le mode par défaut (conçu pour la surveillance nocturne)
+- Les scores ML sont toujours affichés avec leur barre de progression visuelle
+- L'orange (`--fire`) indique un danger réel, pas une décoration
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- **Ne jamais committer** le fichier `.env` - utiliser `.env.example` à la place
+- Le service ML externe peut être en mode dégradé (risk_score = -1) si indisponible
+- Les tests pytest doivent atteindre ≥ 60% de couverture (exigence mémoire L3)
+- Le clustering HDBSCAN doit être exécuté par lots (limit=50000) sur les données historiques
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- **Documentation API:** `http://35.192.27.164/jerymotro-api/docs`
+- **Design System:** `Conception/JeryMotro_Design_System.md`
+- **Guide Intégration Frontend:** `Conception/frontend_integration_guide.md`
+- **État Implémentation:** `Conception/PLAN_IMPL_STATUS.md`

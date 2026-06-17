@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useListDetections } from "@workspace/api-client-react";
-import { generateMockDetections } from "@/lib/mock-data";
 import { Search, Filter, Map, List, X } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 
@@ -32,13 +31,14 @@ export default function DetectionsPage() {
   };
 
   const query = useListDetections({ limit: 100 });
-  const data = query.data ?? generateMockDetections();
+
+  const data = query.data ?? { detections: [] };
   const detections = data.detections || [];
 
   const filtered = useMemo(() => {
     return detections.filter(d => {
-      if (region !== "Toutes" && d.region !== region) return false;
-      if (source !== "Toutes" && d.source !== source) return false;
+      if (region !== "Toutes" && d.region?.toLowerCase() !== region.toLowerCase()) return false;
+      if (source !== "Toutes" && !d.source?.toLowerCase().includes(source.toLowerCase())) return false;
       if (search) {
         const q = search.toLowerCase();
         return (d.region || "").toLowerCase().includes(q) || d.id.toString().includes(q);
@@ -47,12 +47,20 @@ export default function DetectionsPage() {
     });
   }, [detections, region, source, search]);
 
+  if (query.isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   const selectedDet = filtered.find(d => d.id === selected);
 
   const allLabel = t("detections.filter.allRegions");
 
   return (
-    <div className="h-full flex flex-col gap-4">
+    <div className="p-4 sm:p-6 h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold">{t("detections.title")}</h1>
@@ -118,47 +126,69 @@ export default function DetectionsPage() {
         )}
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex flex-col sm:flex-row gap-4 flex-1 min-h-0">
         {/* List */}
-        <div className={`${selected ? "flex-1" : "w-full"} bg-card border border-card-border rounded-xl overflow-hidden flex flex-col`}>
-          <div className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-0 text-xs text-muted-foreground font-medium border-b border-border px-4 py-2 bg-secondary/30">
-            <span className="w-8">{t("detections.col.id")}</span>
-            <span>{t("detections.col.region")}</span>
-            <span>{t("detections.col.coords")}</span>
-            <span className="w-20 text-right">{t("detections.col.frp")}</span>
-            <span className="w-16 text-right">{t("detections.col.source")}</span>
-            <span className="w-20 text-right">{t("detections.col.risk")}</span>
-          </div>
-          <div className="flex-1 overflow-y-auto divide-y divide-border">
-            {filtered.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-sm">{t("detections.empty")}</div>
-            ) : filtered.map(d => (
-              <button
-                key={d.id}
-                data-testid={`row-detection-${d.id}`}
-                onClick={() => setSelected(d.id === selected ? null : d.id)}
-                className={`w-full grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-0 items-center px-4 py-2.5 text-left hover:bg-secondary/50 transition-colors text-sm ${selected === d.id ? "bg-primary/5 border-l-2 border-primary" : ""}`}
-              >
-                <span className="w-8 text-xs text-muted-foreground">{d.id}</span>
-                <span className="font-medium truncate">{d.region || "—"}</span>
-                <span className="text-xs text-muted-foreground font-mono">{d.latitude.toFixed(3)}, {d.longitude.toFixed(3)}</span>
-                <span className="w-20 text-right text-xs font-mono">{d.frp?.toFixed(0) ?? "—"}</span>
-                <span className="w-16 text-right">
-                  <span className="text-xs bg-secondary px-1.5 py-0.5 rounded">{d.source}</span>
-                </span>
-                <span className="w-20 text-right">
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${getRiskColor(d.risk_score)}`}>
-                    {getRiskLabel(d.risk_score)}
+        <div className={`${selected ? "hidden sm:flex sm:flex-1" : "flex w-full"} bg-card border border-card-border rounded-xl overflow-hidden flex-col`}>
+          <div className="flex-1 overflow-x-auto min-h-0 flex flex-col">
+            <div className="hidden sm:grid sm:grid-cols-[56px_minmax(0,1fr)_minmax(0,1fr)_80px_64px_80px] gap-4 text-xs text-muted-foreground font-medium border-b border-border px-4 py-2 bg-secondary/30 sm:min-w-[650px]">
+              <span className="w-14">{t("detections.col.id")}</span>
+              <span>{t("detections.col.region")}</span>
+              <span>{t("detections.col.coords")}</span>
+              <span className="w-20 text-right">{t("detections.col.frp")}</span>
+              <span className="w-16 text-right">{t("detections.col.source")}</span>
+              <span className="w-20 text-right">{t("detections.col.risk")}</span>
+            </div>
+            <div className="flex-1 overflow-y-auto divide-y divide-border sm:min-w-[650px]">
+              {filtered.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground text-sm">{t("detections.empty")}</div>
+              ) : filtered.map(d => (
+                <button
+                  key={d.id}
+                  data-testid={`row-detection-${d.id}`}
+                  onClick={() => setSelected(d.id === selected ? null : d.id)}
+                  className={`w-full flex sm:grid sm:grid-cols-[56px_minmax(0,1fr)_minmax(0,1fr)_80px_64px_80px] gap-4 items-center px-4 py-3 text-left hover:bg-secondary/50 transition-colors text-sm sm:min-w-[650px] ${selected === d.id ? "bg-primary/5 border-l-2 border-primary" : ""}`}
+                >
+                  {/* Mobile Layout */}
+                  <div className="flex-1 min-w-0 sm:hidden">
+                    <div className="flex items-center justify-between mb-1 gap-2">
+                      <span className="font-semibold text-sm truncate">{d.region || "—"}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${getRiskColor(d.risk_score)} flex-shrink-0`}>
+                        {getRiskLabel(d.risk_score)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                      <span>#{d.id}</span>
+                      <span>•</span>
+                      <span className="font-mono">{d.latitude.toFixed(3)}, {d.longitude.toFixed(3)}</span>
+                      <span>•</span>
+                      <span>{d.source}</span>
+                      <span>•</span>
+                      <span>{d.frp?.toFixed(0) ?? "—"} MW</span>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <span className="hidden sm:inline-block w-14 text-xs text-muted-foreground">{d.id}</span>
+                  <span className="hidden sm:inline-block font-medium truncate">{d.region || "—"}</span>
+                  <span className="hidden sm:inline-block text-xs text-muted-foreground font-mono">{d.latitude.toFixed(3)}, {d.longitude.toFixed(3)}</span>
+                  <span className="hidden sm:inline-block w-20 text-right text-xs font-mono">{d.frp?.toFixed(0) ?? "—"}</span>
+                  <span className="hidden sm:inline-block w-16 text-right">
+                    <span className="text-xs bg-secondary px-1.5 py-0.5 rounded">{d.source}</span>
                   </span>
-                </span>
-              </button>
-            ))}
+                  <span className="hidden sm:inline-block w-20 text-right">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${getRiskColor(d.risk_score)}`}>
+                      {getRiskLabel(d.risk_score)}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Detail panel */}
         {selectedDet && (
-          <div className="w-80 bg-card border border-card-border rounded-xl p-5 flex flex-col gap-4 overflow-y-auto">
+          <div className="w-full sm:w-80 bg-card border border-card-border rounded-xl p-5 flex flex-col gap-4 overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-heading font-semibold">{t("detections.detail.title")} #{selectedDet.id}</h3>
               <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground">
