@@ -50,13 +50,20 @@ export default function RegisterPage() {
     event?.preventDefault();
     setError("");
     try {
+      console.log("Calling registerUser with:", data);
       await registerMutation.mutateAsync({ data });
+      console.log("registerUser successful");
       setRegisteredEmail(data.email);
-      await requestOtpMutation.mutateAsync({
+
+      console.log("Calling requestOtp with:", { email: data.email, via: "email" });
+      const otpResult = await requestOtpMutation.mutateAsync({
         data: { email: data.email, via: "email" }
       });
+      console.log("requestOtp successful, result:", otpResult);
+
       setStep("verify");
     } catch (err) {
+      console.error("Error in onRegisterSubmit:", err);
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     }
   };
@@ -66,12 +73,15 @@ export default function RegisterPage() {
     setError("");
     try {
       if (!registeredEmail) return;
+      console.log("Calling verifyOtp with:", { email: registeredEmail, code: otpCode });
       const result = await verifyOtpMutation.mutateAsync({
         data: { email: registeredEmail, code: otpCode }
       });
+      console.log("verifyOtp successful, result:", result);
       login(result);
       setLocation("/dashboard");
     } catch (err) {
+      console.error("Error in onVerifyOtpSubmit:", err);
       setError(err instanceof Error ? err.message : t("auth.otp.error"));
     }
   };
@@ -80,10 +90,13 @@ export default function RegisterPage() {
     if (!registeredEmail) return;
     setError("");
     try {
-      await requestOtpMutation.mutateAsync({
+      console.log("Calling resendOtp with:", { email: registeredEmail, via: "email" });
+      const otpResult = await requestOtpMutation.mutateAsync({
         data: { email: registeredEmail, via: "email" }
       });
+      console.log("resendOtp successful, result:", otpResult);
     } catch (err) {
+      console.error("Error in resendOtp:", err);
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     }
   };
