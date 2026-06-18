@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const channelIcon: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -40,6 +41,7 @@ type Step = "form" | "otp";
 export default function AlertsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
+  const { user } = useAuth();
   const qc = useQueryClient();
   const [levelFilter, setLevelFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
@@ -227,10 +229,14 @@ export default function AlertsPage() {
 
     // Request OTP
     try {
+      if (!user?.email) {
+        setApiError("Impossible de récupérer votre email. Veuillez vous reconnecter.");
+        return;
+      }
       await requestOtpMutation.mutateAsync({
         data: {
-          email: destination, // Wait, or via sms if it's a phone number? Let's check the API.
-          via: subForm.channel === "email" ? "email" : "sms"
+          email: user.email,
+          via: "email" // Always send OTP via email, as per the guide
         }
       });
     } catch (err) {
@@ -240,12 +246,11 @@ export default function AlertsPage() {
 
   const handleVerifyOtp = async () => {
     setApiError(null);
-    if (!pendingSubscription) return;
+    if (!pendingSubscription || !user?.email) return;
     try {
-      // For verifyOtp, the API expects email (from the swagger)
       await verifyOtpMutation.mutateAsync({
         data: {
-          email: pendingSubscription.destination,
+          email: user.email,
           code: otp
         }
       });
@@ -255,13 +260,13 @@ export default function AlertsPage() {
   };
 
   const handleResendOtp = async () => {
-    if (!pendingSubscription) return;
+    if (!user?.email) return;
     setApiError(null);
     try {
       await requestOtpMutation.mutateAsync({
         data: {
-          email: pendingSubscription.destination,
-          via: subForm.channel === "email" ? "email" : "sms"
+          email: user.email,
+          via: "email"
         }
       });
     } catch (err) {
