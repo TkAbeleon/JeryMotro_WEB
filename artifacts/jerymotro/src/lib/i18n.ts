@@ -366,6 +366,9 @@ export const translations = {
     "auth.otp.verifying": "Vérification...",
     "auth.otp.error": "Code invalide ou expiré.",
     "auth.otp.success": "Vérification réussie !",
+    "auth.otp.sendCode": "Envoyer le code",
+    "auth.otp.via": "Envoyer par",
+    "auth.otp.resendIn": "Renvoyer dans",
     "auth.otp.sending": "Envoi...",
     "auth.otp.resent": "Code OTP renvoyé !",
 
@@ -749,6 +752,9 @@ export const translations = {
     "auth.otp.verifying": "Famarinan...",
     "auth.otp.error": "Kaody diso na lany fotoana.",
     "auth.otp.success": "Voaverina soa aman-tsara !",
+    "auth.otp.sendCode": "Alefa ny kaody",
+    "auth.otp.via": "Alefa amin'ny",
+    "auth.otp.resendIn": "Avereno ao anatin'ny",
     "auth.otp.sending": "Mandefa...",
     "auth.otp.resent": "Kaody OTP nampidirina indray !",
 
@@ -1126,6 +1132,9 @@ export const translations = {
     "auth.otp.verifying": "Verifying...",
     "auth.otp.error": "Invalid or expired code.",
     "auth.otp.success": "Verification successful!",
+    "auth.otp.sendCode": "Send the code",
+    "auth.otp.via": "Send via",
+    "auth.otp.resendIn": "Resend in",
     "auth.otp.sending": "Sending...",
     "auth.otp.resent": "OTP code resent!",
 
