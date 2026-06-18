@@ -1,7 +1,8 @@
-import { Search, Bell, Globe, Menu } from "lucide-react";
+import { Search, Bell, Globe, Menu, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n, LANG_LABELS, type Lang } from "@/hooks/use-i18n";
 import { useSidebar } from "@/hooks/use-sidebar";
+import { useTheme } from "@/hooks/use-theme";
 
 const LANGS: Lang[] = ["fr", "mg", "en"];
 
@@ -12,6 +13,7 @@ export function Topbar() {
   const { user } = useAuth();
   const { t, lang, setLang } = useI18n();
   const { toggle, isCollapsed, isMobile } = useSidebar();
+  const { theme, toggleTheme } = useTheme();
 
   const leftOffset = isMobile ? 0 : isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL;
 
@@ -52,16 +54,24 @@ export function Topbar() {
               key={l}
               onClick={() => setLang(l)}
               title={LANG_LABELS[l]}
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors uppercase ${
-                lang === l
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors uppercase ${lang === l
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               {l}
             </button>
           ))}
         </div>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary text-muted-foreground transition-colors"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
 
         <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary text-muted-foreground transition-colors relative">
           <Bell className="w-4 h-4" />
