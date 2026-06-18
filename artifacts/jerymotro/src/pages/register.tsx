@@ -43,11 +43,8 @@ export default function RegisterPage() {
     defaultValues: { full_name: "", email: "", password: "", organization: "" },
   });
 
-  // OTP verification form
-  const otpForm = useForm<OtpFormData>({
-    resolver: zodResolver(otpSchema),
-    defaultValues: { code: "" },
-  });
+  // OTP verification state
+  const [otpCode, setOtpCode] = useState("");
 
   const onRegisterSubmit = async (data: RegisterFormData, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -64,13 +61,13 @@ export default function RegisterPage() {
     }
   };
 
-  const onVerifyOtpSubmit = async (data: OtpFormData, event?: React.BaseSyntheticEvent) => {
+  const onVerifyOtpSubmit = async (event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
     setError("");
     try {
       if (!registeredEmail) return;
       const result = await verifyOtpMutation.mutateAsync({
-        data: { email: registeredEmail, code: data.code }
+        data: { email: registeredEmail, code: otpCode }
       });
       login(result);
       setLocation("/dashboard");
@@ -194,44 +191,37 @@ export default function RegisterPage() {
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">{error}</div>
               )}
 
-              <Form {...otpForm}>
-                <form onSubmit={(e) => { e.preventDefault(); otpForm.handleSubmit(onVerifyOtpSubmit)(e); }} className="space-y-4">
-                  <FormField control={otpForm.control} name="code" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("auth.otp.codeLabel")}</FormLabel>
-                      <FormControl>
-                        <InputOTP
-                          maxLength={6}
-                          value={field.value}
-                          onChange={field.onChange}
-                        >
-                          <InputOTPGroup>
-                            {[0, 1, 2, 3, 4, 5].map((i) => (
-                              <InputOTPSlot key={i} index={i} />
-                            ))}
-                          </InputOTPGroup>
-                        </InputOTP>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <button
-                    type="submit"
-                    disabled={verifyOtpMutation.isPending}
-                    className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+              <form onSubmit={onVerifyOtpSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium block mb-2">{t("auth.otp.codeLabel")}</label>
+                  <InputOTP
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={setOtpCode}
                   >
-                    {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resendOtp}
-                    disabled={requestOtpMutation.isPending}
-                    className="w-full h-10 bg-transparent border border-border text-foreground rounded-md font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
-                  >
-                    {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
-                  </button>
-                </form>
-              </Form>
+                    <InputOTPGroup>
+                      {[0, 1, 2, 3, 4, 5].map((i) => (
+                        <InputOTPSlot key={i} index={i} />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                <button
+                  type="submit"
+                  disabled={verifyOtpMutation.isPending || otpCode.length < 6}
+                  className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+                >
+                  {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
+                </button>
+                <button
+                  type="button"
+                  onClick={resendOtp}
+                  disabled={requestOtpMutation.isPending}
+                  className="w-full h-10 bg-transparent border border-border text-foreground rounded-md font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                >
+                  {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
+                </button>
+              </form>
             </>
           )}
         </div>
