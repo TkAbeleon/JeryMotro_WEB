@@ -59,8 +59,22 @@ export default function RegisterPage() {
       setStep("verify");
       setTimer(60); // Start 60-second countdown
     } catch (err) {
-      console.error("Error in handleRequestOtp:", err);
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la demande de code";
+      console.error("Error in handleRequestOtp (full):", err);
+      // Try to extract the error detail from the API response
+      let errorMessage = "Erreur lors de la demande de code";
+      if (err && typeof err === "object") {
+        if ("response" in err) {
+          const response = (err as any).response;
+          if (response && typeof response === "object" && "detail" in response) {
+            errorMessage = response.detail;
+          }
+        } else if ("detail" in err) {
+          errorMessage = (err as any).detail;
+        } else if ("message" in err) {
+          errorMessage = (err as any).message;
+        }
+      }
+      console.log("Extracted error message:", errorMessage);
       setError(errorMessage);
     }
   };
