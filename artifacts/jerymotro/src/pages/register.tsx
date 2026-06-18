@@ -200,7 +200,11 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("auth.otp.codeLabel")}</FormLabel>
                       <FormControl>
-                        <InputOTP maxLength={6} {...field}>
+                        <InputOTP
+                          maxLength={6}
+                          value={field.value}
+                          onChange={field.onChange}
+                        >
                           <InputOTPGroup>
                             {[0, 1, 2, 3, 4, 5].map((i) => (
                               <InputOTPSlot key={i} index={i} />
