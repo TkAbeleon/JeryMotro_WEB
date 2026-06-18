@@ -32,8 +32,13 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error: unknown) => {
-        // Never retry 401 (invalid/expired token)
-        if ((error as { status?: number })?.status === 401) return false;
+        // Never retry 401 (invalid/expired token) and redirect
+        if ((error as { status?: number })?.status === 401) {
+          localStorage.removeItem("jerymotro_token");
+          localStorage.removeItem("jerymotro_user");
+          window.location.href = "/";
+          return false;
+        }
         return failureCount < 1;
       },
       staleTime: 30000,
@@ -43,7 +48,7 @@ const queryClient = new QueryClient({
         if ((error as { status?: number })?.status === 401) {
           localStorage.removeItem("jerymotro_token");
           localStorage.removeItem("jerymotro_user");
-          window.location.href = "/login";
+          window.location.href = "/";
         }
       },
     },
@@ -52,7 +57,7 @@ const queryClient = new QueryClient({
 
 function AuthedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Redirect to="/login" />;
+  if (!isAuthenticated) return <Redirect to="/" />;
   return (
     <AppShell>
       <Component />

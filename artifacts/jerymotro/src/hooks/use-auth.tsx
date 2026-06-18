@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("jerymotro_token");
     localStorage.removeItem("jerymotro_user");
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   if (isLoading) {
