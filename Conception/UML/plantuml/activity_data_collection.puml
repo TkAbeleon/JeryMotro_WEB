@@ -1,0 +1,22 @@
+@startuml activity_data_collection
+!theme plain
+skinparam activity {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
+}
+
+start
+:Cron Trigger;
+:Fetch FIRMS Data;
+:Save CollectionRun (Init);
+:Parse CSV;
+:Insert Detections (ignore duplicates);
+partition "Clustering HDBSCAN" {
+  :Clusterize Detections;
+  :Create/Update FireEvents;
+}
+:Update CollectionRun (Success/Fail);
+stop
+
+@enduml

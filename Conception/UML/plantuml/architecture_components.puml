@@ -1,0 +1,55 @@
+@startuml architecture_components
+!theme plain
+skinparam componentStyle rectangle
+
+actor "Utilisateur" as User
+component "Frontend - React/Vue" as Frontend
+
+package "JeryMotro Backend (FastAPI)" {
+    [API Router] as API
+    [Auth Service] as AuthSvc
+    [Detection Service] as DetectSvc
+    [Alert Service] as AlertSvc
+    [Chat / RAG Service] as ChatSvc
+}
+
+database "PostgreSQL" as DB
+database "ChromaDB (Vecteurs)" as VectorDB
+
+cloud "External Services & ML" {
+    [n8n Workflow Engine] as n8n
+    [NASA FIRMS API] as FIRMS
+    [WAHA - WhatsApp API] as WAHA
+    [Google Gemini / LLM] as LLM
+    [SMTP Email Server] as SMTP
+    [HDBSCAN / ML Models] as ML
+}
+
+User <--> Frontend : HTTP/REST
+Frontend <--> API : HTTP/REST
+
+API --> AuthSvc
+API --> DetectSvc
+API --> AlertSvc
+API --> ChatSvc
+
+AuthSvc --> DB
+DetectSvc --> DB
+AlertSvc --> DB
+
+DetectSvc --> FIRMS : Fetch
+DetectSvc --> ML : Clustering
+
+ChatSvc --> VectorDB
+ChatSvc --> DB
+ChatSvc <--> n8n : Webhook POST
+
+n8n <--> LLM : API
+
+AlertSvc --> SMTP : Dispatch
+AlertSvc --> n8n : Webhook POST
+n8n --> WAHA : Messages WhatsApp/SMS
+WAHA --> User
+SMTP --> User
+
+@enduml

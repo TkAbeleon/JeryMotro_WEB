@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useListZones, useCreateZone, useDeleteZone, getListZonesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, MapPin, Trash2, Lock, Shield, Target, Compass, Loader2 } from "lucide-react";
+import { Plus, MapPin, Trash2, Lock, Shield, Target, Compass, Loader2, Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
@@ -20,13 +20,14 @@ function MapEvents({ onClick }: { onClick: (lat: number, lng: number) => void })
   return null;
 }
 
-function MapRecenter({ lat, lng }: { lat: number; lng: number }) {
+function MapRecenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number }) {
   const map = useMap();
   useEffect(() => {
     if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-      map.setView([lat, lng], map.getZoom() < 8 ? 10 : map.getZoom());
+      const targetZoom = zoom || (map.getZoom() < 8 ? 12 : map.getZoom());
+      map.flyTo([lat, lng], targetZoom, { duration: 1.5, easeLinearity: 0.25 });
     }
-  }, [lat, lng, map]);
+  }, [lat, lng, zoom, map]);
   return null;
 }
 
@@ -35,6 +36,146 @@ export default function ZonesPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [locating, setLocating] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", latitude: "", longitude: "", radius_km: "", min_risk: "", min_frp: "", custom_ai_prompt: "" });
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  // --- Overview Map Search States ---
+  const [overviewSearchQuery, setOverviewSearchQuery] = useState("");
+  const [overviewSearchResults, setOverviewSearchResults] = useState<{ formatted_address: string; lat: number; lng: number }[]>([]);
+  const [overviewSearching, setOverviewSearching] = useState(false);
+  const [showOverviewDropdown, setShowOverviewDropdown] = useState(false);
+  const [overviewMapTarget, setOverviewMapTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+
+  // --- Modal Map Search States ---
+  const [modalSearchQuery, setModalSearchQuery] = useState("");
+  const [modalSearchResults, setModalSearchResults] = useState<{ formatted_address: string; lat: number; lng: number }[]>([]);
+  const [modalSearching, setModalSearching] = useState(false);
+  const [showModalDropdown, setShowModalDropdown] = useState(false);
+
+  const handleOverviewSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!overviewSearchQuery.trim()) return;
+
+    setOverviewSearching(true);
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(overviewSearchQuery)}&components=country:MG&key=${googleMapsApiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const results = data.results.map((r: any) => ({
+          formatted_address: r.formatted_address,
+          lat: r.geometry.location.lat,
+          lng: r.geometry.location.lng,
+        }));
+        setOverviewSearchResults(results);
+        setShowOverviewDropdown(true);
+
+        if (results.length === 1) {
+          setOverviewMapTarget({ lat: results[0].lat, lng: results[0].lng, zoom: 12 });
+          setShowOverviewDropdown(false);
+        }
+      } else if (data.status === "ZERO_RESULTS") {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.noResults" as any),
+          variant: "destructive",
+        });
+        setOverviewSearchResults([]);
+      } else {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.error" as any),
+          variant: "destructive",
+        });
+        setOverviewSearchResults([]);
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: t("common.error" as any),
+        description: t("map.search.error" as any),
+        variant: "destructive",
+      });
+    } finally {
+      setOverviewSearching(false);
+    }
+  };
+
+  const handleModalSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!modalSearchQuery.trim()) return;
+
+    setModalSearching(true);
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(modalSearchQuery)}&components=country:MG&key=${googleMapsApiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const results = data.results.map((r: any) => ({
+          formatted_address: r.formatted_address,
+          lat: r.geometry.location.lat,
+          lng: r.geometry.location.lng,
+        }));
+        setModalSearchResults(results);
+        setShowModalDropdown(true);
+
+        if (results.length === 1) {
+          const res = results[0];
+          setForm(f => ({ ...f, latitude: res.lat.toFixed(5), longitude: res.lng.toFixed(5) }));
+          setModalSearchQuery(res.formatted_address);
+          setShowModalDropdown(false);
+        }
+      } else if (data.status === "ZERO_RESULTS") {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.noResults" as any),
+          variant: "destructive",
+        });
+        setModalSearchResults([]);
+      } else {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.error" as any),
+          variant: "destructive",
+        });
+        setModalSearchResults([]);
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: t("common.error" as any),
+        description: t("map.search.error" as any),
+        variant: "destructive",
+      });
+    } finally {
+      setModalSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".overview-search-container")) {
+        setShowOverviewDropdown(false);
+      }
+      if (!target.closest(".modal-search-container")) {
+        setShowModalDropdown(false);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
+
+  useEffect(() => {
+    if (!showForm) {
+      setModalSearchQuery("");
+      setModalSearchResults([]);
+      setShowModalDropdown(false);
+    }
+  }, [showForm]);
 
   const handleLocateForm = () => {
     if (!navigator.geolocation) {
@@ -77,9 +218,6 @@ export default function ZonesPage() {
   };
   const isPremium = user?.role === "admin" || user?.role === "premium";
   const qc = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", latitude: "", longitude: "", radius_km: "", min_risk: "", min_frp: "", custom_ai_prompt: "" });
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const query = useListZones();
 
@@ -260,6 +398,75 @@ export default function ZonesPage() {
               Carte des zones prioritaires (Google Maps)
             </div>
             <div className="flex-1 rounded-lg overflow-hidden border border-border relative z-0">
+              {/* Floating Search Bar on Overview Map */}
+              <div className="absolute top-3 left-3 right-3 z-[500] flex flex-col overview-search-container">
+                <form
+                  onSubmit={handleOverviewSearch}
+                  className="flex items-center gap-1.5 bg-card/90 backdrop-blur-md border border-border shadow-lg rounded-xl pl-3 pr-2 py-1.5 h-10 w-full"
+                >
+                  <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={overviewSearchQuery}
+                    onChange={(e) => {
+                      setOverviewSearchQuery(e.target.value);
+                      if (!e.target.value) {
+                        setOverviewSearchResults([]);
+                        setShowOverviewDropdown(false);
+                      }
+                    }}
+                    placeholder={t("map.search.placeholder")}
+                    className="bg-transparent border-0 outline-none text-xs w-full h-full text-foreground placeholder:text-muted-foreground/80 focus:ring-0 focus:outline-none"
+                  />
+                  {overviewSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOverviewSearchQuery("");
+                        setOverviewSearchResults([]);
+                        setShowOverviewDropdown(false);
+                      }}
+                      className="p-1 rounded-md text-muted-foreground hover:bg-secondary flex-shrink-0"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={overviewSearching || !overviewSearchQuery.trim()}
+                    className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center justify-center h-7 transition-all flex-shrink-0"
+                  >
+                    {overviewSearching ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      t("common.search" as any).replace("...", "")
+                    )}
+                  </button>
+                </form>
+
+                {/* Results Dropdown */}
+                {showOverviewDropdown && overviewSearchResults.length > 0 && (
+                  <div className="mt-1.5 bg-card/95 backdrop-blur-md border border-border shadow-xl rounded-xl max-h-40 overflow-y-auto w-full py-1 divide-y divide-border/40 z-[1000] scrollbar-thin">
+                    {overviewSearchResults.map((result, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setOverviewMapTarget({ lat: result.lat, lng: result.lng, zoom: 12 });
+                          setShowOverviewDropdown(false);
+                        }}
+                        className="w-full text-left px-3 py-2 hover:bg-secondary flex items-start gap-2.5 transition-colors group"
+                      >
+                        <MapPin className="w-4 h-4 text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0" />
+                        <span className="text-xs text-foreground/90 group-hover:text-foreground font-medium truncate">
+                          {result.formatted_address}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <MapContainer
                 center={[-18.766947, 46.869107]}
                 zoom={5}
@@ -270,6 +477,9 @@ export default function ZonesPage() {
                   attribution="&copy; Google Maps"
                   maxZoom={20}
                 />
+                {overviewMapTarget && (
+                  <MapRecenter lat={overviewMapTarget.lat} lng={overviewMapTarget.lng} zoom={overviewMapTarget.zoom} />
+                )}
                 {zones.map(z => (
                   <div key={z.id}>
                     <CircleMarker
@@ -314,6 +524,76 @@ export default function ZonesPage() {
                   Sélection géographique (Cliquez sur la carte) *
                 </label>
                 <div className="flex-1 h-full rounded-lg overflow-hidden border border-border relative z-0">
+                  {/* Floating Search Bar on Modal Map */}
+                  <div className="absolute top-2.5 left-2.5 right-[130px] z-[500] flex flex-col modal-search-container">
+                    <form
+                      onSubmit={handleModalSearch}
+                      className="flex items-center gap-1.5 bg-card/90 backdrop-blur-md border border-border shadow-lg rounded-xl pl-3 pr-2 py-1 h-8 w-full"
+                    >
+                      <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={modalSearchQuery}
+                        onChange={(e) => {
+                          setModalSearchQuery(e.target.value);
+                          if (!e.target.value) {
+                            setModalSearchResults([]);
+                            setShowModalDropdown(false);
+                          }
+                        }}
+                        placeholder={t("map.search.placeholder")}
+                        className="bg-transparent border-0 outline-none text-xs w-full h-full text-foreground placeholder:text-muted-foreground/80 focus:ring-0 focus:outline-none"
+                      />
+                      {modalSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setModalSearchQuery("");
+                            setModalSearchResults([]);
+                            setShowModalDropdown(false);
+                          }}
+                          className="p-0.5 rounded-md text-muted-foreground hover:bg-secondary flex-shrink-0"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={modalSearching || !modalSearchQuery.trim()}
+                        className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-lg flex items-center justify-center h-6 transition-all flex-shrink-0"
+                      >
+                        {modalSearching ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          t("common.search" as any).replace("...", "")
+                        )}
+                      </button>
+                    </form>
+
+                    {/* Results Dropdown */}
+                    {showModalDropdown && modalSearchResults.length > 0 && (
+                      <div className="mt-1 bg-card/95 backdrop-blur-md border border-border shadow-xl rounded-xl max-h-36 overflow-y-auto w-full py-1 divide-y divide-border/40 z-[1000] scrollbar-thin">
+                        {modalSearchResults.map((result, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setForm(f => ({ ...f, latitude: result.lat.toFixed(5), longitude: result.lng.toFixed(5) }));
+                              setModalSearchQuery(result.formatted_address);
+                              setShowModalDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-secondary flex items-start gap-2 transition-colors group"
+                          >
+                            <MapPin className="w-3.5 h-3.5 text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0" />
+                            <span className="text-xs text-foreground/90 group-hover:text-foreground font-medium truncate">
+                              {result.formatted_address}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleLocateForm}

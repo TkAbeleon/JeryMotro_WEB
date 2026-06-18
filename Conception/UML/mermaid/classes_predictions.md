@@ -1,0 +1,30 @@
+```mermaid
+classDiagram
+    class Prediction {
+        +id : BigInteger
+        +prediction_date : Date
+        +latitude : Float
+        +longitude : Float
+        +grid_cell_id : String
+        +risk_score_j1 : Float
+        +confidence : Float
+        +model_version : String
+        +input_window_days : Integer
+        +region : String
+        +created_at : DateTime
+    }
+
+    class MonitoredZone {
+        +id : Integer
+        +user_id : Integer
+        +name : String
+        +latitude : Float
+        +longitude : Float
+        +radius_km : Float
+        +min_risk : Float
+        +min_frp : Float
+        +custom_ai_prompt : Text
+        +created_at : DateTime
+        +updated_at : DateTime
+    }
+```

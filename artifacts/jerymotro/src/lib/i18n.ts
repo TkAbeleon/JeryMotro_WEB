@@ -124,6 +124,11 @@ export const translations = {
     "map.geolocation.success": "Position détectée avec succès !",
     "map.userLocation.title": "Votre position",
     "map.userLocation.desc": "Position actuelle détectée par le GPS de l'appareil.",
+    "map.search.placeholder": "Rechercher un lieu à Madagascar...",
+    "map.search.searching": "Recherche...",
+    "map.search.noResults": "Aucun lieu trouvé à Madagascar.",
+    "map.search.error": "Erreur lors de la recherche.",
+
 
     // --- Topbar ---
     "topbar.platform": "Surveillance Platform",
@@ -491,6 +496,11 @@ export const translations = {
     "map.geolocation.success": "Hita soa aman-tsara ny toerana misy anao!",
     "map.userLocation.title": "Ny toeranao",
     "map.userLocation.desc": "Toerana misy anao amin'izao fotoana izao araka ny GPS.",
+    "map.search.placeholder": "Tadiavo ny toerana eto Madagasikara...",
+    "map.search.searching": "Mitady...",
+    "map.search.noResults": "Tsy misy vokany hita eto Madagasikara.",
+    "map.search.error": "Nisy hadisoana teo am-pitadiavana.",
+
 
     // --- Topbar ---
     "topbar.platform": "Sehatra Fanaraha-maso",
@@ -852,6 +862,11 @@ export const translations = {
     "map.geolocation.success": "Location retrieved successfully!",
     "map.userLocation.title": "Your location",
     "map.userLocation.desc": "Current position detected by the device's GPS.",
+    "map.search.placeholder": "Search location in Madagascar...",
+    "map.search.searching": "Searching...",
+    "map.search.noResults": "No results found in Madagascar.",
+    "map.search.error": "Error searching for location.",
+
 
     // --- Topbar ---
     "topbar.platform": "Surveillance Platform",

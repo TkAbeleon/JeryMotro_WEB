@@ -1,7 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
-import { Filter, X, Layers, ChevronDown, Compass, Loader2 } from "lucide-react";
+import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
 import { format, subDays, subMonths, isAfter } from "date-fns";
@@ -59,13 +59,13 @@ function MapAttributionFix() {
   return null;
 }
 
-function MapRecenter({ lat, lng }: { lat: number; lng: number }) {
+function MapRecenter({ lat, lng, zoom = 12 }: { lat: number; lng: number; zoom?: number }) {
   const map = useMap();
   useEffect(() => {
     if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-      map.setView([lat, lng], 12);
+      map.flyTo([lat, lng], zoom, { duration: 1.5, easeLinearity: 0.25 });
     }
-  }, [lat, lng, map]);
+  }, [lat, lng, zoom, map]);
   return null;
 }
 
@@ -76,6 +76,73 @@ export default function MapPage() {
   const { toast } = useToast();
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
+  const [mapTarget, setMapTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ formatted_address: string; lat: number; lng: number }[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showSearchDropdown, setShowDropdown] = useState(false);
+
+  const handleSearchLocation = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setSearching(true);
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchQuery)}&components=country:MG&key=${googleMapsApiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "OK" && data.results && data.results.length > 0) {
+        const results = data.results.map((r: any) => ({
+          formatted_address: r.formatted_address,
+          lat: r.geometry.location.lat,
+          lng: r.geometry.location.lng,
+        }));
+        setSearchResults(results);
+        setShowDropdown(true);
+
+        if (results.length === 1) {
+          setMapTarget({ lat: results[0].lat, lng: results[0].lng, zoom: 12 });
+          setShowDropdown(false);
+        }
+      } else if (data.status === "ZERO_RESULTS") {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.noResults" as any),
+          variant: "destructive",
+        });
+        setSearchResults([]);
+      } else {
+        toast({
+          title: t("common.error" as any),
+          description: t("map.search.error" as any),
+          variant: "destructive",
+        });
+        setSearchResults([]);
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: t("common.error" as any),
+        description: t("map.search.error" as any),
+        variant: "destructive",
+      });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".search-location-container")) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
 
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
@@ -91,6 +158,7 @@ export default function MapPage() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
+        setMapTarget({ lat: latitude, lng: longitude, zoom: 12 });
         setLocating(false);
         toast({
           title: t("common.success" as any),
@@ -349,6 +417,79 @@ export default function MapPage() {
           </button>
         )}
 
+        {/* Floating Search Bar */}
+        <div
+          className={`absolute top-4 z-[500] flex flex-col w-[240px] sm:w-[300px] md:w-[340px] transition-all duration-300 search-location-container ${
+            filterOpen ? "left-4" : "left-36 max-sm:left-14 max-sm:w-[calc(100%-140px)]"
+          }`}
+        >
+          <form
+            onSubmit={handleSearchLocation}
+            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-md border border-border shadow-lg rounded-xl pl-3 pr-2 py-1.5 h-10 w-full"
+          >
+            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (!e.target.value) {
+                  setSearchResults([]);
+                  setShowDropdown(false);
+                }
+              }}
+              placeholder={t("map.search.placeholder")}
+              className="bg-transparent border-0 outline-none text-xs sm:text-sm w-full h-full text-foreground placeholder:text-muted-foreground/80 focus:ring-0 focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchResults([]);
+                  setShowDropdown(false);
+                }}
+                className="p-1 rounded-md text-muted-foreground hover:bg-secondary flex-shrink-0"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={searching || !searchQuery.trim()}
+              className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center justify-center h-7 transition-all flex-shrink-0"
+            >
+              {searching ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                t("common.search" as any).replace("...", "")
+              )}
+            </button>
+          </form>
+
+          {/* Results Dropdown */}
+          {showSearchDropdown && searchResults.length > 0 && (
+            <div className="mt-1.5 bg-card/95 backdrop-blur-md border border-border shadow-xl rounded-xl max-h-48 overflow-y-auto w-full py-1 divide-y divide-border/40 z-[1000] scrollbar-thin">
+              {searchResults.map((result, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setMapTarget({ lat: result.lat, lng: result.lng, zoom: 12 });
+                    setShowDropdown(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-secondary flex items-start gap-2.5 transition-colors group"
+                >
+                  <MapPin className="w-4 h-4 text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-foreground/90 group-hover:text-foreground font-medium truncate">
+                    {result.formatted_address}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Geolocation floating button */}
         <button
           onClick={handleLocateMe}
@@ -394,25 +535,26 @@ export default function MapPage() {
         >
           <MapAttributionFix />
 
+          {mapTarget && (
+            <MapRecenter lat={mapTarget.lat} lng={mapTarget.lng} zoom={mapTarget.zoom} />
+          )}
+
           {userLocation && (
-            <>
-              <MapRecenter lat={userLocation.lat} lng={userLocation.lng} />
-              <CircleMarker
-                center={[userLocation.lat, userLocation.lng]}
-                radius={8}
-                pathOptions={{
-                  color: "#3b82f6",
-                  fillColor: "#3b82f6",
-                  fillOpacity: 0.9,
-                  weight: 2,
-                }}
-              >
-                <Popup>
-                  <div className="text-sm font-semibold">{t("map.userLocation.title" as any)}</div>
-                  <div className="text-xs text-muted-foreground">{t("map.userLocation.desc" as any)}</div>
-                </Popup>
-              </CircleMarker>
-            </>
+            <CircleMarker
+              center={[userLocation.lat, userLocation.lng]}
+              radius={8}
+              pathOptions={{
+                color: "#3b82f6",
+                fillColor: "#3b82f6",
+                fillOpacity: 0.9,
+                weight: 2,
+              }}
+            >
+              <Popup>
+                <div className="text-sm font-semibold">{t("map.userLocation.title" as any)}</div>
+                <div className="text-xs text-muted-foreground">{t("map.userLocation.desc" as any)}</div>
+              </Popup>
+            </CircleMarker>
           )}
 
           {/* Google Maps and Dark Tile layer selection */}

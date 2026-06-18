@@ -1,0 +1,31 @@
+@startuml activity_alert_trigger
+!theme plain
+skinparam activity {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
+}
+
+start
+:Check Alerts Job (Cron/Trigger);
+:Find New FireEvents;
+:Find Subscriptions (Email, SMS, WhatsApp);
+partition "Vérification Seuils" {
+  if (Risk >= min_risk AND FRP >= min_frp?) then (oui)
+    :Seuil Atteint;
+  else (non)
+    :Ignore;
+    stop
+  endif
+}
+:Generate Alert Record (Status: PENDING);
+fork
+  :Send Email;
+fork again
+  :Send SMS (via n8n/WAHA);
+fork again
+  :Send WhatsApp (via n8n/WAHA);
+end fork
+:Update Alert Status (SENT / FAILED);
+stop
+@enduml

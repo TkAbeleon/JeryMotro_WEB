@@ -2,56 +2,71 @@
 
 Plateforme de surveillance environnementale utilisant l'IA et les données satellitaires NASA FIRMS pour détecter, prédire et alerter sur les feux de brousse à Madagascar.
 
-## Run & Operate
+## 🚀 Run & Operate
 
-### Backend FastAPI
+Cette plateforme est structurée en monorepo géré via **pnpm workspaces**. Toutes les commandes de développement doivent être lancées depuis la racine du workspace.
+
+### 🔌 Lancer le Backend FastAPI
+Le serveur backend se trouve dans `artifacts/api-server`. Pour le démarrer en mode développement avec rechargement automatique :
 ```bash
-cd Backend
-uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+pnpm --filter @workspace/api-server run dev
 ```
 
-### Frontend React
+### 💻 Lancer le Frontend React
+L'application web principale se trouve dans `artifacts/jerymotro`. Pour démarrer le serveur de développement Vite :
 ```bash
-# Development server
-pnpm --filter @workspace/api-client-react run dev
-
-# Build for production
-pnpm run build
-
-# Typecheck
-pnpm run typecheck
-
-# Regenerate API client from OpenAPI
-pnpm --filter @workspace/api-spec run codegen
+pnpm --filter @workspace/jerymotro run dev
 ```
 
-### API Production
-- **URL:** `http://35.192.27.164/jerymotro-api`
-- **Swagger UI:** `http://35.192.27.164/jerymotro-api/docs`
-- **Health Check:** `GET /healthz`
+### 🛠️ Autres Commandes Utiles
 
-## Stack
+- **Compiler l'application frontend :**
+  ```bash
+  pnpm --filter @workspace/jerymotro run build
+  ```
+- **Vérifier les types TypeScript :**
+  ```bash
+  pnpm run typecheck
+  ```
+- **Régénérer le client API à partir de la spécification OpenAPI :**
+  ```bash
+  pnpm --filter @workspace/api-spec run codegen
+  ```
 
-### Backend
-- **Framework:** FastAPI (Python)
-- **Database:** PostgreSQL + SQLAlchemy async
-- **Auth:** JWT + OTP (One-Time Password)
-- **ML/DL:** Services externes (XGBoost, ConvLSTM) via HTTP
-- **RAG:** Vertex AI (Gemini 1.5 Flash) + ChromaDB
-- **Alertes:** SMTP (Email) + Twilio (SMS/WhatsApp)
+---
 
-### Frontend
-- **Framework:** React + Vite + TypeScript 5.9
-- **Package Manager:** pnpm workspaces
-- **API Client:** Orval (auto-generated from OpenAPI)
-- **Validation:** Zod schemas
-- **Maps:** Leaflet
-- **Build:** esbuild
+## 🌐 API de Production
 
-## Where things live
+- **URL de l'API :** `http://35.192.27.164/jerymotro-api`
+- **Interface Swagger UI :** `http://35.192.27.164/jerymotro-api/docs`
+- **Health Check :** `GET /healthz`
+
+---
+
+## 🛠️ Stack Technique
+
+### Backend (FastAPI)
+- **Framework :** FastAPI (Python)
+- **Base de données :** PostgreSQL + SQLAlchemy (asynchrone)
+- **Authentification :** JWT + OTP (One-Time Password)
+- **Modèles ML/DL :** Services externes (XGBoost, ConvLSTM) appelés via requêtes HTTP sécurisées
+- **Moteur RAG :** Vertex AI (Gemini 1.5 Flash) + base vectorielle ChromaDB
+- **Système d'Alertes :** SMTP (Email) + Twilio (SMS et WhatsApp)
+
+### Frontend (React & Vite)
+- **Langage & Compilateur :** React + Vite + TypeScript 5.9 + esbuild
+- **Gestionnaire de Paquets :** pnpm workspaces
+- **Client API :** Orval (généré automatiquement à partir de la spécification OpenAPI)
+- **Rendu & Contenus :** ReactMarkdown + remark-gfm + rendu client-side Mermaid.js dynamique
+- **Cartographie :** Leaflet (React Leaflet)
+- **Style :** TailwindCSS v4 + Framer Motion (animations fluides & premium)
+
+---
+
+## 📁 Structure du Projet
 
 ```
-├── Conception/                    # Documentation complète
+├── Conception/                    # Spécifications de conception et d'architecture
 │   ├── FastAPI_Conception_Principale.md
 │   ├── FastAPI_Contrats_API.md
 │   ├── FastAPI_Modeles_BDD.md
@@ -59,73 +74,47 @@ pnpm --filter @workspace/api-spec run codegen
 │   ├── FastAPI_Services_Metier.md
 │   ├── JeryMotro_Design_System.md
 │   └── PLAN_IMPL_STATUS.md
-├── lib/
-│   ├── api-spec/                  # OpenAPI specification
-│   │   └── openapi.yaml
-│   ├── api-zod/                   # Zod schemas generated
-│   └── api-client-react/          # React API client
-└── Backend/                       # FastAPI application
-    ├── api/
-    │   ├── routers/               # API endpoints
-    │   ├── models/                # SQLAlchemy models
-    │   ├── schemas/               # Pydantic schemas
-    │   └── services/              # Business logic
-    └── scripts/                   # Data import scripts
+├── lib/                           # Bibliothèques et générateurs partagés
+│   ├── api-spec/                  # Spécification OpenAPI (openapi.yaml)
+│   ├── api-zod/                   # Schémas de validation Zod générés automatiquement
+│   └── api-client-react/          # Hooks React Query générés pour le client API
+├── artifacts/                     # Applications exécutables
+│   ├── api-server/                # Code source du backend FastAPI
+│   ├── jerymotro/                 # Application web frontend React (Vite)
+│   └── mockup-sandbox/            # Maquettes et bac à sable de prototypage
+└── scripts/                       # Scripts utilitaires de traitement de données
 ```
 
-## Architecture decisions
+---
 
-- **ML Services External:** Les modèles ML (XGBoost, ConvLSTM) sont déployés comme microservices indépendants, appelés via HTTP. Cela permet de changer de modèle sans modifier le backend.
-- **Layered Architecture:** Séparation claire entre Routers → Schemas → Services → Models → Database pour la testabilité et la maintenabilité.
-- **RAG with Vertex AI:** Utilisation de Gemini 1.5 Flash avec ChromaDB pour le chat IA, permettant des réponses basées sur les données du projet.
-- **3 Rôles Utilisateurs:** Visiteur (lecture seule), Standard (alertes email), Premium (WhatsApp/SMS + zones prioritaires).
+## 🛡️ Décisions Architecturales Clés
 
-## Product
+- **Modularité ML :** Les modèles ML (XGBoost, ConvLSTM) sont déployés sur des conteneurs isolés et interrogeables via des contrats d'API stricts. Cela garantit l'évolution indépendante des modèles et du backend central.
+- **RAG & Rendu Avancé :** Intégration de RAG (Retrieval-Augmented Generation) pour le chat de la plateforme. La réponse de l'IA supporte pleinement le **Markdown standard**, les **tableaux**, ainsi que la génération à la volée de **diagrammes structurels Mermaid** grâce à une intégration native dynamique de la bibliothèque client Mermaid.
+- **Robustesse & Robustesse CSS Grid :** Utilisation systématique de `minmax(0, 1fr)` pour les colonnes de tableaux sous CSS Grid afin d'éviter les bugs classiques de chevauchement d'identifiants et de noms de régions lors du redimensionnement de l'écran.
 
-### Fonctionnalités Principales
+---
 
-**Pour tous les utilisateurs (Visiteur, Standard, Premium):**
-- 🗺️ Carte interactive des détections de feux en temps réel
-- 📊 Clusters de feux avec statuts (ACTIVE, COOLING, LIKELY_OUT)
-- 🔮 Prédictions de risque J+1 (ConvLSTM)
-- 💬 Chat IA JeryMotro (RAG) pour interroger les données
+## 👤 Rôles & Expérience Utilisateur
 
-**Utilisateurs Standard:**
-- 📧 Alertes email personnalisables
-- 📈 Historique personnel des alertes
-- 👤 Gestion du profil
-
-**Utilisateurs Premium (ONG, Parcs Nationaux):**
-- 📱 Alertes WhatsApp et SMS
-- 🎯 Zones prioritaires de surveillance personnalisées
-- 🤖 Agent IA personnalisé par zone
-- 📤 Export de données
+### Niveaux de Droits
+1. **Visiteur :** Accès à la carte en temps réel et aux prédictions globales de risques.
+2. **Standard :** Abonnement aux alertes EMAIL personnalisées et consultation de l'historique personnel.
+3. **Premium (ONG, Ministères, Parcs Nationaux) :** Alertes multicanales (Email, SMS, WhatsApp), création de Zones Prioritaires, agent d'analyse IA dédié, et export de données.
 
 ### Comptes de Test
 
 | Rôle | Email | Mot de passe |
 |------|-------|-------------|
-| Admin | randriamanantenatsikynyantsa@gmail.com | password123 |
-| Premium | tkabeleon@gmail.com | password123 |
-| Premium | rtsikynyantsa@gmail.com | password123 |
-| Standard | tsikynyantsa1@outlook.fr | password123 |
+| **Admin** | `randriamanantenatsikynyantsa@gmail.com` | `password123` |
+| **Premium** | `tkabeleon@gmail.com` | `password123` |
+| **Premium** | `rtsikynyantsa@gmail.com` | `password123` |
+| **Standard** | `tsikynyantsa1@outlook.fr` | `password123` |
 
-## User preferences
+---
 
-- Le mode sombre est le mode par défaut (conçu pour la surveillance nocturne)
-- Les scores ML sont toujours affichés avec leur barre de progression visuelle
-- L'orange (`--fire`) indique un danger réel, pas une décoration
+## 💡 Notes de Conception
 
-## Gotchas
-
-- **Ne jamais committer** le fichier `.env` - utiliser `.env.example` à la place
-- Le service ML externe peut être en mode dégradé (risk_score = -1) si indisponible
-- Les tests pytest doivent atteindre ≥ 60% de couverture (exigence mémoire L3)
-- Le clustering HDBSCAN doit être exécuté par lots (limit=50000) sur les données historiques
-
-## Pointers
-
-- **Documentation API:** `http://35.192.27.164/jerymotro-api/docs`
-- **Design System:** `Conception/JeryMotro_Design_System.md`
-- **Guide Intégration Frontend:** `Conception/frontend_integration_guide.md`
-- **État Implémentation:** `Conception/PLAN_IMPL_STATUS.md`
+- **Priorité Nocturne :** Le thème sombre est configuré par défaut, offrant un contraste optimal reposant pour l'œil lors d'une veille de surveillance prolongée.
+- **Signification des Couleurs :** La couleur orange vif (`--fire`) est sémantiquement réservée aux indicateurs de feux réels pour éviter la fatigue cognitive.
+- **Défense Supply-Chain :** Sécurité de déploiement via pnpm imposant un âge de publication minimal de 24h pour toutes les dépendances npm de production.

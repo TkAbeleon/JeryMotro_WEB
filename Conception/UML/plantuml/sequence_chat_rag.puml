@@ -1,0 +1,29 @@
+@startuml sequence_chat_rag
+!theme plain
+skinparam sequence {
+    ArrowColor black
+    ActorBorderColor black
+    LifeLineBorderColor black
+    LifeLineBackgroundColor white
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+}
+
+actor User
+participant Frontend
+participant "FastAPI Backend" as Backend
+participant "PostgreSQL / ChromaDB" as DB
+participant "n8n Webhook" as n8n
+participant "IA / LLM" as LLM
+
+User -> Frontend: Envoie un message ("Où sont les feux ?")
+Frontend -> Backend: POST /chat/message
+Backend -> DB: Recherche de contexte (ChromaDB / SQL)
+DB --> Backend: Résultats du contexte (Feux, Zones)
+Backend -> n8n: POST webhook (prompt, message, contexte)
+n8n -> LLM: Requête de génération
+LLM --> n8n: Réponse générée
+n8n --> Backend: Retour de la réponse
+Backend --> Frontend: Renvoie la réponse formatée
+Frontend --> User: Affiche la réponse
+@enduml

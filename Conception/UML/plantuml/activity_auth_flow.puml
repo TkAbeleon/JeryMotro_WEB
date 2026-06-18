@@ -1,0 +1,40 @@
+@startuml activity_auth_flow
+!theme plain
+skinparam activity {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
+}
+
+start
+fork
+  :Inscription;
+  :Utilisateur s'inscrit avec email & tel;
+  :Génère OTP (Hash + Expire);
+  :Envoi SMS/Email;
+  repeat :Saisie OTP;
+    if (OTP valide et non expiré?) then (oui)
+      :Met phone_verified=True;
+      :Compte Actif;
+      stop
+    else (non)
+      if (Trop d'essais?) then (oui)
+        :Compte bloqué/supprimé;
+        stop
+      else (non)
+        :Nouvel essai;
+      endif
+    endif
+  repeat while (En attente OTP)
+fork again
+  :Connexion;
+  :Saisie Credentials;
+  if (Valide?) then (oui)
+    :Génération JWT;
+    stop
+  else (non)
+    :Erreur;
+    stop
+  endif
+end fork
+@enduml

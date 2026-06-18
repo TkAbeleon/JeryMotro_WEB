@@ -1,0 +1,44 @@
+```mermaid
+classDiagram
+    class Alert {
+        +id : BigInteger
+        +user_id : BigInteger
+        +fire_event_id : BigInteger
+        +detection_id : BigInteger
+        +alert_level : String
+        +region : String
+        +latitude : Float
+        +longitude : Float
+        +risk_score : Float
+        +frp : Float
+        +message : Text
+        +images : Array
+        +channel : String
+        +destination : String
+        +status : String
+        +error_message : Text
+        +sent_at : DateTime
+        +created_at : DateTime
+    }
+
+    class AlertSubscription {
+        +id : BigInteger
+        +user_id : BigInteger
+        +channel : AlertChannel
+        +destination : String
+        +enabled : Boolean
+        +min_risk : Float
+        +min_frp : Float
+        +created_at : DateTime
+        +updated_at : DateTime
+    }
+
+    class AlertChannel {
+        <<enumeration>>
+        EMAIL
+        SMS
+        WHATSAPP
+    }
+
+    AlertSubscription --> AlertChannel : uses
+```
