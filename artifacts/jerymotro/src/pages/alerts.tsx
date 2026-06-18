@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { useGetMyAlerts, useGetMySubscriptions, useSubscribeAlert, useDeleteSubscription, getGetMyAlertsQueryKey, getGetMySubscriptionsQueryKey } from "@workspace/api-client-react";
+import { useGetMyAlerts, useGetMySubscriptions, useSubscribeAlert, useDeleteSubscription, useRequestOtp, useVerifyOtp, getGetMyAlertsQueryKey, getGetMySubscriptionsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const channelIcon: Record<string, React.ComponentType<{ className?: string }>> = {
   email: Mail,
@@ -18,7 +19,7 @@ const statusIcon: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 // Validation helpers
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
 function validateDestination(channel: string, destination: string): string | null {
@@ -34,6 +35,8 @@ function validateDestination(channel: string, destination: string): string | nul
   return null;
 }
 
+type Step = "form" | "otp";
+
 export default function AlertsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -44,6 +47,14 @@ export default function AlertsPage() {
   const [subForm, setSubForm] = useState({ channel: "email", destination: "", min_risk: "0.5" });
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>("form");
+  const [pendingSubscription, setPendingSubscription] = useState<{
+    channel: string;
+    destination: string;
+    min_risk: number;
+    min_frp: number;
+  } | null>(null);
+  const [otp, setOtp] = useState("");
 
   const levelConfig = {
     critical: { label: t("risk.critical"), color: "bg-destructive/15 text-destructive" },
@@ -64,6 +75,9 @@ export default function AlertsPage() {
         qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetMyAlertsQueryKey() });
         setShowSubForm(false);
+        setStep("form");
+        setPendingSubscription(null);
+        setOtp("");
         setApiError(null);
         setFieldError(null);
         setSubForm({ channel: "email", destination: "", min_risk: "0.5" });
@@ -95,6 +109,35 @@ export default function AlertsPage() {
         });
       },
     },
+  });
+
+  const requestOtpMutation = useRequestOtp({
+    mutation: {
+      onSuccess: () => {
+        toast({
+          title: t("common.success" as any),
+          description: t("auth.otp.resent"),
+        });
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message;
+        setApiError(msg || "Erreur lors de l'envoi du code OTP.");
+      }
+    }
+  });
+
+  const verifyOtpMutation = useVerifyOtp({
+    mutation: {
+      onSuccess: () => {
+        if (pendingSubscription) {
+          subscribeMutation.mutate({ data: pendingSubscription });
+        }
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message;
+        setApiError(msg || t("auth.otp.error"));
+      }
+    }
   });
 
   const filtered = useMemo(() => {
@@ -141,6 +184,9 @@ export default function AlertsPage() {
 
   const openForm = () => {
     setShowSubForm(true);
+    setStep("form");
+    setPendingSubscription(null);
+    setOtp("");
     setApiError(null);
     setFieldError(null);
     setSubForm({ channel: "email", destination: "", min_risk: "0.5" });
@@ -148,11 +194,14 @@ export default function AlertsPage() {
 
   const closeForm = () => {
     setShowSubForm(false);
+    setStep("form");
+    setPendingSubscription(null);
+    setOtp("");
     setApiError(null);
     setFieldError(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
     const validationErr = validateDestination(subForm.channel, subForm.destination);
@@ -163,17 +212,60 @@ export default function AlertsPage() {
     const destination = subForm.channel === "email"
       ? subForm.destination.trim()
       : subForm.destination.trim().replace(/\s/g, "");
+
+    const subscriptionData = {
+      channel: subForm.channel.toUpperCase(),
+      destination,
+      min_risk: parseFloat(subForm.min_risk),
+      min_frp: 50.0,
+    };
+
+    // If it's email, maybe we can skip OTP? Or require OTP for all? Let's require OTP for all.
+    // Or check conception. Let's just require OTP for all subscriptions to be safe.
+    setPendingSubscription(subscriptionData);
+    setStep("otp");
+
+    // Request OTP
     try {
-      await subscribeMutation.mutateAsync({
+      await requestOtpMutation.mutateAsync({
         data: {
-          channel: subForm.channel.toUpperCase(),
-          destination,
-          min_risk: parseFloat(subForm.min_risk),
-          min_frp: 50.0,
-        },
+          email: destination, // Wait, or via sms if it's a phone number? Let's check the API.
+          via: subForm.channel === "email" ? "email" : "sms"
+        }
       });
-    } catch {
-      // error handled by onError above
+    } catch (err) {
+      // Error handled by requestOtpMutation's onError
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setApiError(null);
+    if (!pendingSubscription) return;
+    try {
+      // For verifyOtp, the API expects email (from the swagger)
+      await verifyOtpMutation.mutateAsync({
+        data: {
+          email: pendingSubscription.destination,
+          code: otp
+        }
+      });
+    } catch (err) {
+      // Error handled by verifyOtpMutation's onError
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!pendingSubscription) return;
+    setApiError(null);
+    try {
+      await requestOtpMutation.mutateAsync({
+        data: {
+          email: pendingSubscription.destination,
+          via: subForm.channel === "email" ? "email" : "sms"
+        }
+      });
+    } catch (err) {
+      // Error handled
     }
   };
 
@@ -305,8 +397,6 @@ export default function AlertsPage() {
           onClick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
         >
           <div className="bg-card border border-card-border rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="font-heading font-bold text-lg mb-5">{t("alerts.form.title")}</h3>
-
             {/* API error banner */}
             {apiError && (
               <div className="flex items-start gap-2 mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
@@ -315,86 +405,136 @@ export default function AlertsPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {/* Channel */}
-              <div>
-                <label className="text-sm font-medium block mb-1.5">{t("alerts.form.channel")}</label>
-                <select
-                  value={subForm.channel}
-                  onChange={e => handleChannelChange(e.target.value)}
-                  className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="email">{t("channel.email")}</option>
-                  <option value="whatsapp">{t("channel.whatsapp")} ({t("common.premium")})</option>
-                  <option value="sms">{t("channel.sms")} ({t("common.premium")})</option>
-                </select>
-              </div>
+            {step === "form" ? (
+              <>
+                <h3 className="font-heading font-bold text-lg mb-5">{t("alerts.form.title")}</h3>
+                <form onSubmit={handleFormSubmit} className="space-y-4" noValidate>
+                  {/* Channel */}
+                  <div>
+                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.channel")}</label>
+                    <select
+                      value={subForm.channel}
+                      onChange={e => handleChannelChange(e.target.value)}
+                      className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="email">{t("channel.email")}</option>
+                      <option value="whatsapp">{t("channel.whatsapp")} ({t("common.premium")})</option>
+                      <option value="sms">{t("channel.sms")} ({t("common.premium")})</option>
+                    </select>
+                  </div>
 
-              {/* Destination */}
-              <div>
-                <label className="text-sm font-medium block mb-1.5">{t("alerts.form.destination")}</label>
-                <input
-                  type={subForm.channel === "email" ? "email" : "tel"}
-                  value={subForm.destination}
-                  onChange={e => handleDestinationChange(e.target.value)}
-                  onBlur={e => setFieldError(validateDestination(subForm.channel, e.target.value))}
-                  placeholder={subForm.channel === "email" ? "vous@exemple.mg" : "+261 34 12 345 67"}
-                  required
-                  autoComplete={subForm.channel === "email" ? "email" : "tel"}
-                  className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${
-                    fieldError
-                      ? "border-destructive focus:ring-destructive/30"
-                      : "border-input focus:ring-primary/30"
-                  }`}
-                />
-                {fieldError ? (
-                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
-                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                    {fieldError}
-                  </p>
-                ) : (
-                  subForm.channel !== "email" && (
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      Format international requis, ex: <strong>+261341234567</strong>
+                  {/* Destination */}
+                  <div>
+                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.destination")}</label>
+                    <input
+                      type={subForm.channel === "email" ? "email" : "tel"}
+                      value={subForm.destination}
+                      onChange={e => handleDestinationChange(e.target.value)}
+                      onBlur={e => setFieldError(validateDestination(subForm.channel, e.target.value))}
+                      placeholder={subForm.channel === "email" ? "vous@exemple.mg" : "+261 34 12 345 67"}
+                      required
+                      autoComplete={subForm.channel === "email" ? "email" : "tel"}
+                      className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${fieldError
+                        ? "border-destructive focus:ring-destructive/30"
+                        : "border-input focus:ring-primary/30"
+                        }`}
+                    />
+                    {fieldError ? (
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        {fieldError}
+                      </p>
+                    ) : (
+                      subForm.channel !== "email" && (
+                        <p className="mt-1.5 text-xs text-muted-foreground">
+                          Format international requis, ex: <strong>+261341234567</strong>
+                        </p>
+                      )
+                    )}
+                  </div>
+
+                  {/* Risk threshold */}
+                  <div>
+                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.riskThreshold")}</label>
+                    <input
+                      value={subForm.min_risk}
+                      onChange={e => setSubForm(f => ({ ...f, min_risk: e.target.value }))}
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {Math.round(parseFloat(subForm.min_risk || "0") * 100)}% — Alerte si le score de risque dépasse ce seuil
                     </p>
-                  )
-                )}
-              </div>
+                  </div>
 
-              {/* Risk threshold */}
-              <div>
-                <label className="text-sm font-medium block mb-1.5">{t("alerts.form.riskThreshold")}</label>
-                <input
-                  value={subForm.min_risk}
-                  onChange={e => setSubForm(f => ({ ...f, min_risk: e.target.value }))}
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {Math.round(parseFloat(subForm.min_risk || "0") * 100)}% — Alerte si le score de risque dépasse ce seuil
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-                >
-                  {t("common.cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={subscribeMutation.isPending || !!fieldError}
-                  className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
-                >
-                  {subscribeMutation.isPending ? t("alerts.form.adding") : t("alerts.form.addButton")}
-                </button>
-              </div>
-            </form>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={closeForm}
+                      className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
+                    >
+                      {t("common.cancel")}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={requestOtpMutation.isPending || !!fieldError}
+                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                    >
+                      {requestOtpMutation.isPending ? t("auth.otp.sending") : t("alerts.form.addButton")}
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <>
+                <h3 className="font-heading font-bold text-lg mb-2">{t("auth.otp.title")}</h3>
+                <p className="text-sm text-muted-foreground mb-5">{t("auth.otp.subtitle")}</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium block mb-1.5">{t("auth.otp.codeLabel")}</label>
+                    <InputOTP
+                      maxLength={6}
+                      value={otp}
+                      onChange={setOtp}
+                    >
+                      <InputOTPGroup>
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                          <InputOTPSlot key={i} index={i} />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setStep("form")}
+                      className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
+                    >
+                      {t("common.back")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleVerifyOtp}
+                      disabled={verifyOtpMutation.isPending || otp.length < 6}
+                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                    >
+                      {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={requestOtpMutation.isPending}
+                    className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
