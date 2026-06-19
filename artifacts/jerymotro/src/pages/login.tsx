@@ -6,8 +6,9 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useLoginUser } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n } from "@/hooks/use-i18n";
-import { Flame, Eye, EyeOff } from "lucide-react";
+import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
+import { useTheme } from "@/hooks/use-theme";
+import { Flame, Eye, EyeOff, Sun, Moon, Languages, Home } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Email invalide"),
@@ -32,7 +33,8 @@ const DEMO_TOKEN_DATA = {
 };
 
 export default function LoginPage() {
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -89,10 +91,10 @@ export default function LoginPage() {
           </p>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { v: "127", lKey: "landing.stat.detections" as const },
-              { v: "89%", lKey: "landing.stat.accuracy" as const },
-              { v: "23", lKey: "landing.stat.clusters" as const },
-              { v: "22", lKey: "landing.stat.regions" as const },
+              { v: "127", lKey: "landing.mock.detectionsToday" as const },
+              { v: "89%", lKey: "landing.mock.precision" as const },
+              { v: "23", lKey: "landing.mock.activeClusters" as const },
+              { v: "22", lKey: "landing.stats.coverage" as const },
             ].map(s => (
               <div key={s.lKey} className="bg-card/50 rounded-lg p-4 border border-border">
                 <div className="font-heading text-xl font-bold text-primary">{s.v}</div>
@@ -108,9 +110,44 @@ export default function LoginPage() {
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-[400px]">
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
-            <span className="font-heading font-bold text-lg">JeryMotro</span>
+          <div className="flex items-center justify-between mb-8 lg:hidden">
+            <div className="flex items-center gap-2">
+              <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
+              <span className="font-heading font-bold text-lg">JeryMotro</span>
+            </div>
+            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Top Controls (Desktop) */}
+          <div className="flex items-center justify-end gap-3 mb-6">
+            {/* Language Selector */}
+            <div className="flex items-center gap-2">
+              <Languages className="w-4 h-4 text-muted-foreground" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as any)}
+                className="bg-transparent text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
+              >
+                {Object.entries(LANG_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md hover:bg-secondary transition-colors"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Home Button */}
+            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
           </div>
 
           <h1 className="font-heading text-2xl font-bold mb-2">{t("auth.login.title")}</h1>

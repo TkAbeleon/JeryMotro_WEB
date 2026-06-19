@@ -1,116 +1,111 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Flame } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { useRequestOtp, useVerifyOtp } from "@workspace/api-client-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useRegisterUser, useRequestOtp, useVerifyOtp } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n } from "@/hooks/use-i18n";
+import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
+import { useTheme } from "@/hooks/use-theme";
+import { Flame, Sun, Moon, Languages, Home } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
-const requestOtpSchema = z.object({
+const registerSchema = z.object({
+  full_name: z.string().min(2, "Nom requis"),
   email: z.string().email("Email invalide"),
-  via: z.enum(["email", "sms"]).default("email"),
+  password: z.string().min(8, "8 caractères minimum"),
+  organization: z.string().optional(),
 });
 
-type RequestOtpFormData = z.infer<typeof requestOtpSchema>;
+const otpSchema = z.object({
+  code: z.string().length(6, "Code de 6 chiffres requis"),
+});
 
-type Step = "request" | "verify";
+type RegisterFormData = z.infer<typeof registerSchema>;
+type OtpFormData = z.infer<typeof otpSchema>;
+
+type Step = "register" | "verify";
 
 export default function RegisterPage() {
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
   const { login } = useAuth();
-  const [step, setStep] = useState<Step>("request");
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [otpCode, setOtpCode] = useState("");
+  const [step, setStep] = useState<Step>("register");
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [timer, setTimer] = useState(0);
-
+  const registerMutation = useRegisterUser();
   const requestOtpMutation = useRequestOtp();
   const verifyOtpMutation = useVerifyOtp();
 
-  const requestOtpForm = useForm<RequestOtpFormData>({
-    resolver: zodResolver(requestOtpSchema),
-    defaultValues: { email: "", via: "email" },
+  // Register form
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { full_name: "", email: "", password: "", organization: "" },
   });
 
-  // Timer logic for resend button
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timer]);
+  // OTP verification state
+  const [otpCode, setOtpCode] = useState("");
 
-  const handleRequestOtp = async (data: RequestOtpFormData) => {
-    setError("");
-    try {
-      console.log("Calling requestOtp with:", data);
-      await requestOtpMutation.mutateAsync({ data });
-      console.log("requestOtp successful");
-      setUserEmail(data.email);
-      setStep("verify");
-      setTimer(60); // Start 60-second countdown
-    } catch (err) {
-      console.error("Error in handleRequestOtp (full):", err);
-      // Try to extract the error detail from the API response
-      let errorMessage = "Erreur lors de la demande de code";
-      if (err && typeof err === "object") {
-        if ("response" in err) {
-          const response = (err as any).response;
-          if (response && typeof response === "object" && "detail" in response) {
-            errorMessage = response.detail;
-          }
-        } else if ("detail" in err) {
-          errorMessage = (err as any).detail;
-        } else if ("message" in err) {
-          errorMessage = (err as any).message;
-        }
-      }
-      console.log("Extracted error message:", errorMessage);
-      setError(errorMessage);
-    }
-  };
-
-  const handleVerifyOtp = async (event?: React.BaseSyntheticEvent) => {
+  const onRegisterSubmit = async (data: RegisterFormData, event?: React.BaseSyntheticEvent) => {
     event?.preventDefault();
     setError("");
     try {
-      if (!userEmail) return;
-      console.log("Calling verifyOtp with:", { email: userEmail, code: otpCode });
+      const registerData = {
+        full_name: data.full_name,
+        email: data.email,
+        password: data.password,
+        organization: data.organization
+      };
+      console.log("Calling registerUser with:", registerData);
+      await registerMutation.mutateAsync({ data: registerData });
+      console.log("registerUser successful");
+      setRegisteredEmail(data.email);
+
+      console.log("Calling requestOtp with:", { email: data.email, via: "email" });
+      const otpResult = await requestOtpMutation.mutateAsync({
+        data: { email: data.email, via: "email" }
+      });
+      console.log("requestOtp successful, result:", otpResult);
+
+      setStep("verify");
+    } catch (err) {
+      console.error("Error in onRegisterSubmit:", err);
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+    }
+  };
+
+  const onVerifyOtpSubmit = async (event?: React.BaseSyntheticEvent) => {
+    event?.preventDefault();
+    setError("");
+    try {
+      if (!registeredEmail) return;
+      console.log("Calling verifyOtp with:", { email: registeredEmail, code: otpCode });
       const result = await verifyOtpMutation.mutateAsync({
-        data: { email: userEmail, code: otpCode }
+        data: { email: registeredEmail, code: otpCode }
       });
       console.log("verifyOtp successful, result:", result);
       login(result);
       setLocation("/dashboard");
     } catch (err) {
-      console.error("Error in handleVerifyOtp:", err);
-      const errorMessage = err instanceof Error ? err.message : t("auth.otp.error");
-      setError(errorMessage);
+      console.error("Error in onVerifyOtpSubmit:", err);
+      setError(err instanceof Error ? err.message : t("auth.otp.error"));
     }
   };
 
-  const handleResendOtp = async () => {
-    if (!userEmail) return;
+  const resendOtp = async () => {
+    if (!registeredEmail) return;
     setError("");
     try {
-      console.log("Calling resendOtp with:", { email: userEmail, via: "email" });
-      await requestOtpMutation.mutateAsync({
-        data: { email: userEmail, via: "email" }
+      console.log("Calling resendOtp with:", { email: registeredEmail, via: "email" });
+      const otpResult = await requestOtpMutation.mutateAsync({
+        data: { email: registeredEmail, via: "email" }
       });
-      console.log("resendOtp successful");
-      setTimer(60); // Reset timer
+      console.log("resendOtp successful, result:", otpResult);
     } catch (err) {
-      console.error("Error in handleResendOtp:", err);
-      setError(err instanceof Error ? err.message : "Erreur lors du renvoi du code");
+      console.error("Error in resendOtp:", err);
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     }
   };
 
@@ -129,13 +124,12 @@ export default function RegisterPage() {
           <p className="text-muted-foreground text-sm leading-relaxed">{t("landing.hero.subtitle")}</p>
           <div className="mt-8 space-y-3">
             {[
-              t("subscriptions.cta.free"), t("landing.stat.detections"), t("landing.stat.accuracy")
-            ].map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <span className="text-accent">✓</span>
-                <span>{f}</span>
-              </div>
-            ))}
+              t("landing.features.1.title"), t("landing.features.2.title"), t("landing.features.4.title")].map((f, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span className="text-accent">✓</span>
+                  <span>{f}</span>
+                </div>
+              ))}
           </div>
         </div>
         <p className="text-xs text-muted-foreground">{t("common.copyright")}</p>
@@ -143,12 +137,47 @@ export default function RegisterPage() {
 
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-[400px]">
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
-            <span className="font-heading font-bold text-lg">JeryMotro</span>
+          <div className="flex items-center justify-between mb-8 lg:hidden">
+            <div className="flex items-center gap-2">
+              <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
+              <span className="font-heading font-bold text-lg">JeryMotro</span>
+            </div>
+            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
           </div>
 
-          {step === "request" ? (
+          {/* Top Controls (Desktop) */}
+          <div className="flex items-center justify-end gap-3 mb-6 lg:flex">
+            {/* Language Selector */}
+            <div className="flex items-center gap-2">
+              <Languages className="w-4 h-4 text-muted-foreground" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as any)}
+                className="bg-transparent text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
+              >
+                {Object.entries(LANG_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md hover:bg-secondary transition-colors"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Home Button */}
+            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {step === "register" ? (
             <>
               <h1 className="font-heading text-2xl font-bold mb-2">{t("auth.register.title")}</h1>
               <p className="text-muted-foreground text-sm mb-8">
@@ -160,65 +189,73 @@ export default function RegisterPage() {
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">{error}</div>
               )}
 
-              <form onSubmit={requestOtpForm.handleSubmit(handleRequestOtp)} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium block mb-2">{t("auth.login.email")}</label>
-                  <input
-                    {...requestOtpForm.register("email")}
-                    type="email"
-                    placeholder={t("auth.login.emailPlaceholder")}
-                    className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-                  />
-                  {requestOtpForm.formState.errors.email && (
-                    <p className="text-xs text-destructive mt-1">{requestOtpForm.formState.errors.email.message}</p>
-                  )}
-                </div>
+              <Form {...registerForm}>
+                <form onSubmit={(e) => { e.preventDefault(); registerForm.handleSubmit(onRegisterSubmit)(e); }} className="space-y-4">
+                  <FormField control={registerForm.control} name="full_name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("profile.info.fullName")}</FormLabel>
+                      <FormControl>
+                        <input {...field} data-testid="input-name" placeholder="Rakoto Andriamahefa" className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="email" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("auth.login.email")}</FormLabel>
+                      <FormControl>
+                        <input {...field} type="email" data-testid="input-email" placeholder={t("auth.login.emailPlaceholder")} className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="organization" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("profile.info.organization")} ({t("common.optional")})</FormLabel>
+                      <FormControl>
+                        <input {...field} data-testid="input-org" placeholder={t("profile.info.orgPlaceholder")} className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="password" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("auth.login.password")}</FormLabel>
+                      <FormControl>
+                        <input {...field} type="password" data-testid="input-password" placeholder="••••••••" className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                {/* Channel selector - for now, let's default to email (as per guide warning) */}
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="font-medium">{t("auth.otp.via") || "Envoyer par"}:</span>
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value="email"
-                      checked={requestOtpForm.watch("via") === "email"}
-                      onChange={(e) => requestOtpForm.setValue("via", e.target.value as "email" | "sms")}
-                    />
-                    {t("channel.email")}
-                  </label>
-                  <label className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      value="sms"
-                      checked={requestOtpForm.watch("via") === "sms"}
-                      onChange={(e) => requestOtpForm.setValue("via", e.target.value as "email" | "sms")}
-                    />
-                    {t("channel.sms")}
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={requestOtpMutation.isPending}
-                  className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
-                >
-                  {requestOtpMutation.isPending ? t("auth.otp.sending") : t("auth.otp.sendCode")}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    data-testid="button-submit"
+                    disabled={registerMutation.isPending}
+                    className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+                  >
+                    {registerMutation.isPending ? t("auth.register.submitting") : t("auth.register.submit")}
+                  </button>
+                </form>
+              </Form>
             </>
           ) : (
             <>
               <h1 className="font-heading text-2xl font-bold mb-2">{t("auth.otp.title")}</h1>
-              <p className="text-muted-foreground text-sm mb-8">{t("auth.otp.subtitle")}{" "}{userEmail}</p>
+              <p className="text-muted-foreground text-sm mb-8">{t("auth.otp.subtitle")}</p>
 
               {error && (
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">{error}</div>
               )}
 
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <form onSubmit={onVerifyOtpSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm font-medium block mb-2">{t("auth.otp.codeLabel")}</label>
-                  <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                  <InputOTP
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={setOtpCode}
+                  >
                     <InputOTPGroup>
                       {[0, 1, 2, 3, 4, 5].map((i) => (
                         <InputOTPSlot key={i} index={i} />
@@ -226,22 +263,20 @@ export default function RegisterPage() {
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
-
                 <button
                   type="submit"
                   disabled={verifyOtpMutation.isPending || otpCode.length < 6}
-                  className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                 >
                   {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
                 </button>
-
                 <button
                   type="button"
-                  onClick={handleResendOtp}
-                  disabled={requestOtpMutation.isPending || timer > 0}
+                  onClick={resendOtp}
+                  disabled={requestOtpMutation.isPending}
                   className="w-full h-10 bg-transparent border border-border text-foreground rounded-md font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
                 >
-                  {timer > 0 ? `${t("auth.otp.resendIn")} ${timer}s` : t("auth.otp.resend")}
+                  {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
                 </button>
               </form>
             </>

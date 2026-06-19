@@ -1,42 +1,61 @@
 import { Link } from "wouter";
-import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, BarChart3, Bot, Zap, Globe } from "lucide-react";
-
-const features = [
-  { icon: Activity, title: "Détections Live FIRMS", desc: "Données MODIS & VIIRS en temps réel, mise à jour toutes les heures depuis les satellites NASA." },
-  { icon: Brain, title: "Prédictions XGBoost", desc: "Modèle ML entraîné sur 3 ans de données pour anticiper les risques incendie J+1 avec 89% de précision." },
-  { icon: Bot, title: "JeryMotro AI", desc: "Assistant RAG entraîné sur les données feux malgaches. Posez vos questions en langage naturel." },
-  { icon: Bell, title: "Alertes Multi-Canal", desc: "Notifications email, SMS et WhatsApp dès qu'un feu critique est détecté dans votre zone." },
-  { icon: Map, title: "Cartographie Avancée", desc: "Visualisation interactive des clusters, zones de risque, et historique géospatial." },
-  { icon: Shield, title: "Zones Prioritaires", desc: "Définissez vos zones sensibles et recevez des alertes hyper-ciblées (Premium)." },
-];
-
-const tiers = [
-  {
-    name: "Gratuit",
-    price: "0",
-    desc: "Pour découvrir la plateforme",
-    features: ["Détections en temps réel", "Carte interactive", "Clusters FireEvents", "Statistiques 30 jours", "1 alerte email"],
-    cta: "Commencer",
-    highlighted: false,
-  },
-  {
-    name: "Premium",
-    price: "29",
-    desc: "Pour les professionnels",
-    features: ["Tout le niveau Gratuit", "Prédictions J+1", "JeryMotro AI illimité", "Alertes SMS & WhatsApp", "Zones prioritaires illimitées", "Export données CSV", "Support prioritaire"],
-    cta: "Essai gratuit 14j",
-    highlighted: true,
-  },
-];
-
-const stats = [
-  { value: "50K+", label: "Détections traitées/jour" },
-  { value: "89%", label: "Précision XGBoost" },
-  { value: "22", label: "Régions couvertes" },
-  { value: "<2s", label: "Temps de réponse AI" },
-];
+import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages } from "lucide-react";
+import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function LandingPage() {
+  const { t, lang, setLang } = useI18n();
+  const { theme, toggleTheme } = useTheme();
+
+  const features = [
+    { icon: Activity, title: t("landing.features.1.title"), desc: t("landing.features.1.desc") },
+    { icon: Brain, title: t("landing.features.2.title"), desc: t("landing.features.2.desc") },
+    { icon: Bot, title: t("landing.features.3.title"), desc: t("landing.features.3.desc") },
+    { icon: Bell, title: t("landing.features.4.title"), desc: t("landing.features.4.desc") },
+    { icon: Map, title: t("landing.features.5.title"), desc: t("landing.features.5.desc") },
+    { icon: Shield, title: t("landing.features.6.title"), desc: t("landing.features.6.desc") },
+  ];
+
+  const tiers = [
+    {
+      name: t("landing.pricing.tier.free.name"),
+      price: "0",
+      desc: t("landing.pricing.tier.free.desc"),
+      features: [
+        t("landing.pricing.tier.free.features.1"),
+        t("landing.pricing.tier.free.features.2"),
+        t("landing.pricing.tier.free.features.3"),
+        t("landing.pricing.tier.free.features.4"),
+        t("landing.pricing.tier.free.features.5"),
+      ],
+      cta: t("landing.pricing.tier.free.cta"),
+      highlighted: false,
+    },
+    {
+      name: t("landing.pricing.tier.premium.name"),
+      price: "29",
+      desc: t("landing.pricing.tier.premium.desc"),
+      features: [
+        t("landing.pricing.tier.premium.features.1"),
+        t("landing.pricing.tier.premium.features.2"),
+        t("landing.pricing.tier.premium.features.3"),
+        t("landing.pricing.tier.premium.features.4"),
+        t("landing.pricing.tier.premium.features.5"),
+        t("landing.pricing.tier.premium.features.6"),
+        t("landing.pricing.tier.premium.features.7"),
+      ],
+      cta: t("landing.pricing.tier.premium.cta"),
+      highlighted: true,
+    },
+  ];
+
+  const stats = [
+    { value: "50K+", label: t("landing.stats.dailyProcessed") },
+    { value: "89%", label: t("landing.stats.precision") },
+    { value: "22", label: t("landing.stats.coverage") },
+    { value: "<2s", label: t("landing.stats.responseTime") },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Nav */}
@@ -46,9 +65,31 @@ export default function LandingPage() {
           <span className="font-heading font-bold text-base sm:text-lg">JeryMotro</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Se connecter</Link>
+          {/* Language Selector */}
+          <div className="flex items-center gap-2">
+            <Languages className="w-4 h-4 text-muted-foreground" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as any)}
+              className="bg-transparent text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
+            >
+              {Object.entries(LANG_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-md hover:bg-secondary transition-colors"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link>
           <Link href="/register" className="text-sm bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium">
-            Commencer
+            {t("auth.register.title")}
           </Link>
         </div>
       </nav>
@@ -57,30 +98,29 @@ export default function LandingPage() {
       <section className="pt-[58px] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center relative">
           <div className="inline-flex items-center gap-2 border border-primary/30 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full mb-6">
             <Zap className="w-3 h-3" />
-            <span>Plateforme de surveillance en temps réel</span>
+            <span>{t("landing.tagline")}</span>
           </div>
-          
+
           <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
-            Surveillance des feux<br />
-            <span className="text-primary">de brousse à Madagascar</span>
+            {t("landing.hero.title")}<br />
+            <span className="text-primary">{t("landing.hero.subtitle")}</span>
           </h1>
-          
+
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            JeryMotro agrège les données satellites FIRMS, applique des modèles ML avancés 
-            et vous alerte en temps réel pour protéger les forêts malgaches.
+            {t("landing.hero.description")}
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-              Démarrer gratuitement
+              {t("landing.hero.cta.getStarted")}
               <ChevronRight className="w-4 h-4" />
             </Link>
             <Link href="/login" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors">
-              Se connecter
+              {t("landing.hero.cta.login")}
             </Link>
           </div>
         </div>
@@ -96,10 +136,10 @@ export default function LandingPage() {
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: "Détections aujourd'hui", value: "127", color: "text-primary", sub: "+12% vs hier" },
-                { label: "Clusters actifs", value: "23", color: "text-destructive", sub: "8 critiques" },
-                { label: "Alertes envoyées", value: "8", color: "text-[#f59e0b]", sub: "dernières 24h" },
-                { label: "Précision IA", value: "89%", color: "text-accent", sub: "XGBoost v2.1" },
+                { label: t("landing.mock.detectionsToday"), value: "127", color: "text-primary", sub: t("landing.mock.sub") },
+                { label: t("landing.mock.activeClusters"), value: "23", color: "text-destructive", sub: t("landing.mock.sub.critical") },
+                { label: t("landing.mock.alertsSent"), value: "8", color: "text-[#f59e0b]", sub: t("landing.mock.sub.last24h") },
+                { label: t("landing.mock.precision"), value: "89%", color: "text-accent", sub: t("landing.mock.sub.xgboost") },
               ].map(s => (
                 <div key={s.label} className="bg-background/50 rounded-lg p-4 border border-border">
                   <div className={`font-heading text-2xl font-bold ${s.color}`}>{s.value}</div>
@@ -127,8 +167,8 @@ export default function LandingPage() {
       {/* Features */}
       <section className="max-w-5xl mx-auto px-8 py-24">
         <div className="text-center mb-16">
-          <h2 className="font-heading text-3xl font-bold mb-4">Une plateforme complète</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">De la détection satellite à l'alerte sur votre téléphone, en passant par l'analyse IA.</p>
+          <h2 className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {features.map(f => {
@@ -153,18 +193,17 @@ export default function LandingPage() {
             <Globe className="w-8 h-8 text-accent" />
           </div>
           <div className="flex-1">
-            <h3 className="font-heading text-xl font-bold mb-2">Couverture complète de Madagascar</h3>
+            <h3 className="font-heading text-xl font-bold mb-2">{t("landing.coverage.title")}</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              La plateforme surveille l'ensemble des 22 régions de Madagascar grâce aux satellites MODIS Terra/Aqua et VIIRS Suomi-NPP. 
-              Chaque détection est enrichie avec données météo, NDVI, et classification de couverture terrestre.
+              {t("landing.coverage.description")}
             </p>
           </div>
           <div className="flex-shrink-0">
             <div className="flex items-center gap-3 text-sm">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" /> Critique</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-primary inline-block" /> Élevé</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> Moyen</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent inline-block" /> Bas</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" /> {t("landing.coverage.legends.critical")}</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-primary inline-block" /> {t("landing.coverage.legends.high")}</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> {t("landing.coverage.legends.medium")}</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-accent inline-block" /> {t("landing.coverage.legends.low")}</span>
             </div>
           </div>
         </div>
@@ -173,13 +212,13 @@ export default function LandingPage() {
       {/* Pricing */}
       <section className="max-w-4xl mx-auto px-8 pb-24">
         <div className="text-center mb-16">
-          <h2 className="font-heading text-3xl font-bold mb-4">Plans simples et transparents</h2>
+          <h2 className="font-heading text-3xl font-bold mb-4">{t("landing.pricing.title")}</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {tiers.map(tier => (
             <div key={tier.name} className={`p-8 rounded-xl border ${tier.highlighted ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
               {tier.highlighted && (
-                <div className="inline-block text-xs font-bold bg-primary text-primary-foreground px-2 py-1 rounded mb-4">RECOMMANDÉ</div>
+                <div className="inline-block text-xs font-bold bg-primary text-primary-foreground px-2 py-1 rounded mb-4">{t("landing.pricing.recommended")}</div>
               )}
               <div className="mb-6">
                 <h3 className="font-heading text-xl font-bold">{tier.name}</h3>
@@ -211,11 +250,11 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <img src="/logo.jpg" alt="JeryMotro" className="h-6 rounded" />
             <span className="font-heading font-semibold text-foreground">JeryMotro</span>
-            <span>— Surveillance feux Madagascar</span>
+            <span>— {t("landing.footer.surveillance")}</span>
           </div>
           <div className="flex items-center gap-6">
-            <span>Données: NASA FIRMS</span>
-            <span>IA: XGBoost + RAG</span>
+            <span>{t("landing.footer.data")}</span>
+            <span>{t("landing.footer.ai")}</span>
             <span>© 2026</span>
           </div>
         </div>
