@@ -46,5 +46,6 @@ export * from './subscription';
 export * from './userLogin';
 export * from './userProfile';
 export * from './userRegistration';
+export * from './verifySubscriptionBody';
 export * from './zone';
 export * from './zoneInput';

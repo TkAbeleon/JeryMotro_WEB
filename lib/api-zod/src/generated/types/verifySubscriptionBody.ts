@@ -6,12 +6,6 @@
  * OpenAPI spec version: 2.3.0
  */
 
-export interface Subscription {
-  id: number;
-  channel: string;
-  destination: string;
-  enabled: boolean;
-  is_verified: boolean;
-  min_risk?: number;
-  min_frp?: number;
-}
+export type VerifySubscriptionBody = {
+  code: string;
+};

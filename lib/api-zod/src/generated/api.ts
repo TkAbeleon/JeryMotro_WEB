@@ -458,6 +458,7 @@ export const GetMySubscriptionsResponseItem = zod.object({
   "channel": zod.string(),
   "destination": zod.string(),
   "enabled": zod.boolean(),
+  "is_verified": zod.boolean(),
   "min_risk": zod.number().optional(),
   "min_frp": zod.number().optional()
 })
@@ -483,6 +484,46 @@ export const TriggerAlertBody = zod.object({
  */
 export const DeleteSubscriptionParams = zod.object({
   "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary Verify a subscription with OTP code
+ */
+export const VerifySubscriptionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const VerifySubscriptionBody = zod.object({
+  "code": zod.string()
+})
+
+export const VerifySubscriptionResponse = zod.object({
+  "id": zod.number(),
+  "channel": zod.string(),
+  "destination": zod.string(),
+  "enabled": zod.boolean(),
+  "is_verified": zod.boolean(),
+  "min_risk": zod.number().optional(),
+  "min_frp": zod.number().optional()
+})
+
+
+/**
+ * @summary Resend verification OTP code
+ */
+export const ResendVerificationCodeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ResendVerificationCodeResponse = zod.object({
+  "id": zod.number(),
+  "channel": zod.string(),
+  "destination": zod.string(),
+  "enabled": zod.boolean(),
+  "is_verified": zod.boolean(),
+  "min_risk": zod.number().optional(),
+  "min_frp": zod.number().optional()
 })
 
 

@@ -308,6 +308,7 @@ export interface Subscription {
   channel: string;
   destination: string;
   enabled: boolean;
+  is_verified: boolean;
   min_risk?: number;
   min_frp?: number;
 }
@@ -517,5 +518,9 @@ channel?: string | null;
  * @nullable
  */
 limit?: number | null;
+};
+
+export type VerifySubscriptionBody = {
+  code: string;
 };
 

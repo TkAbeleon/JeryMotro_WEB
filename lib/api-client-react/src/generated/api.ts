@@ -49,6 +49,7 @@ import type {
   UserLogin,
   UserProfile,
   UserRegistration,
+  VerifySubscriptionBody,
   Zone,
   ZoneInput
 } from './api.schemas';
@@ -1738,6 +1739,148 @@ export const useDeleteSubscription = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeleteSubscriptionMutationOptions(options));
+    }
+
+export const getVerifySubscriptionUrl = (id: number,) => {
+
+
+
+
+  return `/alerts/subscriptions/${id}/verify`
+}
+
+/**
+ * @summary Verify a subscription with OTP code
+ */
+export const verifySubscription = async (id: number,
+    verifySubscriptionBody: VerifySubscriptionBody, options?: RequestInit): Promise<Subscription> => {
+
+  return customFetch<Subscription>(getVerifySubscriptionUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      verifySubscriptionBody,)
+  }
+);}
+
+
+
+
+export const getVerifySubscriptionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifySubscription>>, TError,{id: number;data: BodyType<VerifySubscriptionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifySubscription>>, TError,{id: number;data: BodyType<VerifySubscriptionBody>}, TContext> => {
+
+const mutationKey = ['verifySubscription'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifySubscription>>, {id: number;data: BodyType<VerifySubscriptionBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  verifySubscription(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifySubscriptionMutationResult = NonNullable<Awaited<ReturnType<typeof verifySubscription>>>
+    export type VerifySubscriptionMutationBody = BodyType<VerifySubscriptionBody>
+    export type VerifySubscriptionMutationError = ErrorType<void>
+
+    /**
+ * @summary Verify a subscription with OTP code
+ */
+export const useVerifySubscription = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifySubscription>>, TError,{id: number;data: BodyType<VerifySubscriptionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifySubscription>>,
+        TError,
+        {id: number;data: BodyType<VerifySubscriptionBody>},
+        TContext
+      > => {
+      return useMutation(getVerifySubscriptionMutationOptions(options));
+    }
+
+export const getResendVerificationCodeUrl = (id: number,) => {
+
+
+
+
+  return `/alerts/subscriptions/${id}/resend`
+}
+
+/**
+ * @summary Resend verification OTP code
+ */
+export const resendVerificationCode = async (id: number, options?: RequestInit): Promise<Subscription> => {
+
+  return customFetch<Subscription>(getResendVerificationCodeUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getResendVerificationCodeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendVerificationCode>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resendVerificationCode>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['resendVerificationCode'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resendVerificationCode>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  resendVerificationCode(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResendVerificationCodeMutationResult = NonNullable<Awaited<ReturnType<typeof resendVerificationCode>>>
+
+    export type ResendVerificationCodeMutationError = ErrorType<void>
+
+    /**
+ * @summary Resend verification OTP code
+ */
+export const useResendVerificationCode = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendVerificationCode>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resendVerificationCode>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getResendVerificationCodeMutationOptions(options));
     }
 
 export const getListZonesUrl = () => {

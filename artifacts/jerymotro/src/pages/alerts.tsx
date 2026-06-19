@@ -1,10 +1,19 @@
-import { useState, useMemo } from "react";
-import { useGetMyAlerts, useGetMySubscriptions, useSubscribeAlert, useDeleteSubscription, useRequestOtp, useVerifyOtp, getGetMyAlertsQueryKey, getGetMySubscriptionsQueryKey } from "@workspace/api-client-react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  useGetMyAlerts,
+  useGetMySubscriptions,
+  useSubscribeAlert,
+  useDeleteSubscription,
+  useVerifySubscription,
+  useResendVerificationCode,
+  getGetMyAlertsQueryKey,
+  getGetMySubscriptionsQueryKey,
+  type Subscription,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { Bell, Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const channelIcon: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -19,7 +28,6 @@ const statusIcon: Record<string, React.ComponentType<{ className?: string }>> = 
   pending: Clock,
 };
 
-// Validation helpers
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
 const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
@@ -28,7 +36,6 @@ function validateDestination(channel: string, destination: string): string | nul
   if (channel === "email") {
     if (!EMAIL_REGEX.test(destination)) return "Adresse email invalide (ex: vous@exemple.mg)";
   } else {
-    // sms or whatsapp — need international format
     if (!PHONE_REGEX.test(destination.replace(/\s/g, ""))) {
       return "Numéro invalide — format international requis (ex: +261341234567)";
     }
@@ -36,12 +43,9 @@ function validateDestination(channel: string, destination: string): string | nul
   return null;
 }
 
-type Step = "form" | "otp";
-
 export default function AlertsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const { user } = useAuth();
   const qc = useQueryClient();
   const [levelFilter, setLevelFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
@@ -49,14 +53,10 @@ export default function AlertsPage() {
   const [subForm, setSubForm] = useState({ channel: "email", destination: "", min_risk: "0.5" });
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [step, setStep] = useState<Step>("form");
-  const [pendingSubscription, setPendingSubscription] = useState<{
-    channel: string;
-    destination: string;
-    min_risk: number;
-    min_frp: number;
-  } | null>(null);
+  const [step, setStep] = useState<"form" | "verify">("form");
+  const [pendingSubscription, setPendingSubscription] = useState<Subscription | null>(null);
   const [otp, setOtp] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const levelConfig = {
     critical: { label: t("risk.critical"), color: "bg-destructive/15 text-destructive" },
@@ -64,6 +64,20 @@ export default function AlertsPage() {
     medium: { label: t("risk.medium"), color: "bg-[#f59e0b]/15 text-[#f59e0b]" },
     low: { label: t("risk.low"), color: "bg-accent/15 text-accent" },
   };
+
+  const levelFilters = [
+    { key: "all", label: t("alerts.filter.all") },
+    { key: "critical", label: t("risk.critical") },
+    { key: "high", label: t("risk.high") },
+    { key: "medium", label: t("risk.medium") },
+  ];
+
+  const channelFilters = [
+    { key: "all", label: t("alerts.filter.all") },
+    { key: "email", label: t("channel.email") },
+    { key: "whatsapp", label: t("channel.whatsapp") },
+    { key: "sms", label: t("channel.sms") },
+  ];
 
   const myAlertsQ = useGetMyAlerts();
   const mySubscriptionsQ = useGetMySubscriptions();
@@ -73,19 +87,15 @@ export default function AlertsPage() {
 
   const subscribeMutation = useSubscribeAlert({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (data) => {
         qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetMyAlertsQueryKey() });
-        setShowSubForm(false);
-        setStep("form");
-        setPendingSubscription(null);
-        setOtp("");
+        setPendingSubscription(data);
+        setStep("verify");
         setApiError(null);
-        setFieldError(null);
-        setSubForm({ channel: "email", destination: "", min_risk: "0.5" });
         toast({
-          title: t("common.success" as any),
-          description: t("alerts.toast.createSuccess" as any),
+          title: t("common.success"),
+          description: "Code de vérification envoyé !",
         });
       },
       onError: (err: unknown) => {
@@ -93,57 +103,74 @@ export default function AlertsPage() {
         const finalMsg = msg || "Erreur lors de l'ajout. Vérifiez votre accès (compte Premium requis pour SMS/WhatsApp).";
         setApiError(finalMsg);
         toast({
-          title: t("common.error" as any),
+          title: t("common.error"),
           description: finalMsg,
           variant: "destructive",
         });
       },
     },
   });
+
   const deleteMutation = useDeleteSubscription({
     mutation: {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetMyAlertsQueryKey() });
         toast({
-          title: t("common.success" as any),
+          title: t("common.success"),
           description: t("alerts.toast.deleteSuccess" as any),
         });
       },
     },
   });
 
-  const requestOtpMutation = useRequestOtp({
+  const verifyMutation = useVerifySubscription({
     mutation: {
       onSuccess: () => {
+        qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
         toast({
-          title: t("common.success" as any),
-          description: t("auth.otp.resent"),
+          title: t("common.success"),
+          description: "Abonnement vérifié et activé !",
+        });
+        closeForm();
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message;
+        setApiError(msg || "Code de vérification invalide ou expiré.");
+      },
+    },
+  });
+
+  const resendMutation = useResendVerificationCode({
+    mutation: {
+      onSuccess: () => {
+        setResendCooldown(60);
+        setApiError(null);
+        setOtp("");
+        toast({
+          title: t("common.success"),
+          description: "Code renvoyé !",
         });
       },
       onError: (err: unknown) => {
         const msg = (err as { message?: string })?.message;
-        setApiError(msg || "Erreur lors de l'envoi du code OTP.");
-      }
-    }
+        setApiError(msg || "Erreur lors du renvoi du code.");
+      },
+    },
   });
 
-  const verifyOtpMutation = useVerifyOtp({
-    mutation: {
-      onSuccess: () => {
-        if (pendingSubscription) {
-          subscribeMutation.mutate({ data: pendingSubscription });
-        }
-      },
-      onError: (err: unknown) => {
-        const msg = (err as { message?: string })?.message;
-        setApiError(msg || t("auth.otp.error"));
-      }
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      timer = setInterval(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
     }
-  });
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const filtered = useMemo(() => {
-    return alertsHistory.filter(a => {
+    return alertsHistory.filter((a) => {
       if (levelFilter !== "all" && a.alert_level?.toLowerCase() !== levelFilter.toLowerCase()) return false;
       if (channelFilter !== "all" && a.channel?.toLowerCase() !== channelFilter.toLowerCase()) return false;
       return true;
@@ -158,32 +185,6 @@ export default function AlertsPage() {
     );
   }
 
-  const levelFilters = [
-    { key: "all", label: t("alerts.filter.all") },
-    { key: "critical", label: t("alerts.filter.critical") },
-    { key: "high", label: t("alerts.filter.high") },
-    { key: "medium", label: t("alerts.filter.medium") },
-  ];
-
-  const channelFilters = [
-    { key: "all", label: t("alerts.filter.all") },
-    { key: "email", label: t("channel.email") },
-    { key: "whatsapp", label: t("channel.whatsapp") },
-    { key: "sms", label: t("channel.sms") },
-  ];
-
-  const handleDestinationChange = (value: string) => {
-    setSubForm(f => ({ ...f, destination: value }));
-    const err = validateDestination(subForm.channel, value);
-    setFieldError(err);
-  };
-
-  const handleChannelChange = (value: string) => {
-    setSubForm(f => ({ ...f, channel: value, destination: "" }));
-    setFieldError(null);
-    setApiError(null);
-  };
-
   const openForm = () => {
     setShowSubForm(true);
     setStep("form");
@@ -192,6 +193,15 @@ export default function AlertsPage() {
     setApiError(null);
     setFieldError(null);
     setSubForm({ channel: "email", destination: "", min_risk: "0.5" });
+  };
+
+  const openVerificationModal = (sub: Subscription) => {
+    setShowSubForm(true);
+    setStep("verify");
+    setPendingSubscription(sub);
+    setOtp("");
+    setApiError(null);
+    setResendCooldown(0);
   };
 
   const closeForm = () => {
@@ -215,63 +225,31 @@ export default function AlertsPage() {
       ? subForm.destination.trim()
       : subForm.destination.trim().replace(/\s/g, "");
 
-    const subscriptionData = {
-      channel: subForm.channel.toUpperCase(),
-      destination,
-      min_risk: parseFloat(subForm.min_risk),
-      min_frp: 50.0,
-    };
-
-    // If it's email, maybe we can skip OTP? Or require OTP for all? Let's require OTP for all.
-    // Or check conception. Let's just require OTP for all subscriptions to be safe.
-    setPendingSubscription(subscriptionData);
-    setStep("otp");
-
-    // Request OTP
-    try {
-      if (!user?.email) {
-        setApiError("Impossible de récupérer votre email. Veuillez vous reconnecter.");
-        return;
-      }
-      await requestOtpMutation.mutateAsync({
-        data: {
-          email: user.email,
-          via: "email" // Always send OTP via email, as per the guide
-        }
-      });
-    } catch (err) {
-      // Error handled by requestOtpMutation's onError
-    }
+    await subscribeMutation.mutateAsync({
+      data: {
+        channel: subForm.channel.toUpperCase() as any,
+        destination,
+        min_risk: parseFloat(subForm.min_risk),
+        min_frp: 50.0,
+      },
+    });
   };
 
   const handleVerifyOtp = async () => {
-    setApiError(null);
-    if (!pendingSubscription || !user?.email) return;
-    try {
-      await verifyOtpMutation.mutateAsync({
-        data: {
-          email: user.email,
-          code: otp
-        }
-      });
-    } catch (err) {
-      // Error handled by verifyOtpMutation's onError
+    if (!pendingSubscription) return;
+    if (otp.length !== 6) {
+      setApiError("Veuillez saisir les 6 chiffres du code.");
+      return;
     }
+    await verifyMutation.mutateAsync({
+      id: pendingSubscription.id,
+      data: { code: otp },
+    });
   };
 
   const handleResendOtp = async () => {
-    if (!user?.email) return;
-    setApiError(null);
-    try {
-      await requestOtpMutation.mutateAsync({
-        data: {
-          email: user.email,
-          via: "email"
-        }
-      });
-    } catch (err) {
-      // Error handled
-    }
+    if (!pendingSubscription || resendCooldown > 0) return;
+    await resendMutation.mutateAsync({ id: pendingSubscription.id });
   };
 
   return (
@@ -300,7 +278,7 @@ export default function AlertsPage() {
           <div className="p-6 text-center text-muted-foreground text-sm">{t("alerts.subs.empty")}</div>
         ) : (
           <div className="divide-y divide-border">
-            {subscriptions.map(s => {
+            {subscriptions.map((s) => {
               const Icon = channelIcon[s.channel.toLowerCase()] || Bell;
               return (
                 <div key={s.id} data-testid={`row-subscription-${s.id}`} className="flex items-center gap-4 px-4 py-3">
@@ -313,16 +291,28 @@ export default function AlertsPage() {
                       {s.channel.toLowerCase()} · {t("alerts.subs.risk")} ≥ {((s.min_risk ?? 0) * 100).toFixed(0)}% · {t("alerts.subs.frp")} ≥ {s.min_frp ?? 0} MW
                     </div>
                   </div>
-                  <div className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${s.enabled ? "bg-accent/15 text-accent" : "bg-muted text-muted-foreground"}`}>
-                    {s.enabled ? t("common.active") : t("common.inactive")}
+                  <div className="flex items-center gap-2">
+                    {!s.is_verified ? (
+                      <button
+                        onClick={() => openVerificationModal(s)}
+                        className="text-xs px-3 py-1 rounded-full bg-destructive/10 text-destructive font-medium flex items-center gap-1"
+                      >
+                        <AlertCircle className="w-3 h-3" />
+                        En attente de vérification
+                      </button>
+                    ) : (
+                      <span className="text-xs px-3 py-1 rounded-full bg-accent/15 text-accent font-medium">
+                        {t("common.active")}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => deleteMutation.mutate({ id: s.id })}
+                      data-testid={`button-delete-subscription-${s.id}`}
+                      className="text-muted-foreground hover:text-destructive transition-colors p-1 flex-shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => deleteMutation.mutate({ id: s.id })}
-                    data-testid={`button-delete-subscription-${s.id}`}
-                    className="text-muted-foreground hover:text-destructive transition-colors p-1 flex-shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
               );
             })}
@@ -335,7 +325,7 @@ export default function AlertsPage() {
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-muted-foreground" />
           <div className="flex flex-wrap gap-2">
-            {levelFilters.map(f => (
+            {levelFilters.map((f) => (
               <button key={f.key} onClick={() => setLevelFilter(f.key)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${levelFilter === f.key ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"}`}>
                 {f.label}
               </button>
@@ -343,23 +333,23 @@ export default function AlertsPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {channelFilters.map(c => (
-            <button key={c.key} onClick={() => setChannelFilter(c.key)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${channelFilter === c.key ? "bg-secondary border-primary/30" : "border-border hover:bg-secondary"}`}>
-              {c.label}
+          {channelFilters.map((f) => (
+            <button key={f.key} onClick={() => setChannelFilter(f.key)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${channelFilter === f.key ? "bg-secondary border-primary/30" : "border-border hover:bg-secondary"}`}>
+              {f.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Alerts history */}
+      {/* Alerts History */}
       <div className="bg-card border border-card-border rounded-xl">
         <div className="p-4 border-b border-border">
           <h2 className="font-heading font-semibold">{t("alerts.history.title")} ({filtered.length})</h2>
         </div>
-        <div className="divide-y divide-border">
-          {filtered.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">{t("alerts.history.empty")}</div>
-          ) : filtered.map(a => {
+        {filtered.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">{t("alerts.history.empty")}</div>
+        ) : (
+          filtered.map((a) => {
             const level = levelConfig[a.alert_level.toLowerCase() as keyof typeof levelConfig] || { label: a.alert_level, color: "bg-muted text-muted-foreground" };
             const ChanIcon = channelIcon[a.channel.toLowerCase()] || Bell;
             const StatusIcon = statusIcon[a.status.toLowerCase()] || Clock;
@@ -391,15 +381,17 @@ export default function AlertsPage() {
                 </div>
               </div>
             );
-          })}
-        </div>
+          })
+        )}
       </div>
 
       {/* Add subscription modal */}
       {showSubForm && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeForm();
+          }}
         >
           <div className="bg-card border border-card-border rounded-xl p-6 w-full max-w-md shadow-2xl">
             {/* API error banner */}
@@ -419,7 +411,7 @@ export default function AlertsPage() {
                     <label className="text-sm font-medium block mb-1.5">{t("alerts.form.channel")}</label>
                     <select
                       value={subForm.channel}
-                      onChange={e => handleChannelChange(e.target.value)}
+                      onChange={(e) => handleChannelChange(e.target.value)}
                       className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
                     >
                       <option value="email">{t("channel.email")}</option>
@@ -434,14 +426,12 @@ export default function AlertsPage() {
                     <input
                       type={subForm.channel === "email" ? "email" : "tel"}
                       value={subForm.destination}
-                      onChange={e => handleDestinationChange(e.target.value)}
-                      onBlur={e => setFieldError(validateDestination(subForm.channel, e.target.value))}
+                      onChange={(e) => handleDestinationChange(e.target.value)}
+                      onBlur={(e) => setFieldError(validateDestination(subForm.channel, e.target.value))}
                       placeholder={subForm.channel === "email" ? "vous@exemple.mg" : "+261 34 12 345 67"}
                       required
                       autoComplete={subForm.channel === "email" ? "email" : "tel"}
-                      className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${fieldError
-                        ? "border-destructive focus:ring-destructive/30"
-                        : "border-input focus:ring-primary/30"
+                      className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${fieldError ? "border-destructive focus:ring-destructive/30" : "border-input focus:ring-primary/30"
                         }`}
                     />
                     {fieldError ? (
@@ -463,7 +453,7 @@ export default function AlertsPage() {
                     <label className="text-sm font-medium block mb-1.5">{t("alerts.form.riskThreshold")}</label>
                     <input
                       value={subForm.min_risk}
-                      onChange={e => setSubForm(f => ({ ...f, min_risk: e.target.value }))}
+                      onChange={(e) => setSubForm((f) => ({ ...f, min_risk: e.target.value }))}
                       type="number"
                       min="0"
                       max="1"
@@ -485,26 +475,24 @@ export default function AlertsPage() {
                     </button>
                     <button
                       type="submit"
-                      disabled={requestOtpMutation.isPending || !!fieldError}
+                      disabled={subscribeMutation.isPending || !!fieldError}
                       className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
                     >
-                      {requestOtpMutation.isPending ? t("auth.otp.sending") : t("alerts.form.addButton")}
+                      {subscribeMutation.isPending ? "Envoi..." : t("alerts.form.addButton")}
                     </button>
                   </div>
                 </form>
               </>
             ) : (
               <>
-                <h3 className="font-heading font-bold text-lg mb-2">{t("auth.otp.title")}</h3>
-                <p className="text-sm text-muted-foreground mb-5">{t("auth.otp.subtitle")}</p>
+                <h3 className="font-heading font-bold text-lg mb-2">Vérification de l'abonnement</h3>
+                <p className="text-sm text-muted-foreground mb-5">
+                  Un code a été envoyé à <strong>{pendingSubscription?.destination}</strong>
+                </p>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium block mb-1.5">{t("auth.otp.codeLabel")}</label>
-                    <InputOTP
-                      maxLength={6}
-                      value={otp}
-                      onChange={setOtp}
-                    >
+                    <label className="text-sm font-medium block mb-1.5">Code de vérification</label>
+                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                       <InputOTPGroup>
                         {[0, 1, 2, 3, 4, 5].map((i) => (
                           <InputOTPSlot key={i} index={i} />
@@ -523,19 +511,20 @@ export default function AlertsPage() {
                     <button
                       type="button"
                       onClick={handleVerifyOtp}
-                      disabled={verifyOtpMutation.isPending || otp.length < 6}
+                      disabled={verifyMutation.isPending || otp.length !== 6}
                       className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
                     >
-                      {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
+                      {verifyMutation.isPending ? "Vérification..." : "Vérifier"}
                     </button>
                   </div>
                   <button
                     type="button"
                     onClick={handleResendOtp}
-                    disabled={requestOtpMutation.isPending}
-                    className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    disabled={resendMutation.isPending || resendCooldown > 0}
+                    className="w-full flex items-center justify-center gap-2 text-center text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                   >
-                    {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
+                    <RefreshCw className={`w-3.5 h-3.5 ${resendCooldown > 0 ? "animate-spin" : ""}`} />
+                    {resendCooldown > 0 ? `Renvoyer dans ${resendCooldown}s` : "Renvoyer le code"}
                   </button>
                 </div>
               </>
@@ -545,4 +534,16 @@ export default function AlertsPage() {
       )}
     </div>
   );
+
+  const handleDestinationChange = (value: string) => {
+    setSubForm((f) => ({ ...f, destination: value }));
+    const err = validateDestination(subForm.channel, value);
+    setFieldError(err);
+  };
+
+  const handleChannelChange = (value: string) => {
+    setSubForm((f) => ({ ...f, channel: value, destination: "" }));
+    setFieldError(null);
+    setApiError(null);
+  };
 }

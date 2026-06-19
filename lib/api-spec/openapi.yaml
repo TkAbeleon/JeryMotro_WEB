@@ -506,6 +506,64 @@ paths:
         "200":
           description: OK
 
+  /alerts/subscriptions/{id}/verify:
+    post:
+      operationId: verifySubscription
+      tags: [alerts]
+      summary: Verify a subscription with OTP code
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Bad Request
+        "404":
+          description: Subscription not found
+
+  /alerts/subscriptions/{id}/resend:
+    post:
+      operationId: resendVerificationCode
+      tags: [alerts]
+      summary: Resend verification OTP code
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "404":
+          description: Subscription not found
+
   /zones:
     get:
       operationId: listZones
@@ -1028,7 +1086,7 @@ components:
 
     Subscription:
       type: object
-      required: [id, channel, destination, enabled]
+      required: [id, channel, destination, enabled, is_verified]
       properties:
         id:
           type: integer
@@ -1037,6 +1095,8 @@ components:
         destination:
           type: string
         enabled:
+          type: boolean
+        is_verified:
           type: boolean
         min_risk:
           type: number
