@@ -1,31 +1,34 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  useGetMyAlerts,
+  useListAlerts,
   useGetMySubscriptions,
   useSubscribeAlert,
   useDeleteSubscription,
   useVerifySubscription,
   useResendVerificationCode,
-  getGetMyAlertsQueryKey,
-  getGetMySubscriptionsQueryKey,
   type Subscription,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from "lucide-react";
+import { Mail, MessageSquare, Phone, Trash2, Plus, Filter, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const channelIcon: Record<string, React.ComponentType<{ className?: string }>> = {
   email: Mail,
+  EMAIL: Mail,
   whatsapp: MessageSquare,
+  WHATSAPP: MessageSquare,
   sms: Phone,
+  SMS: Phone,
 };
 
 const statusIcon: Record<string, React.ComponentType<{ className?: string }>> = {
   sent: CheckCircle,
+  SENT: CheckCircle,
   failed: XCircle,
+  FAILED: XCircle,
   pending: Clock,
+  PENDING: Clock,
 };
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
@@ -33,7 +36,7 @@ const PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
 function validateDestination(channel: string, destination: string): string | null {
   if (!destination.trim()) return "Ce champ est requis.";
-  if (channel === "email") {
+  if (channel.toLowerCase() === "email") {
     if (!EMAIL_REGEX.test(destination)) return "Adresse email invalide (ex: vous@exemple.mg)";
   } else {
     if (!PHONE_REGEX.test(destination.replace(/\s/g, ""))) {
@@ -47,24 +50,136 @@ export default function AlertsPage() {
   const { t } = useI18n();
   const { toast } = useToast();
   const qc = useQueryClient();
+
   const [levelFilter, setLevelFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
-  const [showSubForm, setShowSubForm] = useState(false);
-  const [subForm, setSubForm] = useState({ channel: "email", destination: "", min_risk: "0.5" });
-  const [fieldError, setFieldError] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [step, setStep] = useState<"form" | "verify">("form");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"subscribe" | "verify">("subscribe");
   const [pendingSubscription, setPendingSubscription] = useState<Subscription | null>(null);
-  const [otp, setOtp] = useState("");
-  const [resendCooldown, setResendCooldown] = useState(0);
 
-  const levelConfig = {
-    critical: { label: t("risk.critical"), color: "bg-destructive/15 text-destructive" },
-    high: { label: t("risk.high"), color: "bg-primary/15 text-primary" },
-    medium: { label: t("risk.medium"), color: "bg-[#f59e0b]/15 text-[#f59e0b]" },
-    low: { label: t("risk.low"), color: "bg-accent/15 text-accent" },
-  };
+  const [subForm, setSubForm] = useState({
+    channel: "EMAIL",
+    destination: "",
+    min_risk: "0.5",
+  });
+  const [fieldError, setFieldError] = useState<string | null>(null);
 
+  // OTP verification state
+  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+  const [error, setError] = useState<string | null>(null);
+  const [attemptsExceeded, setAttemptsExceeded] = useState<boolean>(false);
+  const [cooldown, setCooldown] = useState<number>(0);
+  const [success, setSuccess] = useState<boolean>(false);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Query data
+  const myAlertsQ = useListAlerts();
+  const mySubscriptionsQ = useGetMySubscriptions();
+
+  const subscriptions = mySubscriptionsQ.data || [];
+  const alertsHistory = myAlertsQ.data?.alerts || [];
+
+  // Mutations
+  const subscribeMutation = useSubscribeAlert({
+    mutation: {
+      onSuccess: (data) => {
+        qc.invalidateQueries({ queryKey: ["/alerts/subscriptions"] });
+        setPendingSubscription(data);
+        setModalMode("verify");
+        setError(null);
+        resetOtpState();
+        toast({
+          title: t("common.success"),
+          description: "Code de vérification envoyé !",
+        });
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message || "Erreur lors de l'ajout. Vérifiez votre accès (compte Premium requis pour SMS/WhatsApp).";
+        toast({
+          title: t("common.error"),
+          description: msg,
+          variant: "destructive",
+        });
+      },
+    },
+  });
+
+  const deleteMutation = useDeleteSubscription({
+    mutation: {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ["/alerts/subscriptions"] });
+        toast({
+          title: t("common.success"),
+          description: "Abonnement supprimé !",
+        });
+      },
+    },
+  });
+
+  const verifyMutation = useVerifySubscription({
+    mutation: {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ["/alerts/subscriptions"] });
+        setSuccess(true);
+        setTimeout(() => {
+          closeModal();
+        }, 1500);
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message || "Erreur lors de la vérification";
+        setError(msg);
+        if (msg.includes("maximal")) {
+          setAttemptsExceeded(true);
+        }
+      },
+    },
+  });
+
+  const resendMutation = useResendVerificationCode({
+    mutation: {
+      onSuccess: (data) => {
+        setPendingSubscription(data);
+        setCooldown(60);
+        setError(null);
+        setAttemptsExceeded(false);
+        resetOtpState();
+        toast({
+          title: t("common.success"),
+          description: "Code renvoyé !",
+        });
+      },
+      onError: (err: unknown) => {
+        const msg = (err as { message?: string })?.message || "Impossible de renvoyer le code.";
+        setError(msg);
+      },
+    },
+  });
+
+  // Cooldown timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (cooldown > 0) {
+      interval = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [cooldown]);
+
+  // Reset modal state when opened
+  useEffect(() => {
+    if (showModal) {
+      setError(null);
+      setAttemptsExceeded(false);
+      setSuccess(false);
+      setCooldown(0);
+    }
+  }, [showModal]);
+
+  // Filter options
   const levelFilters = [
     { key: "all", label: t("alerts.filter.all") },
     { key: "critical", label: t("risk.critical") },
@@ -79,103 +194,121 @@ export default function AlertsPage() {
     { key: "sms", label: t("channel.sms") },
   ];
 
-  const myAlertsQ = useGetMyAlerts();
-  const mySubscriptionsQ = useGetMySubscriptions();
-
-  const subscriptions = mySubscriptionsQ.data ?? [];
-  const alertsHistory = myAlertsQ.data?.alerts ?? [];
-
-  const subscribeMutation = useSubscribeAlert({
-    mutation: {
-      onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
-        qc.invalidateQueries({ queryKey: getGetMyAlertsQueryKey() });
-        setPendingSubscription(data);
-        setStep("verify");
-        setApiError(null);
-        toast({
-          title: t("common.success"),
-          description: "Code de vérification envoyé !",
-        });
-      },
-      onError: (err: unknown) => {
-        const msg = (err as { message?: string })?.message;
-        const finalMsg = msg || "Erreur lors de l'ajout. Vérifiez votre accès (compte Premium requis pour SMS/WhatsApp).";
-        setApiError(finalMsg);
-        toast({
-          title: t("common.error"),
-          description: finalMsg,
-          variant: "destructive",
-        });
-      },
-    },
-  });
-
-  const deleteMutation = useDeleteSubscription({
-    mutation: {
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
-        qc.invalidateQueries({ queryKey: getGetMyAlertsQueryKey() });
-        toast({
-          title: t("common.success"),
-          description: t("alerts.toast.deleteSuccess" as any),
-        });
-      },
-    },
-  });
-
-  const verifyMutation = useVerifySubscription({
-    mutation: {
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: getGetMySubscriptionsQueryKey() });
-        toast({
-          title: t("common.success"),
-          description: "Abonnement vérifié et activé !",
-        });
-        closeForm();
-      },
-      onError: (err: unknown) => {
-        const msg = (err as { message?: string })?.message;
-        setApiError(msg || "Code de vérification invalide ou expiré.");
-      },
-    },
-  });
-
-  const resendMutation = useResendVerificationCode({
-    mutation: {
-      onSuccess: () => {
-        setResendCooldown(60);
-        setApiError(null);
-        setOtp("");
-        toast({
-          title: t("common.success"),
-          description: "Code renvoyé !",
-        });
-      },
-      onError: (err: unknown) => {
-        const msg = (err as { message?: string })?.message;
-        setApiError(msg || "Erreur lors du renvoi du code.");
-      },
-    },
-  });
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendCooldown > 0) {
-      timer = setInterval(() => {
-        setResendCooldown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
-
-  const filtered = useMemo(() => {
-    return alertsHistory.filter((a) => {
+  // Filtered alerts
+  const filtered = useRef(
+    alertsHistory.filter((a) => {
       if (levelFilter !== "all" && a.alert_level?.toLowerCase() !== levelFilter.toLowerCase()) return false;
       if (channelFilter !== "all" && a.channel?.toLowerCase() !== channelFilter.toLowerCase()) return false;
       return true;
+    })
+  ).current;
+
+  const openSubscribeModal = () => {
+    setModalMode("subscribe");
+    setPendingSubscription(null);
+    setSubForm({ channel: "EMAIL", destination: "", min_risk: "0.5" });
+    setFieldError(null);
+    setShowModal(true);
+  };
+
+  const openVerifyModal = (sub: Subscription) => {
+    setModalMode("verify");
+    setPendingSubscription(sub);
+    resetOtpState();
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalMode("subscribe");
+    setPendingSubscription(null);
+    resetOtpState();
+  };
+
+  const resetOtpState = () => {
+    setOtp(new Array(6).fill(""));
+    setTimeout(() => {
+      if (inputRefs.current[0]) inputRefs.current[0].focus();
+    }, 150);
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErr = validateDestination(subForm.channel, subForm.destination);
+    if (validationErr) {
+      setFieldError(validationErr);
+      return;
+    }
+    const destination = subForm.channel.toLowerCase() === "email"
+      ? subForm.destination.trim()
+      : subForm.destination.trim().replace(/\s/g, "");
+    await subscribeMutation.mutateAsync({
+      data: {
+        channel: subForm.channel as any,
+        destination,
+        min_risk: parseFloat(subForm.min_risk),
+        min_frp: 50.0,
+      },
     });
-  }, [alertsHistory, levelFilter, channelFilter]);
+  };
+
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!pendingSubscription) return;
+    const fullCode = otp.join("");
+    if (fullCode.length !== 6) {
+      setError("Veuillez saisir les 6 chiffres du code.");
+      return;
+    }
+    await verifyMutation.mutateAsync({
+      id: pendingSubscription.id,
+      data: { code: fullCode },
+    });
+  };
+
+  const handleResend = async () => {
+    if (!pendingSubscription || cooldown > 0) return;
+    await resendMutation.mutateAsync({ id: pendingSubscription.id });
+  };
+
+  const handleOtpChange = (element: HTMLInputElement, index: number) => {
+    const value = element.value;
+    if (isNaN(Number(value))) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.substring(value.length - 1);
+    setOtp(newOtp);
+    if (value && index < 5 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0 && inputRefs.current[index - 1]) {
+        const newOtp = [...otp];
+        newOtp[index - 1] = "";
+        setOtp(newOtp);
+        inputRefs.current[index - 1]?.focus();
+      } else {
+        const newOtp = [...otp];
+        newOtp[index] = "";
+        setOtp(newOtp);
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+    if (pastedData.length !== 6 || isNaN(Number(pastedData))) return;
+    const newOtp = pastedData.split("");
+    setOtp(newOtp);
+    inputRefs.current[5]?.focus();
+  };
 
   if (myAlertsQ.isLoading || mySubscriptionsQ.isLoading) {
     return (
@@ -185,73 +318,6 @@ export default function AlertsPage() {
     );
   }
 
-  const openForm = () => {
-    setShowSubForm(true);
-    setStep("form");
-    setPendingSubscription(null);
-    setOtp("");
-    setApiError(null);
-    setFieldError(null);
-    setSubForm({ channel: "email", destination: "", min_risk: "0.5" });
-  };
-
-  const openVerificationModal = (sub: Subscription) => {
-    setShowSubForm(true);
-    setStep("verify");
-    setPendingSubscription(sub);
-    setOtp("");
-    setApiError(null);
-    setResendCooldown(0);
-  };
-
-  const closeForm = () => {
-    setShowSubForm(false);
-    setStep("form");
-    setPendingSubscription(null);
-    setOtp("");
-    setApiError(null);
-    setFieldError(null);
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiError(null);
-    const validationErr = validateDestination(subForm.channel, subForm.destination);
-    if (validationErr) {
-      setFieldError(validationErr);
-      return;
-    }
-    const destination = subForm.channel === "email"
-      ? subForm.destination.trim()
-      : subForm.destination.trim().replace(/\s/g, "");
-
-    await subscribeMutation.mutateAsync({
-      data: {
-        channel: subForm.channel.toUpperCase() as any,
-        destination,
-        min_risk: parseFloat(subForm.min_risk),
-        min_frp: 50.0,
-      },
-    });
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!pendingSubscription) return;
-    if (otp.length !== 6) {
-      setApiError("Veuillez saisir les 6 chiffres du code.");
-      return;
-    }
-    await verifyMutation.mutateAsync({
-      id: pendingSubscription.id,
-      data: { code: otp },
-    });
-  };
-
-  const handleResendOtp = async () => {
-    if (!pendingSubscription || resendCooldown > 0) return;
-    await resendMutation.mutateAsync({ id: pendingSubscription.id });
-  };
-
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -260,7 +326,7 @@ export default function AlertsPage() {
           <p className="text-sm text-muted-foreground mt-1">{t("alerts.subtitle")}</p>
         </div>
         <button
-          onClick={openForm}
+          onClick={openSubscribeModal}
           data-testid="button-add-subscription"
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity self-start sm:self-auto"
         >
@@ -279,7 +345,7 @@ export default function AlertsPage() {
         ) : (
           <div className="divide-y divide-border">
             {subscriptions.map((s) => {
-              const Icon = channelIcon[s.channel.toLowerCase()] || Bell;
+              const Icon = channelIcon[s.channel];
               return (
                 <div key={s.id} data-testid={`row-subscription-${s.id}`} className="flex items-center gap-4 px-4 py-3">
                   <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
@@ -288,13 +354,13 @@ export default function AlertsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate">{s.destination}</div>
                     <div className="text-xs text-muted-foreground truncate capitalize">
-                      {s.channel.toLowerCase()} · {t("alerts.subs.risk")} ≥ {((s.min_risk ?? 0) * 100).toFixed(0)}% · {t("alerts.subs.frp")} ≥ {s.min_frp ?? 0} MW
+                      {s.channel.toLowerCase()} · {t("alerts.subs.risk")} ≥ {((s.min_risk || 0) * 100).toFixed(0)}%
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {!s.is_verified ? (
                       <button
-                        onClick={() => openVerificationModal(s)}
+                        onClick={() => openVerifyModal(s)}
                         className="text-xs px-3 py-1 rounded-full bg-destructive/10 text-destructive font-medium flex items-center gap-1"
                       >
                         <AlertCircle className="w-3 h-3" />
@@ -350,10 +416,15 @@ export default function AlertsPage() {
           <div className="p-8 text-center text-muted-foreground text-sm">{t("alerts.history.empty")}</div>
         ) : (
           filtered.map((a) => {
+            const levelConfig = {
+              critical: { label: t("risk.critical"), color: "bg-destructive/15 text-destructive" },
+              high: { label: t("risk.high"), color: "bg-primary/15 text-primary" },
+              medium: { label: t("risk.medium"), color: "bg-[#f59e0b]/15 text-[#f59e0b]" },
+              low: { label: t("risk.low"), color: "bg-accent/15 text-accent" },
+            };
             const level = levelConfig[a.alert_level.toLowerCase() as keyof typeof levelConfig] || { label: a.alert_level, color: "bg-muted text-muted-foreground" };
-            const ChanIcon = channelIcon[a.channel.toLowerCase()] || Bell;
-            const StatusIcon = statusIcon[a.status.toLowerCase()] || Clock;
-            const statusLabel = a.status.toLowerCase() === "sent" ? t("alert.status.sent") : a.status.toLowerCase() === "failed" ? t("alert.status.failed") : t("alert.status.pending");
+            const ChanIcon = channelIcon[a.channel];
+            const StatusIcon = statusIcon[a.status];
             return (
               <div key={a.id} data-testid={`row-alert-${a.id}`} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 hover:bg-secondary/20 transition-colors">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -366,14 +437,14 @@ export default function AlertsPage() {
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${level.color}`}>{level.label}</span>
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5 break-words">
-                      {a.message || `FRP: ${a.frp?.toFixed(0)} MW · ${t("alerts.subs.risk")}: ${((a.risk_score ?? 0) * 100).toFixed(0)}%`}
+                      {a.message || `FRP: ${a.frp?.toFixed(0)} MW · ${t("alerts.subs.risk")}: ${((a.risk_score || 0) * 100).toFixed(0)}%`}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between sm:justify-end gap-4 border-t border-border/40 sm:border-0 pt-2 sm:pt-0 pl-11 sm:pl-0">
                   <div className={`flex items-center gap-1 text-xs ${a.status.toLowerCase() === "sent" ? "text-accent" : a.status.toLowerCase() === "failed" ? "text-destructive" : "text-muted-foreground"}`}>
                     <StatusIcon className="w-3.5 h-3.5" />
-                    <span>{statusLabel}</span>
+                    <span>{a.status.toLowerCase() === "sent" ? t("alert.status.sent") : a.status.toLowerCase() === "failed" ? t("alert.status.failed") : t("alert.status.pending")}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {a.sent_at ? new Date(a.sent_at).toLocaleDateString("fr-FR") : "—"}
@@ -385,165 +456,171 @@ export default function AlertsPage() {
         )}
       </div>
 
-      {/* Add subscription modal */}
-      {showSubForm && (
+      {/* Modal */}
+      {showModal && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) => {
-            if (e.target === e.currentTarget) closeForm();
+            if (e.target === e.currentTarget) closeModal();
           }}
         >
           <div className="bg-card border border-card-border rounded-xl p-6 w-full max-w-md shadow-2xl">
-            {/* API error banner */}
-            {apiError && (
-              <div className="flex items-start gap-2 mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span>{apiError}</span>
-              </div>
-            )}
+            <button
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-2xl"
+              onClick={closeModal}
+            >
+              ×
+            </button>
 
-            {step === "form" ? (
-              <>
-                <h3 className="font-heading font-bold text-lg mb-5">{t("alerts.form.title")}</h3>
-                <form onSubmit={handleFormSubmit} className="space-y-4" noValidate>
-                  {/* Channel */}
-                  <div>
-                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.channel")}</label>
-                    <select
-                      value={subForm.channel}
-                      onChange={(e) => handleChannelChange(e.target.value)}
-                      className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="email">{t("channel.email")}</option>
-                      <option value="whatsapp">{t("channel.whatsapp")} ({t("common.premium")})</option>
-                      <option value="sms">{t("channel.sms")} ({t("common.premium")})</option>
-                    </select>
-                  </div>
-
-                  {/* Destination */}
-                  <div>
-                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.destination")}</label>
-                    <input
-                      type={subForm.channel === "email" ? "email" : "tel"}
-                      value={subForm.destination}
-                      onChange={(e) => handleDestinationChange(e.target.value)}
-                      onBlur={(e) => setFieldError(validateDestination(subForm.channel, e.target.value))}
-                      placeholder={subForm.channel === "email" ? "vous@exemple.mg" : "+261 34 12 345 67"}
-                      required
-                      autoComplete={subForm.channel === "email" ? "email" : "tel"}
-                      className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${fieldError ? "border-destructive focus:ring-destructive/30" : "border-input focus:ring-primary/30"
-                        }`}
-                    />
-                    {fieldError ? (
-                      <p className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
-                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        {fieldError}
-                      </p>
-                    ) : (
-                      subForm.channel !== "email" && (
-                        <p className="mt-1.5 text-xs text-muted-foreground">
-                          Format international requis, ex: <strong>+261341234567</strong>
-                        </p>
-                      )
-                    )}
-                  </div>
-
-                  {/* Risk threshold */}
-                  <div>
-                    <label className="text-sm font-medium block mb-1.5">{t("alerts.form.riskThreshold")}</label>
-                    <input
-                      value={subForm.min_risk}
-                      onChange={(e) => setSubForm((f) => ({ ...f, min_risk: e.target.value }))}
-                      type="number"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {Math.round(parseFloat(subForm.min_risk || "0") * 100)}% — Alerte si le score de risque dépasse ce seuil
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={closeForm}
-                      className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-                    >
-                      {t("common.cancel")}
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={subscribeMutation.isPending || !!fieldError}
-                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
-                    >
-                      {subscribeMutation.isPending ? "Envoi..." : t("alerts.form.addButton")}
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h3 className="font-heading font-bold text-lg mb-2">Vérification de l'abonnement</h3>
-                <p className="text-sm text-muted-foreground mb-5">
-                  Un code a été envoyé à <strong>{pendingSubscription?.destination}</strong>
+            {success ? (
+              <div className="flex flex-col items-center gap-4 p-4">
+                <div className="w-16 h-16 rounded-full bg-green-500/20 text-green-500 border-2 border-green-500 flex items-center justify-center text-3xl font-bold animate-bounce">
+                  ✓
+                </div>
+                <h2 className="text-xl font-bold">Abonnement Activé !</h2>
+                <p className="text-muted-foreground text-center">
+                  Votre canal {pendingSubscription?.channel.toLowerCase()} ({pendingSubscription?.destination}) est validé avec succès.
                 </p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium block mb-1.5">Code de vérification</label>
-                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                      <InputOTPGroup>
-                        {[0, 1, 2, 3, 4, 5].map((i) => (
-                          <InputOTPSlot key={i} index={i} />
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setStep("form")}
-                      className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
-                    >
-                      {t("common.back")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleVerifyOtp}
-                      disabled={verifyMutation.isPending || otp.length !== 6}
-                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
-                    >
-                      {verifyMutation.isPending ? "Vérification..." : "Vérifier"}
-                    </button>
-                  </div>
+              </div>
+            ) : modalMode === "subscribe" ? (
+              <form onSubmit={handleSubscribe} className="space-y-4">
+                <h3 className="font-heading font-bold text-lg">Nouvel abonnement</h3>
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">{t("alerts.form.channel")}</label>
+                  <select
+                    value={subForm.channel}
+                    onChange={(e) => {
+                      setSubForm((f) => ({ ...f, channel: e.target.value, destination: "" }));
+                      setFieldError(null);
+                    }}
+                    className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="EMAIL">{t("channel.email")}</option>
+                    <option value="WHATSAPP">{t("channel.whatsapp")} ({t("common.premium")})</option>
+                    <option value="SMS">{t("channel.sms")} ({t("common.premium")})</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">{t("alerts.form.destination")}</label>
+                  <input
+                    type={subForm.channel.toLowerCase() === "email" ? "email" : "tel"}
+                    value={subForm.destination}
+                    onChange={(e) => {
+                      setSubForm((f) => ({ ...f, destination: e.target.value }));
+                      const err = validateDestination(subForm.channel, e.target.value);
+                      setFieldError(err);
+                    }}
+                    onBlur={(e) => setFieldError(validateDestination(subForm.channel, e.target.value))}
+                    placeholder={subForm.channel.toLowerCase() === "email" ? "vous@exemple.mg" : "+261 34 12 345 67"}
+                    required
+                    autoComplete={subForm.channel.toLowerCase() === "email" ? "email" : "tel"}
+                    className={`w-full h-10 px-3 rounded-md bg-secondary border text-sm outline-none focus:ring-2 transition-colors ${fieldError ? "border-destructive focus:ring-destructive/30" : "border-input focus:ring-primary/30"
+                      }`}
+                  />
+                  {fieldError ? (
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      {fieldError}
+                    </p>
+                  ) : (
+                    subForm.channel.toLowerCase() !== "email" && (
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        Format international requis, ex: <strong>+261341234567</strong>
+                      </p>
+                    )
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1.5">{t("alerts.form.riskThreshold")}</label>
+                  <input
+                    value={subForm.min_risk}
+                    onChange={(e) => setSubForm((f) => ({ ...f, min_risk: e.target.value }))}
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {Math.round(parseFloat(subForm.min_risk || "0") * 100)}% — Alerte si le score de risque dépasse ce seuil
+                  </p>
+                </div>
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={handleResendOtp}
-                    disabled={resendMutation.isPending || resendCooldown > 0}
-                    className="w-full flex items-center justify-center gap-2 text-center text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    onClick={closeModal}
+                    className="flex-1 h-10 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${resendCooldown > 0 ? "animate-spin" : ""}`} />
-                    {resendCooldown > 0 ? `Renvoyer dans ${resendCooldown}s` : "Renvoyer le code"}
+                    {t("common.cancel")}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={subscribeMutation.isPending || !!fieldError}
+                    className="flex-1 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  >
+                    {subscribeMutation.isPending ? "Envoi..." : t("alerts.form.addButton")}
                   </button>
                 </div>
-              </>
+              </form>
+            ) : (
+              <form onSubmit={handleVerify} className="space-y-4">
+                <h2 className="text-xl font-bold text-center">Vérification de sécurité</h2>
+                <p className="text-muted-foreground text-center">
+                  Nous avons envoyé un code de validation temporaire à <strong>{pendingSubscription?.destination}</strong>.
+                </p>
+
+                <div className="flex justify-center gap-2">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      disabled={verifyMutation.isPending || attemptsExceeded}
+                      ref={(el) => { inputRefs.current[index] = el; }}
+                      onChange={(e) => handleOtpChange(e.target, index)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                      onPaste={index === 0 ? handleOtpPaste : undefined}
+                      className={`w-12 h-14 text-center text-2xl font-bold rounded-xl border-2 ${error ? "border-destructive" : "border-input focus:border-primary"
+                        } bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50`}
+                      autoComplete="one-time-code"
+                    />
+                  ))}
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {error}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={verifyMutation.isPending || otp.some(d => !d) || attemptsExceeded}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-700 text-white font-semibold hover:opacity-90 disabled:opacity-50 transition-all"
+                  >
+                    {verifyMutation.isPending ? "Vérification..." : "Valider l'abonnement"}
+                  </button>
+                  <div className="text-center text-muted-foreground text-sm">
+                    Vous n'avez pas reçu de code ?
+                    <button
+                      type="button"
+                      disabled={cooldown > 0 || resendMutation.isPending}
+                      onClick={handleResend}
+                      className="ml-2 text-sky-400 font-semibold hover:text-sky-300 disabled:text-muted-foreground transition-colors"
+                    >
+                      {cooldown > 0 ? `Renvoyer dans ${cooldown}s` : "Renvoyer un code"}
+                    </button>
+                  </div>
+                </div>
+              </form>
             )}
           </div>
         </div>
       )}
     </div>
   );
-
-  const handleDestinationChange = (value: string) => {
-    setSubForm((f) => ({ ...f, destination: value }));
-    const err = validateDestination(subForm.channel, value);
-    setFieldError(err);
-  };
-
-  const handleChannelChange = (value: string) => {
-    setSubForm((f) => ({ ...f, channel: value, destination: "" }));
-    setFieldError(null);
-    setApiError(null);
-  };
 }
