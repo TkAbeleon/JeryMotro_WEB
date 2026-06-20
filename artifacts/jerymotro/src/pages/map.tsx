@@ -413,7 +413,7 @@ export default function MapPage() {
         <button
           onClick={() => setShowSearchModal(true)}
           className="absolute top-4 z-[998] bg-card border border-border rounded-lg p-2.5 flex items-center justify-center shadow-md hover:bg-secondary transition-colors"
-          style={{ left: filterOpen ? "296px" : "56px" }}
+          style={{ left: filterOpen ? "296px" : "104px" }}
         >
           <Search className="w-4 h-4" />
         </button>
