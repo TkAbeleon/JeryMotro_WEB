@@ -20,21 +20,15 @@ pnpm install --frozen-lockfile
 echo "=== Building all packages ==="
 pnpm run build
 
-# Step 4: Start services with PM2
-echo "=== Starting services with PM2 ==="
+# Step 4: Start frontend with PM2
+echo "=== Starting frontend with PM2 ==="
 
-# Cleanup old processes
+# Cleanup old frontend process only
 pm2 stop jerymotro-frontend || true
 pm2 delete jerymotro-frontend || true
-pm2 stop jerymotro-backend || true
-pm2 delete jerymotro-backend || true
 
 # Start frontend
 pm2 start "pnpm dev" --name "jerymotro-frontend" --cwd "$PROJECT_DIR/artifacts/jerymotro"
-
-# Start backend (optional, if you want to run both on same server)
-# Uncomment if needed:
-# pm2 start "pnpm dev" --name "jerymotro-backend" --cwd "$PROJECT_DIR/artifacts/api-server"
 
 echo "=== Deployment complete! ==="
 pm2 status
