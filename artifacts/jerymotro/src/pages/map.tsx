@@ -1,6 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import { useState, useMemo, useEffect } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, ZoomControl } from "react-leaflet";
 import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
@@ -406,11 +406,10 @@ export default function MapPage() {
         {/* Search toggle button */}
         <button
           onClick={() => setShowSearchModal(true)}
-          className="absolute top-4 z-[998] bg-card border border-border rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-medium shadow-md hover:bg-secondary transition-colors"
+          className="absolute top-4 z-[998] bg-card border border-border rounded-lg p-2.5 flex items-center justify-center shadow-md hover:bg-secondary transition-colors"
           style={{ left: filterOpen ? "296px" : "56px" }}
         >
           <Search className="w-4 h-4" />
-          <span className="hidden sm:inline">{t("map.search.placeholder")}</span>
         </button>
 
         {/* Geolocation floating button */}
@@ -530,7 +529,7 @@ export default function MapPage() {
         )}
 
         {/* Stats bar */}
-        <div className="absolute bottom-3 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[997] flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-lg text-xs sm:text-sm">
+        <div className="absolute bottom-16 left-3 sm:left-4 z-[997] flex flex-col sm:flex-row flex-wrap items-start justify-start gap-2 sm:gap-3 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-lg text-xs sm:text-sm max-w-[90%] sm:max-w-[400px]">
           <div className="flex items-center gap-1.5">
             <span className="text-muted-foreground">{t("map.stats.total")}</span>
             <span className="font-bold">{filtered.length}</span>
@@ -542,7 +541,7 @@ export default function MapPage() {
             <span className="font-bold text-destructive">{criticalCount}</span>
           </div>
           <div className="hidden sm:block w-px h-3 bg-border" />
-          <div className="text-[10px] sm:text-xs text-muted-foreground w-full sm:w-auto text-center border-t border-border/40 sm:border-0 pt-1.5 sm:pt-0">
+          <div className="text-[10px] sm:text-xs text-muted-foreground w-full sm:w-auto text-center sm:text-left border-t border-border/40 sm:border-0 pt-1.5 sm:pt-0">
             {periodLabels[period]}
           </div>
         </div>
@@ -552,9 +551,10 @@ export default function MapPage() {
           center={[-18.766947, 46.869107]}
           zoom={6}
           style={{ height: "100%", width: "100%", background: "#1a1a2e" }}
-          zoomControl={true}
+          zoomControl={false}
           attributionControl={true}
         >
+          <ZoomControl position="bottomright" />
           <MapAttributionFix />
 
           {mapTarget && (
