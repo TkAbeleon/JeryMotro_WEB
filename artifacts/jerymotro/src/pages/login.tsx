@@ -75,7 +75,7 @@ export default function LoginPage() {
       {/* Left panel */}
       <div className="hidden lg:flex flex-col w-[480px] bg-sidebar border-r border-border p-10 justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.jpg" alt="JeryMotro" className="h-9 rounded" />
+          <img src="/logo.png" alt="JeryMotro" className="h-9 rounded" />
           <span className="font-heading font-bold text-xl">JeryMotro</span>
         </div>
 
@@ -112,7 +112,7 @@ export default function LoginPage() {
         <div className="w-full max-w-[400px]">
           <div className="flex items-center justify-between mb-8 lg:hidden">
             <div className="flex items-center gap-2">
-              <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
+              <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
               <span className="font-heading font-bold text-lg">JeryMotro</span>
             </div>
             <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">

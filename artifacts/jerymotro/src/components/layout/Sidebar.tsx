@@ -76,10 +76,10 @@ export function Sidebar() {
         style={{ paddingLeft: collapsed ? 0 : undefined, justifyContent: collapsed ? "center" : undefined }}
       >
         {collapsed ? (
-          <img src="/logo.jpg" alt="JeryMotro" className="h-7 w-7 rounded object-cover" />
+          <img src="/logo.png" alt="JeryMotro" className="h-7 w-7 rounded object-cover" />
         ) : (
           <div className="flex items-center gap-3 px-4 flex-1 min-w-0">
-            <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded flex-shrink-0" />
+            <img src="/logo.png" alt="JeryMotro" className="h-8 rounded flex-shrink-0" />
             <span className="font-heading font-bold text-lg text-sidebar-foreground truncate">JeryMotro</span>
           </div>
         )}

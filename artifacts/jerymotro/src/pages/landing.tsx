@@ -61,7 +61,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md h-[58px] flex items-center justify-between px-4 sm:px-8">
         <div className="flex items-center gap-3">
-          <img src="/logo.jpg" alt="JeryMotro" className="h-8 rounded" />
+          <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
           <span className="font-heading font-bold text-base sm:text-lg">JeryMotro</span>
         </div>
         <div className="flex items-center gap-4">
@@ -248,7 +248,7 @@ export default function LandingPage() {
       <footer className="border-t border-border py-8">
         <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-3">
-            <img src="/logo.jpg" alt="JeryMotro" className="h-6 rounded" />
+            <img src="/logo.png" alt="JeryMotro" className="h-6 rounded" />
             <span className="font-heading font-semibold text-foreground">JeryMotro</span>
             <span>— {t("landing.footer.surveillance")}</span>
           </div>
