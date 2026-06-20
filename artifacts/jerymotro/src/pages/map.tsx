@@ -81,10 +81,9 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ formatted_address: string; lat: number; lng: number }[]>([]);
   const [searching, setSearching] = useState(false);
-  const [showSearchDropdown, setShowDropdown] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const handleSearchLocation = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSearchLocation = async () => {
     if (!searchQuery.trim()) return;
 
     setSearching(true);
@@ -100,11 +99,11 @@ export default function MapPage() {
           lng: r.geometry.location.lng,
         }));
         setSearchResults(results);
-        setShowDropdown(true);
 
         if (results.length === 1) {
           setMapTarget({ lat: results[0].lat, lng: results[0].lng, zoom: 12 });
-          setShowDropdown(false);
+          setShowSearchModal(false);
+          setSearchQuery("");
         }
       } else if (data.status === "ZERO_RESULTS") {
         toast({
@@ -133,16 +132,7 @@ export default function MapPage() {
     }
   };
 
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".search-location-container")) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
-  }, []);
+
 
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
@@ -406,90 +396,28 @@ export default function MapPage() {
         {!filterOpen && (
           <button
             onClick={() => setFilterOpen(true)}
-            className="absolute top-4 left-4 z-[500] bg-card border border-border rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-medium shadow-md hover:bg-secondary transition-colors"
+            className="absolute top-4 left-4 z-[998] bg-card border border-border rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-medium shadow-md hover:bg-secondary transition-colors"
           >
             <Filter className="w-4 h-4" />
-            {t("map.filter.title")}
+            <span className="hidden sm:inline">{t("map.filter.title")}</span>
           </button>
         )}
 
-        {/* Floating Search Bar */}
-        <div
-          className={`absolute top-4 z-[999] flex flex-col w-[220px] sm:w-[280px] md:w-[340px] transition-all duration-300 search-location-container ${filterOpen ? "left-4" : "left-32 max-sm:left-12 max-sm:w-[calc(100%-116px)]"
-            }`}
+        {/* Search toggle button */}
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="absolute top-4 z-[998] bg-card border border-border rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-medium shadow-md hover:bg-secondary transition-colors"
+          style={{ left: filterOpen ? "296px" : "56px" }}
         >
-          <form
-            onSubmit={handleSearchLocation}
-            className="flex items-center gap-1.5 bg-card/90 backdrop-blur-md border border-border shadow-lg rounded-xl pl-3 pr-2 py-1.5 h-10 w-full"
-          >
-            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                if (!e.target.value) {
-                  setSearchResults([]);
-                  setShowDropdown(false);
-                }
-              }}
-              placeholder={t("map.search.placeholder")}
-              className="bg-transparent border-0 outline-none text-xs sm:text-sm w-full h-full text-foreground placeholder:text-muted-foreground/80 focus:ring-0 focus:outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  setSearchResults([]);
-                  setShowDropdown(false);
-                }}
-                className="p-1 rounded-md text-muted-foreground hover:bg-secondary flex-shrink-0"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={searching || !searchQuery.trim()}
-              className="bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center justify-center h-7 transition-all flex-shrink-0"
-            >
-              {searching ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                t("common.search" as any).replace("...", "")
-              )}
-            </button>
-          </form>
-
-          {/* Results Dropdown */}
-          {showSearchDropdown && searchResults.length > 0 && (
-            <div className="mt-1.5 bg-card/95 backdrop-blur-md border border-border shadow-xl rounded-xl max-h-48 overflow-y-auto w-full py-1 divide-y divide-border/40 z-[1000] scrollbar-thin">
-              {searchResults.map((result, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setMapTarget({ lat: result.lat, lng: result.lng, zoom: 12 });
-                    setShowDropdown(false);
-                  }}
-                  className="w-full text-left px-3.5 py-2.5 hover:bg-secondary flex items-start gap-2.5 transition-colors group"
-                >
-                  <MapPin className="w-4 h-4 text-primary mt-0.5 group-hover:scale-110 transition-transform flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-foreground/90 group-hover:text-foreground font-medium truncate">
-                    {result.formatted_address}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          <Search className="w-4 h-4" />
+          <span className="hidden sm:inline">{t("map.search.placeholder")}</span>
+        </button>
 
         {/* Geolocation floating button */}
         <button
           onClick={handleLocateMe}
           disabled={locating}
-          className="absolute top-4 right-4 z-[500] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-2.5 flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:bg-secondary disabled:opacity-50 transition-colors"
+          className="absolute top-4 right-4 z-[998] bg-card/95 backdrop-blur-sm border border-border rounded-lg p-2.5 flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:bg-secondary disabled:opacity-50 transition-colors"
           title={t("map.geolocation.button" as any)}
         >
           {locating ? (
@@ -501,6 +429,105 @@ export default function MapPage() {
             {locating ? t("map.geolocation.loading" as any) : t("map.geolocation.button" as any)}
           </span>
         </button>
+
+        {/* Search Modal */}
+        {showSearchModal && (
+          <div className="absolute inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 pt-16">
+            <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+              <div className="p-4 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Search className="w-5 h-5 text-muted-foreground" />
+                  <span className="font-heading font-semibold">{t("map.search.placeholder")}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowSearchModal(false);
+                    setSearchQuery("");
+                    setSearchResults([]);
+                  }}
+                  className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-4">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearchLocation();
+                  }}
+                  className="flex items-center gap-2 mb-4"
+                >
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (!e.target.value) {
+                        setSearchResults([]);
+                      }
+                    }}
+                    placeholder={t("map.search.placeholder")}
+                    className="flex-1 h-10 bg-secondary border border-input rounded-lg px-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSearchResults([]);
+                      }}
+                      className="p-2 rounded-md text-muted-foreground hover:bg-secondary"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={searching || !searchQuery.trim()}
+                    className="h-10 bg-primary hover:opacity-90 disabled:opacity-50 text-primary-foreground px-4 rounded-lg text-sm font-medium"
+                  >
+                    {searching ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      t("common.search" as any).replace("...", "")
+                    )}
+                  </button>
+                </form>
+
+                <div className="max-h-[50vh] overflow-y-auto space-y-1">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((result, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setMapTarget({ lat: result.lat, lng: result.lng, zoom: 12 });
+                          setShowSearchModal(false);
+                          setSearchQuery("");
+                          setSearchResults([]);
+                        }}
+                        className="w-full text-left p-3 rounded-lg hover:bg-secondary flex items-start gap-3 transition-colors"
+                      >
+                        <MapPin className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                        <span className="text-sm text-foreground flex-1">
+                          {result.formatted_address}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    searchQuery.length > 0 && !searching && (
+                      <div className="text-center text-muted-foreground text-sm py-8">
+                        {t("map.search.noResults" as any)}
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats bar */}
         <div className="absolute bottom-3 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[997] flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-lg text-xs sm:text-sm">
