@@ -147,29 +147,29 @@ export default function RegisterPage() {
             </Link>
           </div>
 
-          {/* Top Controls (Desktop) */}
-          <div className="flex items-center justify-end gap-3 mb-6 lg:flex">
-            {/* Language Selector */}
-            <div className="flex items-center gap-2">
-              <Languages className="w-4 h-4 text-muted-foreground" />
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value as any)}
-                className="bg-transparent text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
-              >
-                {Object.entries(LANG_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Theme Toggle */}
+          {/* Top Controls */}
+          <div className="flex items-center justify-end gap-2 mb-6">
+            {/* Theme Toggle (icon only always) */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md hover:bg-secondary transition-colors"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+            
+            {/* Language Selector (compact) */}
+            <div className="flex items-center gap-1">
+              <Languages className="w-4 h-4 text-muted-foreground" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as any)}
+                className="bg-transparent text-xs sm:text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
+              >
+                {Object.entries(LANG_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>{key.toUpperCase()}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Home Button */}
             <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">

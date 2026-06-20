@@ -62,24 +62,10 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md h-[58px] flex items-center justify-between px-4 sm:px-8">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
-          <span className="font-heading font-bold text-base sm:text-lg">JeryMotro</span>
+          <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
         </div>
-        <div className="flex items-center gap-4">
-          {/* Language Selector */}
-          <div className="flex items-center gap-2">
-            <Languages className="w-4 h-4 text-muted-foreground" />
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as any)}
-              className="bg-transparent text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer"
-            >
-              {Object.entries(LANG_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Theme Toggle */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Theme Toggle (icon only always) */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-md hover:bg-secondary transition-colors"
@@ -87,9 +73,24 @@ export default function LandingPage() {
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link>
-          <Link href="/register" className="text-sm bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium">
-            {t("auth.register.title")}
+          {/* Language Selector (show full on sm+) */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Languages className="w-4 h-4 text-muted-foreground" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as any)}
+              className="bg-transparent text-xs sm:text-sm text-muted-foreground hover:text-foreground outline-none cursor-pointer max-w-[60px] sm:max-w-full"
+            >
+              {Object.entries(LANG_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{key.toUpperCase()}</option>
+              ))}
+            </select>
+          </div>
+
+          <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">{t("auth.login.title")}</Link>
+          <Link href="/register" className="text-sm bg-primary text-primary-foreground px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:opacity-90 transition-opacity font-medium">
+            <span className="hidden sm:inline">{t("auth.register.title")}</span>
+            <span className="sm:hidden">{t("auth.register.title").substring(0, 3)}</span>
           </Link>
         </div>
       </nav>
