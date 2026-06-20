@@ -46,10 +46,10 @@ function getRiskColor(risk: number): string {
 function getPeriodCutoff(period: Period): Date {
   switch (period) {
     case "today": return subDays(now, 1);
-    case "7d":   return subDays(now, 7);
-    case "30d":  return subDays(now, 30);
-    case "90d":  return subMonths(now, 3);
-    case "1y":   return subMonths(now, 12);
+    case "7d": return subDays(now, 7);
+    case "30d": return subDays(now, 30);
+    case "90d": return subMonths(now, 3);
+    case "1y": return subMonths(now, 12);
   }
 }
 
@@ -234,24 +234,24 @@ export default function MapPage() {
 
   const RISK_LEVELS: { key: RiskLevel; color: string }[] = [
     { key: "critical", color: "#ef4444" },
-    { key: "high",     color: "#f97316" },
-    { key: "medium",   color: "#f59e0b" },
-    { key: "low",      color: "#22c55e" },
+    { key: "high", color: "#f97316" },
+    { key: "medium", color: "#f59e0b" },
+    { key: "low", color: "#22c55e" },
   ];
 
   const legendLabels: Record<RiskLevel, string> = {
     critical: t("map.legend.critical"),
-    high:     t("map.legend.high"),
-    medium:   t("map.legend.medium"),
-    low:      t("map.legend.low"),
+    high: t("map.legend.high"),
+    medium: t("map.legend.medium"),
+    low: t("map.legend.low"),
   };
 
   const periodLabels: Record<Period, string> = {
     today: t("map.filter.period.today"),
-    "7d":  t("map.filter.period.7d"),
+    "7d": t("map.filter.period.7d"),
     "30d": t("map.filter.period.30d"),
     "90d": t("map.filter.period.90d"),
-    "1y":  t("map.filter.period.1y"),
+    "1y": t("map.filter.period.1y"),
   };
 
   return (
@@ -259,14 +259,13 @@ export default function MapPage() {
 
       {/* ── Filter Panel ── */}
       <div
-        className={`bg-card border-r border-border flex flex-col z-[500] transition-all duration-300 flex-shrink-0 overflow-y-auto max-md:absolute max-md:left-0 max-md:top-0 max-md:bottom-0 h-full max-md:shadow-2xl md:relative ${
-          filterOpen ? "w-[280px]" : "w-0 overflow-hidden border-r-0"
-        }`}
+        className={`bg-card border-r border-border flex flex-col z-[998] transition-all duration-300 flex-shrink-0 overflow-y-auto max-md:absolute max-md:left-0 max-md:top-0 max-md:bottom-0 h-full max-md:shadow-2xl md:relative ${filterOpen ? "w-[280px]" : "w-0 overflow-hidden border-r-0"
+          }`}
       >
-        <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
-          <span className="font-heading font-semibold text-sm">{t("map.filter.title")}</span>
-          <button onClick={() => setFilterOpen(false)} className="p-1 rounded hover:bg-secondary text-muted-foreground">
-            <X className="w-4 h-4" />
+        <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0 gap-2">
+          <span className="font-heading font-semibold text-sm flex-1 truncate">{t("map.filter.title")}</span>
+          <button onClick={() => setFilterOpen(false)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground flex-shrink-0">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -279,11 +278,10 @@ export default function MapPage() {
                 <button
                   key={style}
                   onClick={() => setMapStyle(style)}
-                  className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${
-                    mapStyle === style
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
+                  className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${mapStyle === style
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
                 >
                   {t(`map.filter.style.${style}` as any).replace(" (Google)", "")}
                 </button>
@@ -299,9 +297,8 @@ export default function MapPage() {
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
-                  className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${
-                    period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"
-                  }`}
+                  className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"
+                    }`}
                 >
                   {periodLabels[p]}
                 </button>
@@ -360,11 +357,10 @@ export default function MapPage() {
                 <button
                   key={s}
                   onClick={() => setSelectedSource(s)}
-                  className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${
-                    selectedSource === s
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:bg-secondary"
-                  }`}
+                  className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${selectedSource === s
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground hover:bg-secondary"
+                    }`}
                 >
                   {s === "all" ? t("map.filter.source.all") : s}
                 </button>
@@ -419,9 +415,8 @@ export default function MapPage() {
 
         {/* Floating Search Bar */}
         <div
-          className={`absolute top-4 z-[500] flex flex-col w-[240px] sm:w-[300px] md:w-[340px] transition-all duration-300 search-location-container ${
-            filterOpen ? "left-4" : "left-36 max-sm:left-14 max-sm:w-[calc(100%-140px)]"
-          }`}
+          className={`absolute top-4 z-[999] flex flex-col w-[220px] sm:w-[280px] md:w-[340px] transition-all duration-300 search-location-container ${filterOpen ? "left-4" : "left-32 max-sm:left-12 max-sm:w-[calc(100%-116px)]"
+            }`}
         >
           <form
             onSubmit={handleSearchLocation}
@@ -508,12 +503,12 @@ export default function MapPage() {
         </button>
 
         {/* Stats bar */}
-        <div className="absolute bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[500] flex flex-wrap items-center justify-center gap-3 sm:gap-4 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-4 py-2.5 shadow-lg text-xs sm:text-sm">
+        <div className="absolute bottom-3 left-3 right-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[997] flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 bg-card/95 backdrop-blur-sm border border-border rounded-xl px-3 py-2 shadow-lg text-xs sm:text-sm">
           <div className="flex items-center gap-1.5">
             <span className="text-muted-foreground">{t("map.stats.total")}</span>
             <span className="font-bold">{filtered.length}</span>
           </div>
-          <div className="hidden min-[400px]:block w-px h-3 bg-border" />
+          <div className="hidden min-[380px]:block w-px h-3 bg-border" />
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
             <span className="text-muted-foreground">{t("map.stats.critical")}</span>
