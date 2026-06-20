@@ -53,9 +53,15 @@ function getPeriodCutoff(period: Period): Date {
   }
 }
 
-// Fix map attribution + legend overlap
+// Fix map attribution + legend overlap + remove default zoom controls
 function MapAttributionFix() {
   const map = useMap();
+
+  useEffect(() => {
+    // Ensure no default zoom controls are present
+    map.zoomControl?.remove();
+  }, [map]);
+
   return null;
 }
 
