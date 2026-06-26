@@ -4,19 +4,33 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend
 } from "recharts";
 import { useI18n } from "@/hooks/use-i18n";
+import { subDays, subMonths } from "date-fns";
+
+function formatDateForAPI(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
 
 export default function StatsPage() {
   const { t } = useI18n();
 
-  const dailyQ = useGetDailyStats();
-  const detectionsQ = useListDetections({ limit: 200 });
-  const clustersQ = useListClusters({ limit: 50 });
+  // Calculate date range for last 30 days
+  const { dateFrom } = useMemo(() => {
+    const now = new Date();
+    const cutoff = subDays(now, 30);
+    return {
+      dateFrom: formatDateForAPI(cutoff)
+    };
+  }, []);
+
+  const dailyQ = useGetDailyStats({ date_from: dateFrom });
+  const detectionsQ = useListDetections({ limit: 2000, date_from: dateFrom });
+  const clustersQ = useListClusters({ limit: 50, date_from: dateFrom });
 
   const daily = dailyQ.data?.stats || [];
   const detections = detectionsQ.data?.detections || [];
   const clusters = clustersQ.data?.clusters || [];
 
-  const last30 = daily.slice(-30);
+  const last30 = daily;
   const last7 = daily.slice(-7);
 
   const regionStats = useMemo(() => {

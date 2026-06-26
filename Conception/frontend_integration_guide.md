@@ -164,16 +164,17 @@ sequenceDiagram
 - **Paramètres Query utiles :**
   - `date_from` / `date_to` : Format `YYYY-MM-DD`
   - `min_frp` / `max_frp` : Puissance radiative en MW
-  - `min_risk` / `max_risk` : Score de danger ML (0.0 à 1.0)
+  - `min_risk` / `max_risk` : Score de danger ML XGBoost (0 à 100)
   - `region` : Filtre par région de Madagascar (ex: `Menabe`, `Diana`)
-  - `exclude_noise` : `true` par défaut (exclut les points aberrants)
+  - `exclude_noise` : `true` par défaut (exclut les points aberrants HDBSCAN)
   - `limit` (défaut `1000`) & `offset` (pagination)
 - **Logique d'affichage et couleurs :**
-  Utilisez la clé `risk_level` renvoyée par l'API pour colorer les marqueurs sur la carte :
-  - `CRITICAL` 🔴 Rouge clignotant
+  Chaque détection inclut un `risk_score` (0-100) calculé par le microservice externe XGBoost. Utilisez la clé `risk_level` renvoyée par l'API pour colorer les marqueurs sur la carte :
+  - `CRITICAL` 🔴 Rouge clignotant (Score élevé ou FRP > 50)
   - `HIGH` 🟠 Orange foncé
   - `MEDIUM` 🟡 Jaune/Orange
   - `LOW` 🟢 Vert
+  - `UNKNOWN` ⚪ Gris (Non scoré)
 
 ### 4.2 Représentation des Clusters (FireEvents)
 
@@ -211,9 +212,9 @@ Pour éviter de saturer le navigateur avec des milliers de marqueurs individuels
 
 ## 5. Carte de Prédiction (Couche GeoJSON)
 
-JeryMotroNet ConvLSTM calcule quotidiennement les risques de feux à J+1 sur Madagascar sous forme de grille.
+JeryMotroNet (XGBoost) peut calculer les risques de feux à J+1 sur Madagascar sous forme de grille. Le service utilise le microservice ML externe pour déduire un score par zone.
 
-- **Endpoint :** `GET /predictions/risk-map?min_risk=0.4`
+- **Endpoint :** `GET /predictions/risk-map?min_risk=40`
 - **Structure GeoJSON retournée :**
   ```json
   {
@@ -226,7 +227,7 @@ JeryMotroNet ConvLSTM calcule quotidiennement les risques de feux à J+1 sur Mad
           "coordinates": [44.58, -18.25]
         },
         "properties": {
-          "risk_score_j1": 0.76,
+          "risk_score_j1": 76.5,
           "grid_cell_id": "123",
           "region": "Menabe"
         }
@@ -241,7 +242,7 @@ JeryMotroNet ConvLSTM calcule quotidiennement les risques de feux à J+1 sur Mad
   }
   ```
 - **Rendu cartographique :**
-  Utilisez l'opacité et un dégradé de couleur (du jaune `0.4` au rouge foncé `1.0`) selon la valeur de `properties.risk_score_j1`.
+  Utilisez l'opacité et un dégradé de couleur (du jaune `40` au rouge foncé `100`) selon la valeur de `properties.risk_score_j1`.
 
 ---
 
@@ -257,7 +258,7 @@ L'utilisateur configure ses critères d'alerte :
   {
     "channel": "EMAIL", // "EMAIL", "SMS", "WHATSAPP"
     "destination": "destinataire@test.mg", // Email ou numéro de téléphone
-    "min_risk": 0.7, // Déclencher si risque >= 70%
+    "min_risk": 70.0, // Déclencher si score de risque XGBoost >= 70
     "min_frp": 30.0 // Déclencher si FRP >= 30 MW
   }
   ```
@@ -292,19 +293,20 @@ Les comptes Premium peuvent définir des polygones ou des cercles de surveillanc
 
 ## 8. Chatbot IA RAG (JeryMotro AI)
 
-Le volet Chatbot permet de poser des questions naturelles sur les feux et prédictions.
+Le volet Chatbot permet de poser des questions naturelles sur les feux et prédictions. 
+*Note : Le moteur RAG interne (ChromaDB) a été décommissionné. La logique de recherche documentaire et de réponse IA est désormais gérée par un service externe (workflow n8n).*
 
-- **Endpoint :** `POST /chat`
-- **Payload :**
+- **Endpoint API Backend :** `POST /chat` (agit désormais comme un proxy rapide vers n8n ou comme point d'entrée pour initier le flux).
+- **Alternative Directe :** Selon votre configuration réseau, le frontend peut être amené à contacter directement le Webhook n8n (vérifiez avec l'équipe backend l'URL du webhook n8n si la route `/chat` n'est plus utilisée comme proxy).
+- **Payload type :**
   ```json
   {
     "message": "Fais-moi un résumé de la situation dans le Menabe.",
     "temperature": 0.1,
-    "zone_id": null, // Passer l'ID de zone si ouvert depuis une Zone Prioritaire
-    "conversation_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6" // Optionnel : UUID pour le suivi de la session de chat
+    "zone_id": null // Passer l'ID de zone si ouvert depuis une Zone Prioritaire
   }
   ```
-- **Format de réponse standard :**
+- **Format de réponse :**
   ```json
   {
     "response": "### Situation dans le Menabe\n...\n",
@@ -317,9 +319,7 @@ Le volet Chatbot permet de poser des questions naturelles sur les feux et prédi
   }
   ```
 - **Logique UI :**
-  - **Gestion de la latence :** Le timeout maximal du webhook RAG a été porté à **60 secondes** (au lieu de 30) pour tolérer les démarrages à froid de l'infrastructure LLM (Hugging Face / n8n). Le frontend doit utiliser un *loading spinner* ou *skeleton* persistant d'au moins 60s avant d'émettre un timeout.
-  - **Compatibilité des données :** L'API backend JeryMotro normalise de façon autonome les formats hétérogènes de n8n (recherche des clés `"output"`, `"text"`, ou `"response"` dans le payload du webhook). Le frontend est ainsi garanti de toujours recevoir le texte généré dans la propriété racine `"response"`.
-  - **Rendu :** Rendre la valeur de `"response"` en Markdown propre.
+  - Rendre `response` en Markdown propre.
   - Afficher la liste des `sources` sous forme de badges cliquables.
 
 ---
@@ -339,7 +339,7 @@ L'interface Admin doit permettre de lancer des tâches de fond pour le traitemen
 
 ### 9.3 Scoring ML (Risque d'Incendie)
 - **Endpoint :** `POST /internal/run-scoring?limit=1000`
-- **Action :** Fait appel au modèle ML (JeryMotroNet) pour attribuer un `risk_score` aux nouvelles détections. À appeler de façon asynchrone dans le dashboard.
+- **Action :** Fait appel au microservice ML externe (modèle `xgboost-v1`) pour attribuer un `risk_score` (0-100) aux nouvelles détections non scorées. Cet appel est envoyé en batch (ex: paquets de 1000) via l'URL `ML_SERVICE_URL`. À appeler de façon asynchrone dans le dashboard.
 
 ---
 
@@ -411,17 +411,18 @@ function initPredictionMap(map, geojsonData) {
 
     // Dégradé : Jaune -> Orange -> Rouge
     let color = "#34d399"; // Vert par défaut (bas risque)
-    if (risk >= 0.8)
+    if (risk >= 80)
       color = "#ef4444"; // Rouge
-    else if (risk >= 0.6)
+    else if (risk >= 60)
       color = "#f97316"; // Orange
-    else if (risk >= 0.4) color = "#facc15"; // Jaune
+    else if (risk >= 40) color = "#facc15"; // Jaune
 
     return {
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: color,
-        fillOpacity: risk * 0.8, // Opacité selon l'intensité
+        fillOpacity: risk / 100 * 0.8, // Opacité selon l'intensité
+
         scale: 8,
         strokeColor: "#ffffff",
         strokeWeight: 1,

@@ -58,7 +58,7 @@ python3 scripts/verify_db.py
 | `jerymotronet_service` (client ML HTTP)          | ✅      | mode dégradé si ML down       |
 | `firms_service` (fetch NASA CSV)                 | ✅      |                               |
 | `alert_service` (SMTP / Twilio)                  | ✅      |                               |
-| `rag_service` (Chroma + Vertex, fallback)        | ✅      |                               |
+| `rag_service` (RAG géré en externe via n8n)          | ✅      |                               |
 | `fire_status_service`                            | ✅      | ACTIVE / COOLING / LIKELY_OUT |
 | `cluster_service` (agrégation clusters)          | ✅      | pour job post-import          |
 | `config` pydantic-settings                       | ✅      |                               |
@@ -89,8 +89,8 @@ python3 scripts/verify_db.py
 | Clustering HDBSCAN → `cluster_id`        | ✅      | `cluster_service.perform_hdbscan_clustering` |
 | Agrégation → `fire_events`               | ✅      | `POST /internal/rebuild-clusters`            |
 | ConvLSTM → table `predictions`           | ⬜      | Service ML `/predict-grid`                   |
-| Embeddings ChromaDB (RAG)                | ⬜      | Indexer résumés par run                      |
-| Alertes auto sur seuils                  | ⬜      | `alert_service.route_alert`                  |
+| RAG Chatbot (Externalisé vers n8n)       | ✅      | RAG backend (ChromaDB) décommissionné        |
+| Alertes auto sur seuils                  | ✅      | `alert_service.route_alert`                  |
 
 ---
 
@@ -100,11 +100,13 @@ python3 scripts/verify_db.py
 | ------------------------------------------------------------------ | ------ | ------- |
 | `conftest.py` (SQLite mémoire)                                     | ✅      |         |
 | `test_fire_status.py`, `test_cluster_service.py`, `test_health.py` | ✅      |         |
-| `test_auth.py`                                                     | ⬜      |         |
+| `test_auth.py`                                                     | ✅      |         |
 | `test_detections.py`                                               | ⬜ 🔗    |         |
 | `test_clusters.py`                                                 | ⬜ 🔗    |         |
-| `test_chat.py` (mock RAG)                                          | ⬜      |         |
-| `test_alerts.py`                                                   | ⬜      |         |
+| `test_chat.py` (via webhook n8n)                                   | ⬜      |         |
+| `test_alerts.py`                                                   | ✅      |         |
+| `test_zones.py`                                                    | ✅      |         |
+| `test_user_seeds.py`                                               | ✅      |         |
 
 ---
 
@@ -135,7 +137,7 @@ conception/PLAN_IMPL_STATUS.md   # ce fichier
 
 ## Prochaines actions (ordre recommandé)
 
-1. **Intelligence Artificielle** : Finaliser le pipeline RAG (Embeddings ChromaDB) et les appels de scoring ML restants.
-2. **Prédictions Spatiales** : Mettre en service le modèle ConvLSTM (table `predictions`).
-3. **Tests unitaires (QA)** : Rédiger les tests (Auth, Detections, Alertes) avec Pytest pour atteindre la couverture ≥ 60%.
+1. **Prédictions Spatiales** : Mettre en service le modèle ConvLSTM (table `predictions`) via l'endpoint `/predict-grid`.
+2. **Alertes Automatisées** : Finaliser le routage et l'envoi des alertes (`alert_service.route_alert`).
+3. **Tests unitaires (QA)** : Rédiger les tests complets (Auth, Detections, Alertes) avec Pytest pour atteindre la couverture ≥ 60%.
 4. **Livrables Académiques** : Finalisation du mémoire PDF, création des slides et préparation de la vidéo de démonstration.

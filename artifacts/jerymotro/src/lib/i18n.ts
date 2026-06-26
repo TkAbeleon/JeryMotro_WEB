@@ -128,6 +128,10 @@ export const translations = {
     "map.search.searching": "Recherche...",
     "map.search.noResults": "Aucun lieu trouvé à Madagascar.",
     "map.search.error": "Erreur lors de la recherche.",
+    "map.sidebar.title": "Feux et Alertes",
+    "map.sidebar.tab.list": "Liste",
+    "map.sidebar.tab.filters": "Filtres",
+    "map.empty": "Aucun feu dans cette zone",
 
 
     // --- Topbar ---
@@ -570,6 +574,10 @@ export const translations = {
     "map.search.searching": "Mitady...",
     "map.search.noResults": "Tsy misy vokany hita eto Madagasikara.",
     "map.search.error": "Nisy hadisoana teo am-pitadiavana.",
+    "map.sidebar.title": "Afo sy Fampitandremana",
+    "map.sidebar.tab.list": "Lisitra",
+    "map.sidebar.tab.filters": "Fisintonana",
+    "map.empty": "Tsy misy afo ao amin'ity faritra ity",
 
 
     // --- Topbar ---
@@ -1006,6 +1014,10 @@ export const translations = {
     "map.search.searching": "Searching...",
     "map.search.noResults": "No results found in Madagascar.",
     "map.search.error": "Error searching for location.",
+    "map.sidebar.title": "Fires and Alerts",
+    "map.sidebar.tab.list": "List",
+    "map.sidebar.tab.filters": "Filters",
+    "map.empty": "No fires in this area",
 
 
     // --- Topbar ---

@@ -1,7 +1,10 @@
 import "leaflet/dist/leaflet.css";
 import { useState, useMemo, useEffect } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap, ZoomControl } from "react-leaflet";
-import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check } from "lucide-react";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, ZoomControl, useMapEvents } from "react-leaflet";
+import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check, List } from "lucide-react";
+import L from "leaflet";
+// @ts-ignore
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
 import { format, subDays, subMonths, isAfter } from "date-fns";
@@ -23,9 +26,6 @@ interface FirePoint {
   detectedAt: Date;
 }
 
-const now = new Date();
-
-
 const REGIONS = ["Antananarivo", "Fianarantsoa", "Toamasina", "Mahajanga", "Toliara", "Antsiranana"];
 const PERIODS: Period[] = ["today", "7d", "30d", "90d", "1y"];
 
@@ -43,7 +43,7 @@ function getRiskColor(risk: number): string {
   return "#22c55e";
 }
 
-function getPeriodCutoff(period: Period): Date {
+function getPeriodCutoff(period: Period, now: Date): Date {
   switch (period) {
     case "today": return subDays(now, 1);
     case "7d": return subDays(now, 7);
@@ -51,6 +51,10 @@ function getPeriodCutoff(period: Period): Date {
     case "90d": return subMonths(now, 3);
     case "1y": return subMonths(now, 12);
   }
+}
+
+function formatDateForAPI(date: Date): string {
+  return date.toISOString().split('T')[0];
 }
 
 // Fix map attribution + legend overlap + remove default zoom controls
@@ -75,7 +79,29 @@ function MapRecenter({ lat, lng, zoom = 12 }: { lat: number; lng: number; zoom?:
   return null;
 }
 
+
+function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend() {
+      onBoundsChange(map.getBounds());
+    },
+    zoomend() {
+      onBoundsChange(map.getBounds());
+    },
+    load() {
+      onBoundsChange(map.getBounds());
+    }
+  });
+
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+  }, [map, onBoundsChange]);
+
+  return null;
+}
+
 const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+
 
 export default function MapPage() {
   const { t } = useI18n();
@@ -88,6 +114,10 @@ export default function MapPage() {
   const [searchResults, setSearchResults] = useState<{ formatted_address: string; lat: number; lng: number }[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+
+  const [sidebarTab, setSidebarTab] = useState<"list" | "filters">("list");
+  const [hoveredFireId, setHoveredFireId] = useState<number | null>(null);
+  const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
 
   const handleSearchLocation = async () => {
     if (!searchQuery.trim()) return;
@@ -196,7 +226,26 @@ export default function MapPage() {
     });
   };
 
-  const detectionsQuery = useListDetections({ limit: 200 });
+  // Get current date and calculate date_from for API
+  const { dateFrom, now } = useMemo(() => {
+    const n = new Date();
+    const cutoff = getPeriodCutoff(period, n);
+    return {
+      now: n,
+      dateFrom: formatDateForAPI(cutoff)
+    };
+  }, [period]);
+
+  // Prepare query params for API
+  const queryParams: any = { limit: 2000, date_from: dateFrom };
+  if (selectedRegion !== "all") {
+    queryParams.region = selectedRegion;
+  }
+  if (selectedSource !== "all") {
+    queryParams.source = selectedSource === "VIIRS" ? "VIIRS_SNPP" : "MODIS";
+  }
+
+  const detectionsQuery = useListDetections(queryParams);
 
   const fires = useMemo(() => {
     if (!detectionsQuery.data?.detections) {
@@ -216,7 +265,7 @@ export default function MapPage() {
   }, [detectionsQuery.data]);
 
   const filtered = useMemo(() => {
-    const cutoff = getPeriodCutoff(period);
+    const cutoff = getPeriodCutoff(period, now);
     return fires.filter(p => {
       if (!isAfter(p.detectedAt, cutoff)) return false;
       if (!selectedRisks.has(getRiskLevel(p.risk))) return false;
@@ -224,7 +273,12 @@ export default function MapPage() {
       if (selectedSource !== "all" && p.source !== selectedSource) return false;
       return true;
     });
-  }, [fires, period, selectedRisks, selectedRegion, selectedSource]);
+  }, [fires, period, selectedRisks, selectedRegion, selectedSource, now]);
+
+  const visibleFires = useMemo(() => {
+    if (!visibleBounds) return filtered;
+    return filtered.filter(f => visibleBounds.contains([f.lat, f.lng]));
+  }, [filtered, visibleBounds]);
 
   const criticalCount = filtered.filter(p => p.risk >= 0.7).length;
 
@@ -258,141 +312,196 @@ export default function MapPage() {
         className={`bg-card border-r border-border flex flex-col z-[998] transition-all duration-300 flex-shrink-0 overflow-y-auto max-md:absolute max-md:left-0 max-md:top-0 max-md:bottom-0 h-full max-md:shadow-2xl md:relative ${filterOpen ? "w-[280px]" : "w-0 overflow-hidden border-r-0"
           }`}
       >
-        <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0 gap-2">
-          <span className="font-heading font-semibold text-sm flex-1 truncate">{t("map.filter.title")}</span>
-          <button onClick={() => setFilterOpen(false)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground flex-shrink-0">
-            <X className="w-5 h-5" />
-          </button>
+        <div className="p-4 border-b border-border flex flex-col flex-shrink-0 gap-3">
+          <div className="flex items-center justify-between">
+            <span className="font-heading font-semibold text-sm truncate">{t("map.sidebar.title")}</span>
+            <button onClick={() => setFilterOpen(false)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground flex-shrink-0">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSidebarTab("list")}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg border transition-colors ${sidebarTab === "list" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"}`}
+            >
+              <List className="w-3.5 h-3.5" />
+              {t("map.sidebar.tab.list")} ({visibleFires.length})
+            </button>
+            <button
+              onClick={() => setSidebarTab("filters")}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg border transition-colors ${sidebarTab === "filters" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"}`}
+            >
+              <Filter className="w-3.5 h-3.5" />
+              {t("map.sidebar.tab.filters")}
+            </button>
+          </div>
         </div>
 
-        <div className="p-4 space-y-6 flex-1">
-          {/* Style de carte */}
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">{t("map.filter.style")}</div>
-            <div className="grid grid-cols-3 gap-1 bg-secondary/60 p-1 rounded-lg border border-border">
-              {(["satellite", "roadmap", "dark"] as const).map(style => (
-                <button
-                  key={style}
-                  onClick={() => setMapStyle(style)}
-                  className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${mapStyle === style
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    }`}
+        {sidebarTab === "list" ? (
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {visibleFires.length === 0 ? (
+              <div className="text-center text-muted-foreground text-sm py-8">{t("map.empty")}</div>
+            ) : (
+              visibleFires.map(fire => (
+                <div
+                  key={fire.id}
+                  onMouseEnter={() => setHoveredFireId(fire.id)}
+                  onMouseLeave={() => setHoveredFireId(null)}
+                  onClick={() => setMapTarget({ lat: fire.lat, lng: fire.lng, zoom: 15 })}
+                  className={`cursor-pointer rounded-lg border p-3 transition-all ${hoveredFireId === fire.id ? "border-primary bg-secondary/50 shadow-md" : "border-border bg-card hover:border-border/80"}`}
                 >
-                  {t(`map.filter.style.${style}` as any).replace(" (Google)", "")}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Period */}
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.period")}</div>
-            <div className="flex flex-col gap-1.5">
-              {PERIODS.map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"
-                    }`}
-                >
-                  {periodLabels[p]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Risk level */}
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.risk")}</div>
-            <div className="flex flex-col gap-2">
-              {RISK_LEVELS.map(({ key, color }) => (
-                <label key={key} className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={selectedRisks.has(key)}
-                    onChange={() => toggleRisk(key)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0`}
-                    style={{
-                      borderColor: color,
-                      backgroundColor: selectedRisks.has(key) ? color : "transparent",
-                    }}
-                  >
-                    {selectedRisks.has(key) && <span className="text-white text-xs font-bold">✓</span>}
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs text-muted-foreground font-mono">{fire.lat.toFixed(3)}, {fire.lng.toFixed(3)}</span>
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: getRiskColor(fire.risk) + "22", color: getRiskColor(fire.risk) }}>
+                      {t(`risk.${getRiskLevel(fire.risk)}` as any)}
+                    </span>
                   </div>
-                  <span className="text-sm">{legendLabels[key]}</span>
-                </label>
-              ))}
-            </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-1.5 flex-1 bg-border rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${fire.risk * 100}%`, backgroundColor: getRiskColor(fire.risk) }} />
+                    </div>
+                    <span className="text-xs font-bold font-heading ml-2">{fire.risk.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>{fire.region}</span>
+                    <span>{format(fire.detectedAt, "dd/MM HH:mm")}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-
-          {/* Region */}
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.region")}</div>
-            <div className="relative">
-              <select
-                value={selectedRegion}
-                onChange={e => setSelectedRegion(e.target.value)}
-                className="w-full h-9 bg-secondary border border-input rounded-lg px-3 pr-8 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="all">{t("map.filter.region.all")}</option>
-                {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-              <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Source */}
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.source")}</div>
-            <div className="flex gap-2">
-              {["all", "MODIS", "VIIRS"].map(s => (
-                <button
-                  key={s}
-                  onClick={() => setSelectedSource(s)}
-                  className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${selectedSource === s
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:bg-secondary"
-                    }`}
-                >
-                  {s === "all" ? t("map.filter.source.all") : s}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Reset */}
-          <button
-            onClick={() => {
-              setPeriod("30d");
-              setSelectedRisks(new Set(["critical", "high", "medium", "low"]));
-              setSelectedRegion("all");
-              setSelectedSource("all");
-            }}
-            className="w-full text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg py-2 transition-colors"
-          >
-            {t("common.reset")}
-          </button>
-        </div>
-
-        {/* Legend */}
-        <div className="p-4 border-t border-border flex-shrink-0">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            <Layers className="w-3.5 h-3.5 inline mr-1.5" />
-            {t("map.legend")}
-          </div>
-          <div className="space-y-2">
-            {RISK_LEVELS.map(({ key, color }) => (
-              <div key={key} className="flex items-center gap-2.5 text-xs text-muted-foreground">
-                <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color, opacity: 0.9 }} />
-                {legendLabels[key]}
+        ) : (
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+            <div className="p-4 space-y-6 flex-1 overflow-y-auto">
+              {/* Style de carte */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">{t("map.filter.style")}</div>
+                <div className="grid grid-cols-3 gap-1 bg-secondary/60 p-1 rounded-lg border border-border">
+                  {(["satellite", "roadmap", "dark"] as const).map(style => (
+                    <button
+                      key={style}
+                      onClick={() => setMapStyle(style)}
+                      className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${mapStyle === style
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                        }`}
+                    >
+                      {t(`map.filter.style.${style}` as any).replace(" (Google)", "")}
+                    </button>
+                  ))}
+                </div>
               </div>
-            ))}
+
+              {/* Period */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.period")}</div>
+                <div className="flex flex-col gap-1.5">
+                  {PERIODS.map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setPeriod(p)}
+                      className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"
+                        }`}
+                    >
+                      {periodLabels[p]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Risk level */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.risk")}</div>
+                <div className="flex flex-col gap-2">
+                  {RISK_LEVELS.map(({ key, color }) => (
+                    <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedRisks.has(key)}
+                        onChange={() => toggleRisk(key)}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all flex-shrink-0`}
+                        style={{
+                          borderColor: color,
+                          backgroundColor: selectedRisks.has(key) ? color : "transparent",
+                        }}
+                      >
+                        {selectedRisks.has(key) && <span className="text-white text-xs font-bold">✓</span>}
+                      </div>
+                      <span className="text-sm">{legendLabels[key]}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Region */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.region")}</div>
+                <div className="relative">
+                  <select
+                    value={selectedRegion}
+                    onChange={e => setSelectedRegion(e.target.value)}
+                    className="w-full h-9 bg-secondary border border-input rounded-lg px-3 pr-8 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="all">{t("map.filter.region.all")}</option>
+                    {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Source */}
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t("map.filter.source")}</div>
+                <div className="flex gap-2">
+                  {["all", "MODIS", "VIIRS"].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSource(s)}
+                      className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${selectedSource === s
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border text-muted-foreground hover:bg-secondary"
+                        }`}
+                    >
+                      {s === "all" ? t("map.filter.source.all") : s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reset */}
+              <button
+                onClick={() => {
+                  setPeriod("30d");
+                  setSelectedRisks(new Set(["critical", "high", "medium", "low"]));
+                  setSelectedRegion("all");
+                  setSelectedSource("all");
+                }}
+                className="w-full text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg py-2 transition-colors"
+              >
+                {t("common.reset")}
+              </button>
+            </div>
+
+            {/* Legend */}
+            <div className="p-4 border-t border-border flex-shrink-0">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                <Layers className="w-3.5 h-3.5 inline mr-1.5" />
+                {t("map.legend")}
+              </div>
+              <div className="space-y-2">
+                {RISK_LEVELS.map(({ key, color }) => (
+                  <div key={key} className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color, opacity: 0.9 }} />
+                    {legendLabels[key]}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Map area ── */}
@@ -562,6 +671,7 @@ export default function MapPage() {
         >
           <ZoomControl position="bottomright" />
           <MapAttributionFix />
+          <MapBoundsTracker onBoundsChange={setVisibleBounds} />
 
           {mapTarget && (
             <MapRecenter lat={mapTarget.lat} lng={mapTarget.lng} zoom={mapTarget.zoom} />
@@ -609,57 +719,67 @@ export default function MapPage() {
             />
           )}
 
-          {filtered.map(point => (
-            <CircleMarker
-              key={point.id}
-              center={[point.lat, point.lng]}
-              radius={point.risk >= 0.7 ? 9 : point.risk >= 0.5 ? 7 : 6}
-              pathOptions={{
-                color: getRiskColor(point.risk),
-                fillColor: getRiskColor(point.risk),
-                fillOpacity: 0.85,
-                weight: 1.5,
-              }}
-            >
-              <Popup className="fire-popup">
-                <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                  <span
-                    className="inline-block w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: getRiskColor(point.risk) }}
-                  />
-                  {point.region}
-                  <span
-                    className="ml-auto text-xs px-1.5 py-0.5 rounded font-bold uppercase"
-                    style={{ backgroundColor: getRiskColor(point.risk) + "22", color: getRiskColor(point.risk) }}
-                  >
-                    {t(`risk.${getRiskLevel(point.risk)}` as any)}
-                  </span>
-                </div>
-                <div className="space-y-1 text-xs text-gray-400">
-                  <div className="flex justify-between gap-4">
-                    <span>{t("map.popup.confidence")}</span>
-                    <span className="text-white font-medium">{point.confidence}%</span>
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={50}
+            spiderfyOnMaxZoom={true}
+          >
+            {filtered.map(point => (
+              <CircleMarker
+                key={point.id}
+                center={[point.lat, point.lng]}
+                radius={point.id === hoveredFireId ? 12 : point.risk >= 0.7 ? 9 : point.risk >= 0.5 ? 7 : 6}
+                eventHandlers={{
+                  mouseover: () => setHoveredFireId(point.id),
+                  mouseout: () => setHoveredFireId(null),
+                }}
+                pathOptions={{
+                  color: point.id === hoveredFireId ? "#ffffff" : getRiskColor(point.risk),
+                  fillColor: getRiskColor(point.risk),
+                  fillOpacity: point.id === hoveredFireId ? 1 : 0.85,
+                  weight: point.id === hoveredFireId ? 2 : 1.5,
+                }}
+              >
+                <Popup className="fire-popup">
+                  <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: getRiskColor(point.risk) }}
+                    />
+                    {point.region}
+                    <span
+                      className="ml-auto text-xs px-1.5 py-0.5 rounded font-bold uppercase"
+                      style={{ backgroundColor: getRiskColor(point.risk) + "22", color: getRiskColor(point.risk) }}
+                    >
+                      {t(`risk.${getRiskLevel(point.risk)}` as any)}
+                    </span>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <span>{t("map.popup.brightness")}</span>
-                    <span className="text-white font-medium">{point.brightness} K</span>
+                  <div className="space-y-1 text-xs text-gray-400">
+                    <div className="flex justify-between gap-4">
+                      <span>{t("map.popup.confidence")}</span>
+                      <span className="text-white font-medium">{point.confidence}%</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t("map.popup.brightness")}</span>
+                      <span className="text-white font-medium">{point.brightness} K</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t("map.popup.source")}</span>
+                      <span className="text-white font-medium">{point.source}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t("map.popup.detected")}</span>
+                      <span className="text-white font-medium">{format(point.detectedAt, "dd/MM HH:mm")}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t("map.popup.coords")}</span>
+                      <span className="text-white font-medium">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <span>{t("map.popup.source")}</span>
-                    <span className="text-white font-medium">{point.source}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span>{t("map.popup.detected")}</span>
-                    <span className="text-white font-medium">{format(point.detectedAt, "dd/MM HH:mm")}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span>{t("map.popup.coords")}</span>
-                    <span className="text-white font-medium">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span>
-                  </div>
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
+                </Popup>
+              </CircleMarker>
+            ))}
+          </MarkerClusterGroup>
         </MapContainer>
       </div>
     </div>
