@@ -1,18 +1,19 @@
 import "leaflet/dist/leaflet.css";
 import { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, ZoomControl, useMapEvents } from "react-leaflet";
-import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check, List } from "lucide-react";
+import { Filter, X, Layers, ChevronDown, Compass, Loader2, Search, MapPin, Check, List, Calendar as CalendarIcon } from "lucide-react";
 import L from "leaflet";
 // @ts-ignore
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
-import { format, subDays, subMonths, isAfter } from "date-fns";
+import { format, subDays, subMonths, isAfter, isBefore, isEqual } from "date-fns";
 import { useListDetections } from "@workspace/api-client-react";
+import { Calendar } from "@/components/ui/calendar";
 
 // --- Types ---
 type RiskLevel = "critical" | "high" | "medium" | "low";
-type Period = "today" | "7d" | "30d" | "90d" | "1y";
+type Period = "today" | "7d" | "30d" | "90d" | "1y" | "custom";
 
 interface FirePoint {
   id: number;
@@ -27,7 +28,23 @@ interface FirePoint {
 }
 
 const REGIONS = ["Antananarivo", "Fianarantsoa", "Toamasina", "Mahajanga", "Toliara", "Antsiranana"];
-const PERIODS: Period[] = ["today", "7d", "30d", "90d", "1y"];
+
+// Geographic bounding boxes for Madagascar regions (minLat, maxLat, minLng, maxLng)
+const REGION_BOUNDARIES: Record<string, { minLat: number; maxLat: number; minLng: number; maxLng: number }> = {
+  "Antananarivo": { minLat: -19.5, maxLat: -15.8, minLng: 46.5, maxLng: 49.5 },
+  "Fianarantsoa": { minLat: -22.5, maxLat: -19.0, minLng: 46.0, maxLng: 48.5 },
+  "Toamasina": { minLat: -18.0, maxLat: -15.0, minLng: 48.0, maxLng: 50.5 },
+  "Mahajanga": { minLat: -16.5, maxLat: -13.5, minLng: 43.0, maxLng: 46.5 },
+  "Toliara": { minLat: -25.5, maxLat: -19.0, minLng: 43.0, maxLng: 47.0 },
+  "Antsiranana": { minLat: -12.5, maxLat: -11.0, minLng: 49.0, maxLng: 50.5 }
+};
+
+function isInRegion(lat: number, lng: number, region: string): boolean {
+  const bounds = REGION_BOUNDARIES[region];
+  if (!bounds) return false;
+  return lat >= bounds.minLat && lat <= bounds.maxLat && lng >= bounds.minLng && lng <= bounds.maxLng;
+}
+const PERIODS: Period[] = ["today", "7d", "30d", "90d", "1y", "custom"];
 
 function getRiskLevel(risk: number): RiskLevel {
   if (risk >= 0.7) return "critical";
@@ -50,11 +67,29 @@ function getPeriodCutoff(period: Period, now: Date): Date {
     case "30d": return subDays(now, 30);
     case "90d": return subMonths(now, 3);
     case "1y": return subMonths(now, 12);
+    default: return subDays(now, 30);
   }
 }
 
 function formatDateForAPI(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isDateInRange(date: Date, from: Date, to: Date): boolean {
+  const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const normalizedFrom = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const normalizedTo = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
+  // Normalize to UTC to avoid timezone issues
+  normalizedDate.setUTCHours(0, 0, 0, 0);
+  normalizedFrom.setUTCHours(0, 0, 0, 0);
+  normalizedTo.setUTCHours(0, 0, 0, 0);
+
+  return (isAfter(normalizedDate, normalizedFrom) || isEqual(normalizedDate, normalizedFrom)) &&
+    (isBefore(normalizedDate, normalizedTo) || isEqual(normalizedDate, normalizedTo));
 }
 
 // Fix map attribution + legend overlap + remove default zoom controls
@@ -217,6 +252,14 @@ export default function MapPage() {
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedSource, setSelectedSource] = useState("all");
   const [filterOpen, setFilterOpen] = useState(true);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>(() => {
+    const now = new Date();
+    return {
+      from: subDays(now, 30),
+      to: now
+    };
+  });
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const toggleRisk = (r: RiskLevel) => {
     setSelectedRisks(prev => {
@@ -227,23 +270,57 @@ export default function MapPage() {
   };
 
   // Get current date and calculate date_from for API
-  const { dateFrom, now } = useMemo(() => {
+  const { apiDateFrom, apiDateTo, now } = useMemo(() => {
     const n = new Date();
-    const cutoff = getPeriodCutoff(period, n);
+    let from: Date, to: Date;
+
+    if (period === "custom") {
+      from = dateRange.from;
+      to = dateRange.to;
+    } else {
+      const cutoff = getPeriodCutoff(period, n);
+      from = cutoff;
+      to = n;
+    }
+
     return {
       now: n,
-      dateFrom: formatDateForAPI(cutoff)
+      apiDateFrom: formatDateForAPI(from),
+      apiDateTo: formatDateForAPI(to)
     };
-  }, [period]);
+  }, [period, dateRange]);
 
   // Prepare query params for API
-  const queryParams: any = { limit: 2000, date_from: dateFrom };
-  if (selectedRegion !== "all") {
-    queryParams.region = selectedRegion;
-  }
-  if (selectedSource !== "all") {
-    queryParams.source = selectedSource === "VIIRS" ? "VIIRS_SNPP" : "MODIS";
-  }
+  const queryParams = useMemo(() => {
+    // Calculate dynamic limit based on date range
+    const daysDiff = Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24));
+    const dynamicLimit = Math.min(10000, Math.max(2000, daysDiff * 100));
+    
+    const params: any = { limit: dynamicLimit, date_from: apiDateFrom, date_to: apiDateTo };
+    
+    // Add risk filters based on selected risks
+    const riskThresholds = {
+      critical: { min: 0.7, max: 1.0 },
+      high: { min: 0.5, max: 0.7 },
+      medium: { min: 0.3, max: 0.5 },
+      low: { min: 0.0, max: 0.3 }
+    };
+    
+    if (selectedRisks.size > 0 && selectedRisks.size < 4) {
+      const activeThresholds = Array.from(selectedRisks).map(r => riskThresholds[r]);
+      const minRisk = Math.min(...activeThresholds.map(t => t.min));
+      const maxRisk = Math.max(...activeThresholds.map(t => t.max));
+      params.min_risk = minRisk;
+      params.max_risk = maxRisk;
+    }
+    
+    // Region filter is handled client-side, not API
+    if (selectedSource !== "all") {
+      params.source = selectedSource === "VIIRS" ? "VIIRS_SNPP" : "MODIS";
+    }
+    
+    return params;
+  }, [apiDateFrom, apiDateTo, selectedRisks, selectedSource, dateRange]);
 
   const detectionsQuery = useListDetections(queryParams);
 
@@ -265,15 +342,16 @@ export default function MapPage() {
   }, [detectionsQuery.data]);
 
   const filtered = useMemo(() => {
-    const cutoff = getPeriodCutoff(period, now);
     return fires.filter(p => {
-      if (!isAfter(p.detectedAt, cutoff)) return false;
+      // Risk filter
       if (!selectedRisks.has(getRiskLevel(p.risk))) return false;
-      if (selectedRegion !== "all" && p.region !== selectedRegion) return false;
+      // Region filter - use geographic boundaries
+      if (selectedRegion !== "all" && !isInRegion(p.lat, p.lng, selectedRegion)) return false;
+      // Source filter
       if (selectedSource !== "all" && p.source !== selectedSource) return false;
       return true;
     });
-  }, [fires, period, selectedRisks, selectedRegion, selectedSource, now]);
+  }, [fires, selectedRisks, selectedRegion, selectedSource]);
 
   const visibleFires = useMemo(() => {
     if (!visibleBounds) return filtered;
@@ -302,6 +380,7 @@ export default function MapPage() {
     "30d": t("map.filter.period.30d"),
     "90d": t("map.filter.period.90d"),
     "1y": t("map.filter.period.1y"),
+    custom: t("map.filter.period.custom"),
   };
 
   return (
@@ -309,12 +388,11 @@ export default function MapPage() {
 
       {/* ── Filter Panel ── */}
       <div
-        className={`bg-card border-r border-border flex flex-col z-[998] transition-all duration-300 flex-shrink-0 overflow-y-auto max-md:absolute max-md:left-0 max-md:top-0 max-md:bottom-0 h-full max-md:shadow-2xl md:relative ${filterOpen ? "w-[280px]" : "w-0 overflow-hidden border-r-0"
-          }`}
+        className={`bg-card border-r border-border flex flex-col z-[998] transition-all duration-300 flex-shrink-0 overflow-y-auto max-md:absolute max-md:left-0 max-md:top-0 max-md:bottom-0 h-full max-md:shadow-2xl md:relative ${filterOpen ? "w-[280px]" : "w-0 overflow-hidden border-r-0"}`}
       >
         <div className="p-4 border-b border-border flex flex-col flex-shrink-0 gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-heading font-semibold text-sm truncate">{t("map.sidebar.title")}</span>
+            <span className="font-heading font-semibold text-sm truncate">{t("map.sidebar.title") || "Fires & Alerts"}</span>
             <button onClick={() => setFilterOpen(false)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground flex-shrink-0">
               <X className="w-5 h-5" />
             </button>
@@ -325,14 +403,14 @@ export default function MapPage() {
               className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg border transition-colors ${sidebarTab === "list" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"}`}
             >
               <List className="w-3.5 h-3.5" />
-              {t("map.sidebar.tab.list")} ({visibleFires.length})
+              {t("map.sidebar.tab.list") || "List"} ({visibleFires.length})
             </button>
             <button
               onClick={() => setSidebarTab("filters")}
               className={`flex-1 flex items-center justify-center gap-1.5 text-xs py-1.5 rounded-lg border transition-colors ${sidebarTab === "filters" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary text-muted-foreground border-border hover:bg-secondary/80"}`}
             >
               <Filter className="w-3.5 h-3.5" />
-              {t("map.sidebar.tab.filters")}
+              {t("map.sidebar.tab.filters") || "Filters"}
             </button>
           </div>
         </div>
@@ -340,7 +418,7 @@ export default function MapPage() {
         {sidebarTab === "list" ? (
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {visibleFires.length === 0 ? (
-              <div className="text-center text-muted-foreground text-sm py-8">{t("map.empty")}</div>
+              <div className="text-center text-muted-foreground text-sm py-8">{t("map.empty") || "No fires in this area"}</div>
             ) : (
               visibleFires.map(fire => (
                 <div
@@ -381,10 +459,7 @@ export default function MapPage() {
                     <button
                       key={style}
                       onClick={() => setMapStyle(style)}
-                      className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${mapStyle === style
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                        }`}
+                      className={`text-center text-[10px] sm:text-xs py-1.5 px-1 rounded transition-all font-medium ${mapStyle === style ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
                     >
                       {t(`map.filter.style.${style}` as any).replace(" (Google)", "")}
                     </button>
@@ -400,13 +475,56 @@ export default function MapPage() {
                     <button
                       key={p}
                       onClick={() => setPeriod(p)}
-                      className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"
-                        }`}
+                      className={`text-left text-sm px-3 py-2 rounded-lg transition-colors ${period === p ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"}`}
                     >
                       {periodLabels[p]}
                     </button>
                   ))}
                 </div>
+
+                {/* Custom Date Range */}
+                {period === "custom" && (
+                  <div className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">Date de début</div>
+                      <input
+                        type="date"
+                        value={formatDateForAPI(dateRange.from)}
+                        min="2020-01-01"
+                        max={formatDateForAPI(new Date())}
+                        onChange={(e) => {
+                          const [year, month, day] = e.target.value.split('-').map(Number);
+                          const newFrom = new Date(year, month - 1, day);
+                          setDateRange({ ...dateRange, from: newFrom, to: dateRange.to < newFrom ? newFrom : dateRange.to });
+                        }}
+                        className="w-full px-3 py-2 text-sm rounded border border-border bg-card"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">Date de fin</div>
+                      <input
+                        type="date"
+                        value={formatDateForAPI(dateRange.to)}
+                        min={formatDateForAPI(dateRange.from)}
+                        max={formatDateForAPI(new Date())}
+                        onChange={(e) => {
+                          const [year, month, day] = e.target.value.split('-').map(Number);
+                          const newTo = new Date(year, month - 1, day);
+                          setDateRange({ ...dateRange, to: newTo, from: dateRange.from > newTo ? newTo : dateRange.from });
+                        }}
+                        className="w-full px-3 py-2 text-sm rounded border border-border bg-card"
+                      />
+                    </div>
+
+                    <div className="text-xs text-muted-foreground">
+                      Plage: {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
+                      <span className="ml-2 text-muted-foreground/60">
+                        ({Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24))} jours)
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Risk level */}
@@ -460,10 +578,7 @@ export default function MapPage() {
                     <button
                       key={s}
                       onClick={() => setSelectedSource(s)}
-                      className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${selectedSource === s
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border text-muted-foreground hover:bg-secondary"
-                        }`}
+                      className={`flex-1 text-xs py-1.5 rounded-lg border transition-colors ${selectedSource === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:bg-secondary"}`}
                     >
                       {s === "all" ? t("map.filter.source.all") : s}
                     </button>
@@ -478,6 +593,8 @@ export default function MapPage() {
                   setSelectedRisks(new Set(["critical", "high", "medium", "low"]));
                   setSelectedRegion("all");
                   setSelectedSource("all");
+                  const now = new Date();
+                  setDateRange({ from: subDays(now, 30), to: now });
                 }}
                 className="w-full text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg py-2 transition-colors"
               >
@@ -657,7 +774,7 @@ export default function MapPage() {
           </div>
           <div className="hidden sm:block w-px h-3 bg-border" />
           <div className="text-[10px] sm:text-xs text-muted-foreground w-full sm:w-auto text-center sm:text-left border-t border-border/40 sm:border-0 pt-1.5 sm:pt-0">
-            {periodLabels[period]}
+            {period === "custom" ? `${format(dateRange.from, "dd/MM")} - ${format(dateRange.to, "dd/MM")}` : periodLabels[period]}
           </div>
         </div>
 
@@ -713,7 +830,7 @@ export default function MapPage() {
           {mapStyle === "dark" && (
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> &copy; <a href='https://carto.com/attributions'>CARTO</a>"
               subdomains="abcd"
               maxZoom={19}
             />
@@ -754,26 +871,26 @@ export default function MapPage() {
                       {t(`risk.${getRiskLevel(point.risk)}` as any)}
                     </span>
                   </div>
-                  <div className="space-y-1 text-xs text-gray-400">
+                  <div className="space-y-1 text-xs text-muted-foreground">
                     <div className="flex justify-between gap-4">
                       <span>{t("map.popup.confidence")}</span>
-                      <span className="text-white font-medium">{point.confidence}%</span>
+                      <span className="text-foreground font-medium">{point.confidence}%</span>
                     </div>
                     <div className="flex justify-between gap-4">
                       <span>{t("map.popup.brightness")}</span>
-                      <span className="text-white font-medium">{point.brightness} K</span>
+                      <span className="text-foreground font-medium">{point.brightness} K</span>
                     </div>
                     <div className="flex justify-between gap-4">
                       <span>{t("map.popup.source")}</span>
-                      <span className="text-white font-medium">{point.source}</span>
+                      <span className="text-foreground font-medium">{point.source}</span>
                     </div>
                     <div className="flex justify-between gap-4">
                       <span>{t("map.popup.detected")}</span>
-                      <span className="text-white font-medium">{format(point.detectedAt, "dd/MM HH:mm")}</span>
+                      <span className="text-foreground font-medium">{format(point.detectedAt, "dd/MM HH:mm")}</span>
                     </div>
                     <div className="flex justify-between gap-4">
                       <span>{t("map.popup.coords")}</span>
-                      <span className="text-white font-medium">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span>
+                      <span className="text-foreground font-medium">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span>
                     </div>
                   </div>
                 </Popup>

@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { I18nProvider } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
+import LoadingPage from "@/components/ui/loading";
+import { useState, useEffect } from "react";
 
 import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
@@ -22,6 +24,7 @@ import ZonesPage from "@/pages/zones";
 import AlertsPage from "@/pages/alerts";
 import SubscriptionsPage from "@/pages/subscriptions";
 import ProfilePage from "@/pages/profile";
+import ExportPage from "@/pages/export";
 import NotFound from "@/pages/not-found";
 
 // Wire auth token and backend URL to every API call
@@ -109,12 +112,30 @@ function Router() {
       <Route path="/profile">
         {() => <AuthedRoute component={ProfilePage} />}
       </Route>
+      <Route path="/export">
+        {() => <AuthedRoute component={ExportPage} />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingPage message="Chargement de JeryMotro..." />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

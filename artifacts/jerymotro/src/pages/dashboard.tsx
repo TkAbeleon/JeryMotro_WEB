@@ -58,6 +58,10 @@ export default function DashboardPage() {
     }));
   }, [daily]);
 
+  // Calculate dynamic scale for critical fires
+  const maxCritical = Math.max(...chartData.map(d => d.high), 1);
+  const criticalScaleMax = Math.ceil(maxCritical * 1.2);
+
   const recentDetections = useMemo(() => {
     return (detectionsData.detections || []).slice(0, 6);
   }, [detectionsData]);
@@ -185,9 +189,24 @@ export default function DashboardPage() {
                   return parts.length === 3 ? `${parts[2]}/${parts[1]}` : value;
                 }}
               />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(150 8% 55%)" }} tickLine={false} axisLine={false} />
+              <YAxis 
+                yAxisId="total" 
+                tick={{ fontSize: 11, fill: "hsl(150 8% 55%)" }} 
+                tickLine={false} 
+                axisLine={false}
+                label={{ value: t("dashboard.chart.total"), angle: -90, position: 'insideLeft', fontSize: 9, fill: "hsl(150 8% 55%)" }}
+              />
+              <YAxis 
+                yAxisId="critical" 
+                orientation="right"
+                tick={{ fontSize: 11, fill: "hsl(150 8% 55%)" }} 
+                tickLine={false} 
+                axisLine={false}
+                domain={[0, criticalScaleMax]}
+                label={{ value: t("dashboard.chart.highRisk"), angle: 90, position: 'insideRight', fontSize: 9, fill: "hsl(0 84% 60%)" }}
+              />
               <Tooltip 
-                contentStyle={{ background: "hsl(150 20% 9%)", border: "1px solid hsl(150 15% 15%)", borderRadius: 8, fontSize: 12 }} 
+                contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--popover-border))", borderRadius: 8, fontSize: 12 }} 
                 labelFormatter={(value) => {
                   const parts = value.split('-');
                   if (parts.length === 3) {
@@ -209,8 +228,8 @@ export default function DashboardPage() {
                   return value;
                 }}
               />
-              <Area type="monotone" dataKey="total" stroke="hsl(18 80% 50%)" strokeWidth={2} fill="url(#gTotal)" name={t("dashboard.chart.total")} />
-              <Area type="monotone" dataKey="high" stroke="hsl(0 84% 60%)" strokeWidth={2} fill="url(#gHigh)" name={t("dashboard.chart.highRisk")} />
+              <Area type="monotone" dataKey="total" yAxisId="total" stroke="hsl(18 80% 50%)" strokeWidth={2} fill="url(#gTotal)" name={t("dashboard.chart.total")} />
+              <Area type="monotone" dataKey="high" yAxisId="critical" stroke="hsl(0 84% 60%)" strokeWidth={2} fill="url(#gHigh)" name={t("dashboard.chart.highRisk")} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
