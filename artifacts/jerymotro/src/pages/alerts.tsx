@@ -80,16 +80,7 @@ export default function AlertsPage() {
   const subscriptions = mySubscriptionsQ.data || [];
   const alertsHistory = myAlertsQ.data?.alerts || [];
 
-  // Debug logs
-  console.log("=== ALERTS DEBUG ===");
-  console.log("myAlertsQ.isLoading:", myAlertsQ.isLoading);
-  console.log("myAlertsQ.isError:", myAlertsQ.isError);
-  console.log("myAlertsQ.error:", myAlertsQ.error);
-  console.log("myAlertsQ.data:", myAlertsQ.data);
-  console.log("alertsHistory:", alertsHistory);
-  console.log("alertsHistory.length:", alertsHistory.length);
-  console.log("subscriptions:", subscriptions);
-  console.log("===================");
+
 
   // Mutations
   const subscribeMutation = useSubscribeAlert({
