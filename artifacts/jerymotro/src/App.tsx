@@ -27,8 +27,19 @@ import ProfilePage from "@/pages/profile";
 import ExportPage from "@/pages/export";
 import NotFound from "@/pages/not-found";
 
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && (envUrl.startsWith("http://") || envUrl.startsWith("https://") || envUrl.startsWith("/"))) {
+    return envUrl;
+  }
+  const apiPort = import.meta.env.VITE_API_BACKEND_PORT || "8081";
+  const { protocol, hostname } = window.location;
+  const host = hostname || "localhost";
+  return `${protocol}//${host}:${apiPort}`;
+};
+
 // Wire auth token and backend URL to every API call
-setBaseUrl(import.meta.env.VITE_API_URL || "/jerymotro-api");
+setBaseUrl(getApiUrl());
 setAuthTokenGetter(() => localStorage.getItem("jerymotro_token"));
 
 const queryClient = new QueryClient({

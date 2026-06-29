@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
-  useListAlerts,
+  useGetMyAlerts,
   useGetMySubscriptions,
   useSubscribeAlert,
   useDeleteSubscription,
@@ -74,11 +74,22 @@ export default function AlertsPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Query data
-  const myAlertsQ = useListAlerts();
+  const myAlertsQ = useGetMyAlerts();
   const mySubscriptionsQ = useGetMySubscriptions();
 
   const subscriptions = mySubscriptionsQ.data || [];
   const alertsHistory = myAlertsQ.data?.alerts || [];
+
+  // Debug logs
+  console.log("=== ALERTS DEBUG ===");
+  console.log("myAlertsQ.isLoading:", myAlertsQ.isLoading);
+  console.log("myAlertsQ.isError:", myAlertsQ.isError);
+  console.log("myAlertsQ.error:", myAlertsQ.error);
+  console.log("myAlertsQ.data:", myAlertsQ.data);
+  console.log("alertsHistory:", alertsHistory);
+  console.log("alertsHistory.length:", alertsHistory.length);
+  console.log("subscriptions:", subscriptions);
+  console.log("===================");
 
   // Mutations
   const subscribeMutation = useSubscribeAlert({
@@ -195,13 +206,13 @@ export default function AlertsPage() {
   ];
 
   // Filtered alerts
-  const filtered = useRef(
-    alertsHistory.filter((a) => {
+  const filtered = useMemo(() => {
+    return alertsHistory.filter((a) => {
       if (levelFilter !== "all" && a.alert_level?.toLowerCase() !== levelFilter.toLowerCase()) return false;
       if (channelFilter !== "all" && a.channel?.toLowerCase() !== channelFilter.toLowerCase()) return false;
       return true;
-    })
-  ).current;
+    });
+  }, [alertsHistory, levelFilter, channelFilter]);
 
   const openSubscribeModal = () => {
     setModalMode("subscribe");

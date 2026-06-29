@@ -58,7 +58,7 @@ export default function ExportPage() {
     
     const headers = ["Date", "Region", "Latitude", "Longitude", "Risk Score", "Confidence", "Brightness", "Source", "FRP"];
     const rows = detections.map(d => [
-      d.detected_at || "",
+      d.inserted_at || d.acq_date || "",
       d.region || "",
       d.latitude?.toFixed(6) || "",
       d.longitude?.toFixed(6) || "",
@@ -104,6 +104,26 @@ export default function ExportPage() {
     // Pour l'export PDF, nous allons créer un simple rapport texte
     if (!detections.length) return;
 
+    const regionMap = detections.reduce((map, d) => {
+      const region = d.region || "Autre";
+      map[region] = (map[region] || 0) + 1;
+      return map;
+    }, {} as Record<string, number>);
+
+    const regionSummary = Object.entries(regionMap)
+      .map(([region, count]) => `${region}: ${count}`)
+      .join("\n");
+
+    const sourceMap = detections.reduce((map, d) => {
+      const source = d.source || "Autre";
+      map[source] = (map[source] || 0) + 1;
+      return map;
+    }, {} as Record<string, number>);
+
+    const sourceSummary = Object.entries(sourceMap)
+      .map(([source, count]) => `${source}: ${count}`)
+      .join("\n");
+
     const reportContent = `
 Rapport d'Export des Feux
 =========================
@@ -112,13 +132,7 @@ Nombre total de détections: ${detections.length}
 
 Résumé par région:
 ------------------
-${detections.reduce((map, d) => {
-  const region = d.region || "Autre";
-  map[region] = (map[region] || 0) + 1;
-  return map;
-}, {} as Record<string, number>)
-  .map((count, region) => `${region}: ${count}`)
-  .join("\n")}
+${regionSummary}
 
 Résumé par niveau de risque:
 ----------------------------
@@ -129,13 +143,7 @@ Faible (<0.3): ${detections.filter(d => (d.risk_score ?? 0) < 0.3).length}
 
 Résumé par source:
 ------------------
-${detections.reduce((map, d) => {
-  const source = d.source || "Autre";
-  map[source] = (map[source] || 0) + 1;
-  return map;
-}, {} as Record<string, number>)
-  .map((count, source) => `${source}: ${count}`)
-  .join("\n")}
+${sourceSummary}
 `;
 
     const blob = new Blob([reportContent], { type: "text/plain;charset=utf-8;" });

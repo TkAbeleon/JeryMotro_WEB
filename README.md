@@ -35,10 +35,18 @@ pnpm --filter @workspace/jerymotro run dev
 
 ---
 
-## 🌐 API de Production
+## 🌐 Connexion API & Indépendance du Frontend
 
-- **URL de l'API :** `http://35.192.27.164/jerymotro-api`
-- **Interface Swagger UI :** `http://35.192.27.164/jerymotro-api/docs`
+L'application frontend **JeryMotro** est entièrement autonome et s'affranchit du proxy de développement de Vite pour communiquer directement avec le serveur API (auparavant accessible via la route proxy `/jerymotro-api`).
+
+### 🔗 Résolution Dynamique
+L'adresse du serveur d'API est résolue de manière dynamique à l'exécution :
+1. **Extraction Automatique du Port** : Durant la compilation ou l'exécution locale de Vite, le script de configuration `vite.config.ts` extrait de manière synchrone la valeur `PORT` (par défaut `8081`) configurée dans `artifacts/api-server/.env`.
+2. **Construction de l'URL** : L'adresse de l'API est construite dynamiquement via la formule `${window.location.protocol}//${window.location.hostname}:${apiPort}`, ce qui permet au frontend de toujours s'adresser au bon backend, qu'il tourne sur `localhost`, sur un réseau local ou sur un domaine public.
+3. **Configuration Fixe (Optionnelle)** : Pour forcer une adresse de serveur d'API spécifique (en production par exemple), il suffit de définir la variable `VITE_API_URL` à une adresse absolue (ex : `http://35.192.27.164`) dans le fichier `artifacts/jerymotro/.env`.
+
+- **API de production (adresse externe par défaut) :** `http://35.192.27.164`
+- **Documentation Swagger de l'API :** `/docs` sur l'hôte et port du backend
 - **Health Check :** `GET /healthz`
 
 ---
