@@ -52,8 +52,8 @@ export default function StatsPage() {
   const detections = detectionsQ.data?.detections || [];
   const clusters = clustersQ.data?.clusters || [];
 
-  const last30 = daily;
-  const last7 = daily.slice(-7);
+  const last30 = daily.slice().reverse();
+  const last7 = daily.slice(-7).reverse();
 
   const regionStats = useMemo(() => {
     const map: Record<string, { detections: number; critical: number; clusters: number }> = {};

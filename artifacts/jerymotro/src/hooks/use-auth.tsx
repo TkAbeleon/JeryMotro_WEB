@@ -7,10 +7,25 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: AuthToken) => void;
   logout: () => void;
+  hasRole: (role: string) => boolean;
+  isAdmin: boolean;
+  isPremium: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Decode JWT token to check expiration
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
+    const exp = decoded.exp;
+    if (!exp) return false;
+    return Date.now() >= exp * 1000;
+  } catch {
+    return true; // If we can't decode, consider it expired
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -22,6 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem("jerymotro_user");
 
     if (storedToken && storedUser) {
+      // Check if token is expired
+      if (isTokenExpired(storedToken)) {
+        localStorage.removeItem("jerymotro_token");
+        localStorage.removeItem("jerymotro_user");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
@@ -48,6 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/";
   };
 
+  const hasRole = (role: string): boolean => {
+    return user?.role === role;
+  };
+
+  const isAdmin = user?.role === "admin";
+  const isPremium = user?.role === "admin" || user?.role === "premium";
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -57,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout, hasRole, isAdmin, isPremium }}>
       {children}
     </AuthContext.Provider>
   );

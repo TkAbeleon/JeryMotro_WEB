@@ -143,23 +143,23 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return <LoadingPage message="Chargement de JeryMotro..." />;
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <I18nProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <Router />
-              </WouterRouter>
-              <Toaster />
-            </TooltipProvider>
-          </AuthProvider>
-        </I18nProvider>
+        {isLoading ? (
+          <LoadingPage message="Chargement de JeryMotro..." />
+        ) : (
+          <I18nProvider>
+            <AuthProvider>
+              <TooltipProvider>
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                  <Router />
+                </WouterRouter>
+                <Toaster />
+              </TooltipProvider>
+            </AuthProvider>
+          </I18nProvider>
+        )}
       </ThemeProvider>
     </QueryClientProvider>
   );
