@@ -2,72 +2,79 @@
 
 Plateforme de surveillance environnementale utilisant l'IA et les données satellitaires NASA FIRMS pour détecter, prédire et alerter sur les feux de brousse à Madagascar.
 
-## 🚀 Run & Operate
+---
+
+## 🚀 Déploiement Production (tout-en-un)
+
+Un seul script fait **tout** : install des dépendances, build Vite (qui déclenche automatiquement le prerendering des routes publiques), lancement avec PM2 (Vite preview pour servir la SPA et les fichiers statiques prerendus), et push Git.
+
+```bash
+chmod +x deploy_prod.sh
+./deploy_prod.sh
+```
+
+Le trafic public pointe directement vers Vite preview sur le **port 4173** (ou le port configuré).
+
+| Service | Port | Description |
+|---|---|---|
+| Vite preview | `4173` | Point d'entrée principal — sert les fichiers statiques prerendus et la SPA |
+
+Variables d'environnement disponibles : voir [`artifacts/jerymotro/README-prerender.md`](artifacts/jerymotro/README-prerender.md).
+
+---
+
+## 💻 Développement local
 
 Cette plateforme est structurée en monorepo géré via **pnpm workspaces**. Toutes les commandes de développement doivent être lancées depuis la racine du workspace.
 
-### 🔌 Lancer le Backend FastAPI
-Le serveur backend se trouve dans `artifacts/api-server`. Pour le démarrer en mode développement avec rechargement automatique :
-```bash
-pnpm --filter @workspace/api-server run dev
-```
+### Lancer le Frontend React (dev)
 
-### 💻 Lancer le Frontend React
-L'application web principale se trouve dans `artifacts/jerymotro`. Pour démarrer le serveur de développement Vite :
 ```bash
 pnpm --filter @workspace/jerymotro run dev
 ```
 
-### 🛠️ Autres Commandes Utiles
+### Commandes utiles
 
-- **Compiler l'application frontend :**
-  ```bash
-  pnpm --filter @workspace/jerymotro run build
-  ```
-- **Vérifier les types TypeScript :**
-  ```bash
-  pnpm run typecheck
-  ```
-- **Régénérer le client API à partir de la spécification OpenAPI :**
-  ```bash
-  pnpm --filter @workspace/api-spec run codegen
-  ```
+```bash
+# Builder le frontend (lance le prerender automatiquement à la fin)
+pnpm --filter @workspace/jerymotro run build
+
+# Lancer manuellement le prerender (sans build complet)
+pnpm --filter @workspace/jerymotro run prerender
+
+# Vérifier les types TypeScript
+pnpm run typecheck
+```
 
 ---
 
-## 🌐 Connexion API & Indépendance du Frontend
+## 🌐 Connexion API & Configuration
 
-L'application frontend **JeryMotro** est entièrement autonome et s'affranchit du proxy de développement de Vite pour communiquer directement avec le serveur API (auparavant accessible via la route proxy `/jerymotro-api`).
+L'URL de l'API backend est résolue dynamiquement :
 
-### 🔗 Résolution Dynamique
-L'adresse du serveur d'API est résolue de manière dynamique à l'exécution :
-1. **Extraction Automatique du Port** : Durant la compilation ou l'exécution locale de Vite, le script de configuration `vite.config.ts` extrait de manière synchrone la valeur `PORT` (par défaut `8081`) configurée dans `artifacts/api-server/.env`.
-2. **Construction de l'URL** : L'adresse de l'API est construite dynamiquement via la formule `${window.location.protocol}//${window.location.hostname}:${apiPort}`, ce qui permet au frontend de toujours s'adresser au bon backend, qu'il tourne sur `localhost`, sur un réseau local ou sur un domaine public.
-3. **Configuration Fixe (Optionnelle)** : Pour forcer une adresse de serveur d'API spécifique (en production par exemple), il suffit de définir la variable `VITE_API_URL` à une adresse absolue (ex : `http://35.192.27.164`) dans le fichier `artifacts/jerymotro/.env`.
+- **En développement** : `${window.location.protocol}//${window.location.hostname}:${apiPort}` (port lu depuis `artifacts/api-server/.env`)
+- **En production** : Variable `VITE_API_URL` dans `artifacts/jerymotro/.env` (ex: `http://35.192.27.164`)
 
-- **API de production (adresse externe par défaut) :** `http://35.192.27.164`
-- **Documentation Swagger de l'API :** `/docs` sur l'hôte et port du backend
+- **API de production :** `http://35.192.27.164`
+- **Documentation Swagger :** `/docs` sur l'hôte API
 - **Health Check :** `GET /healthz`
 
 ---
 
 ## 🛠️ Stack Technique
 
-### Backend (FastAPI)
-- **Framework :** FastAPI (Python)
-- **Base de données :** PostgreSQL + SQLAlchemy (asynchrone)
-- **Authentification :** JWT + OTP (One-Time Password)
-- **Modèles ML/DL :** Services externes (XGBoost, ConvLSTM) appelés via requêtes HTTP sécurisées
-- **Moteur RAG :** Vertex AI (Gemini 1.5 Flash) + base vectorielle ChromaDB
-- **Système d'Alertes :** SMTP (Email) + Twilio (SMS et WhatsApp)
-
 ### Frontend (React & Vite)
 - **Langage & Compilateur :** React + Vite + TypeScript 5.9 + esbuild
 - **Gestionnaire de Paquets :** pnpm workspaces
 - **Client API :** Orval (généré automatiquement à partir de la spécification OpenAPI)
 - **Rendu & Contenus :** ReactMarkdown + remark-gfm + rendu client-side Mermaid.js dynamique
-- **Cartographie :** Leaflet (React Leaflet)
+- **Cartographie :** Leaflet (React Leaflet) + MarkerCluster
 - **Style :** TailwindCSS v4 + Framer Motion (animations fluides & premium)
+- **SEO / Bots :** Prerendering statique au build avec Puppeteer (Chrome headless)
+
+### Infra Production
+- **Process Manager :** PM2
+- **Serveur web :** Vite preview (ou Nginx configuré selon le README-prerender)
 
 ---
 
@@ -86,20 +93,22 @@ L'adresse du serveur d'API est résolue de manière dynamique à l'exécution :
 │   ├── api-spec/                  # Spécification OpenAPI (openapi.yaml)
 │   ├── api-zod/                   # Schémas de validation Zod générés automatiquement
 │   └── api-client-react/          # Hooks React Query générés pour le client API
-├── artifacts/                     # Applications exécutables
-│   ├── api-server/                # Code source du backend FastAPI
-│   ├── jerymotro/                 # Application web frontend React (Vite)
-│   └── mockup-sandbox/            # Maquettes et bac à sable de prototypage
-└── scripts/                       # Scripts utilitaires de traitement de données
+├── artifacts/
+│   └── jerymotro/                 # Application web frontend React (Vite)
+│       ├── src/                   # Code source React
+│       └── README-prerender.md    # Guide du prerendering statique
+├── scripts/                       # Scripts utilitaires de traitement de données
+└── deploy_prod.sh                 # Script de déploiement production tout-en-un
 ```
 
 ---
 
 ## 🛡️ Décisions Architecturales Clés
 
-- **Modularité ML :** Les modèles ML (XGBoost, ConvLSTM) sont déployés sur des conteneurs isolés et interrogeables via des contrats d'API stricts. Cela garantit l'évolution indépendante des modèles et du backend central.
-- **RAG & Rendu Avancé :** Intégration de RAG (Retrieval-Augmented Generation) pour le chat de la plateforme. La réponse de l'IA supporte pleinement le **Markdown standard**, les **tableaux**, ainsi que la génération à la volée de **diagrammes structurels Mermaid** grâce à une intégration native dynamique de la bibliothèque client Mermaid.
-- **Robustesse & Robustesse CSS Grid :** Utilisation systématique de `minmax(0, 1fr)` pour les colonnes de tableaux sous CSS Grid afin d'éviter les bugs classiques de chevauchement d'identifiants et de noms de régions lors du redimensionnement de l'écran.
+- **Prerendering Statique (SEO) :** Un script postbuild lance Puppeteer pour générer du HTML statique complet pour les pages publiques, sans modifier le code React. Les pages privées restent en CSR classique.
+- **Modularité ML :** Les modèles ML (XGBoost, ConvLSTM) sont déployés sur des conteneurs isolés et interrogeables via des contrats d'API stricts.
+- **RAG & Rendu Avancé :** Intégration de RAG (Retrieval-Augmented Generation) pour le chat de la plateforme. La réponse de l'IA supporte le Markdown, les tableaux et les diagrammes Mermaid.
+- **Robustesse CSS Grid :** Utilisation systématique de `minmax(0, 1fr)` pour les colonnes sous CSS Grid.
 
 ---
 
@@ -123,6 +132,6 @@ L'adresse du serveur d'API est résolue de manière dynamique à l'exécution :
 
 ## 💡 Notes de Conception
 
-- **Priorité Nocturne :** Le thème sombre est configuré par défaut, offrant un contraste optimal reposant pour l'œil lors d'une veille de surveillance prolongée.
-- **Signification des Couleurs :** La couleur orange vif (`--fire`) est sémantiquement réservée aux indicateurs de feux réels pour éviter la fatigue cognitive.
+- **Priorité Nocturne :** Le thème sombre est configuré par défaut, offrant un contraste optimal pour une veille prolongée.
+- **Signification des Couleurs :** La couleur orange vif (`--fire`) est sémantiquement réservée aux indicateurs de feux réels.
 - **Défense Supply-Chain :** Sécurité de déploiement via pnpm imposant un âge de publication minimal de 24h pour toutes les dépendances npm de production.

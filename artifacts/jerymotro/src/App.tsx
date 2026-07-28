@@ -1,3 +1,4 @@
+import { HelmetProvider } from 'react-helmet-async';
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
@@ -7,6 +8,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { I18nProvider } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
+import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
 import { useState, useEffect } from "react";
 
@@ -86,7 +88,9 @@ function HomeRedirect() {
 
 function Router() {
   return (
-    <Switch>
+    <>
+      <SeoHead />
+      <Switch>
       <Route path="/" component={HomeRedirect} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
@@ -127,7 +131,8 @@ function Router() {
         {() => <AuthedRoute component={ExportPage} />}
       </Route>
       <Route component={NotFound} />
-    </Switch>
+      </Switch>
+    </>
   );
 }
 
@@ -144,6 +149,7 @@ function App() {
   }, []);
 
   return (
+    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         {isLoading ? (
@@ -162,6 +168,7 @@ function App() {
         )}
       </ThemeProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
