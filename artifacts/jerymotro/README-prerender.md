@@ -192,12 +192,7 @@ sudo systemctl reload nginx
 
 Le script audite les balises SEO dans chaque HTML rendu et émet des warnings si `<title>`, `meta description`, `og:title`, `og:description`, `hreflang`, ou `<h1>` sont absents.
 
-Si des warnings apparaissent, c'est que votre app React n'injecte pas ces balises dynamiquement. Pour les ajouter **sans modifier les composants existants**, vous pouvez :
-
-1. Les mettre statiquement dans `index.html` (pour les valeurs communes)
-2. Utiliser un hook `useHead` ou la lib `react-helmet-async` dans les pages publiques
-
-Signalez-le et je pourrai vous guider.
+Nous avons mis en place le composant additif `SeoHead.tsx` qui utilise les capacités natives de hoisting de **React 19** pour injecter dynamiquement ces éléments directement dans le `<head>` sans avoir besoin de bibliothèques externes lourdes comme `react-helmet-async`.
 
 ---
 

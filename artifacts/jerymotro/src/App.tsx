@@ -1,4 +1,3 @@
-import { HelmetProvider } from 'react-helmet-async';
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
@@ -149,7 +148,6 @@ function App() {
   }, []);
 
   return (
-    <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         {isLoading ? (
@@ -168,7 +166,6 @@ function App() {
         )}
       </ThemeProvider>
     </QueryClientProvider>
-    </HelmetProvider>
   );
 }
 

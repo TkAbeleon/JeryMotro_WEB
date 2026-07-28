@@ -4,13 +4,10 @@
  * Composant purement additif — injecte les balises <head> SEO pour les pages
  * PUBLIQUES uniquement (/  /login  /register).
  *
- * Dépend de :
- *   - react-helmet-async  (doit être installé + HelmetProvider dans App.tsx)
- *   - useI18n             (pour la langue courante)
- *   - useLocation (wouter)(pour la route courante)
+ * Utilise la fonctionnalité native de hoisting de React 19 (pas besoin de react-helmet-async).
  *
- * Balises injectées :
- *   <html lang>  <title>  <meta description>  <link canonical>
+ * Balises injectées et hissées dans le <head> :
+ *   <title>  <meta description>  <link canonical>
  *   og:*         twitter:*  <link hreflang> (fr / mg / en / x-default)
  *
  * Pour ajouter une route publique :
@@ -18,7 +15,7 @@
  *   2. Ajoutez les traductions SEO dans SEO_DATA pour chaque langue
  */
 
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useI18n } from '@/hooks/use-i18n';
 import type { Lang } from '@/lib/i18n';
@@ -102,7 +99,13 @@ export function SeoHead() {
   const [location]  = useLocation();
   const { lang }    = useI18n();
 
-  // Hors des routes publiques → ne rien injecter
+  // Mettre à jour l'attribut lang du document HTML
+  useEffect(() => {
+    if (PUBLIC_ROUTES_SET.has(location)) {
+      document.documentElement.lang = LANG_BCP47[lang];
+    }
+  }, [location, lang]);
+
   if (!PUBLIC_ROUTES_SET.has(location)) return null;
 
   const seo = SEO_DATA[lang]?.[location] ?? SEO_DATA['fr'][location];
@@ -112,10 +115,9 @@ export function SeoHead() {
   const suffix    = location === '/' ? '' : location;
   const canonical = `${SITE_URL}/${lang}${suffix}/`;
 
+  // React 19 va automatiquement hisser ces éléments dans le <head>
   return (
-    <Helmet>
-      {/* ── Document ── */}
-      <html lang={LANG_BCP47[lang]} />
+    <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
       <link rel="canonical" href={canonical} />
@@ -146,6 +148,6 @@ export function SeoHead() {
       ))}
       {/* x-default → version française */}
       <link rel="alternate" hrefLang="x-default" href={`${SITE_URL}/fr${suffix}/`} />
-    </Helmet>
+    </>
   );
 }
