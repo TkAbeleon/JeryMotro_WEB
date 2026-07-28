@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://jerymotro.duckdns.org/sitemap.xml
