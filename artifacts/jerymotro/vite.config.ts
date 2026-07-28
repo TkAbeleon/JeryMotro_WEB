@@ -5,9 +5,8 @@ import path from "path";
 import fs from "fs";
 
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all envs regardless of the `VITE_` prefix.
-  const env = loadEnv(mode, process.cwd(), "");
+  const workspaceRoot = path.resolve(import.meta.dirname, "..", "..");
+  const env = loadEnv(mode, workspaceRoot, "");
 
   const rawPort = env.PORT || process.env.PORT || "8080";
   const port = Number(rawPort);
@@ -49,6 +48,7 @@ export default defineConfig(({ mode }) => {
       },
       dedupe: ["react", "react-dom"],
     },
+    envDir: workspaceRoot,
     root: path.resolve(import.meta.dirname),
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
