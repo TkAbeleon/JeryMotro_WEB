@@ -23,7 +23,7 @@ import type { Lang } from '@/lib/i18n';
 // ─── Configuration ──────────────────────────────────────────────────────────
 
 /** URL de base du site — remplacer par la valeur de prod */
-const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://jerymotro.mg';
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://jerymotro.duckdns.org';
 
 /** Image Open Graph partagée (placez /public/og-image.png dans le projet) */
 const OG_IMAGE = `${SITE_URL}/og-image.png`;

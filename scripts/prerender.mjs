@@ -42,7 +42,7 @@
  */
 
 import puppeteer from 'puppeteer';
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -53,10 +53,32 @@ const DIST_DIR  = join(ROOT_DIR, 'dist', 'public');  // sortie de vite build
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
 
-const BASE_URL        = process.env.PRERENDER_BASE_URL || 'https://jerymotro.mg';
+const BASE_URL        = process.env.PRERENDER_BASE_URL || 'https://jerymotro.duckdns.org';
 const PREVIEW_PORT    = parseInt(process.env.PRERENDER_PORT    || '4174', 10);
 const TIMEOUT         = parseInt(process.env.PRERENDER_TIMEOUT || '20000', 10);
 const PREVIEW_URL     = `http://localhost:${PREVIEW_PORT}`;
+
+/**
+ * Détecte le binaire Chrome/Chromium installé sur le système.
+ * Puppeteer nécessite un navigateur mais pnpm peut bloquer son téléchargement
+ * automatique (build scripts ignorés). On cherche donc en priorité un navigateur
+ * déjà installé sur la machine.
+ */
+function findSystemChrome() {
+  const candidates = [
+    'chromium-browser',
+    'chromium',
+    'google-chrome-stable',
+    'google-chrome',
+  ];
+  for (const bin of candidates) {
+    try {
+      const path = execSync(`which ${bin}`, { encoding: 'utf-8' }).trim();
+      if (path) return path;
+    } catch { /* not found, try next */ }
+  }
+  return null; // laisse puppeteer essayer son propre Chrome
+}
 
 /** Langues supportées et leurs codes BCP-47 pour hreflang */
 const LANGS = [
@@ -322,10 +344,16 @@ async function main() {
 
     // ── 2. Lancer Puppeteer ──────────────────────────────────────────────────
     header('Démarrage de Chrome headless');
-    browser = await puppeteer.launch({
+    const systemChrome = findSystemChrome();
+    const launchOptions = {
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-    });
+    };
+    if (systemChrome) {
+      launchOptions.executablePath = systemChrome;
+      info(`Chrome système détecté : ${systemChrome}`);
+    }
+    browser = await puppeteer.launch(launchOptions);
     ok('Chrome headless prêt.');
 
     // ── 3. Prerendre chaque route × langue ───────────────────────────────────
