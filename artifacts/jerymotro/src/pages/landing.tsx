@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages } from "lucide-react";
+import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -65,6 +65,16 @@ export default function LandingPage() {
           <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Section Nav Links (visible on md+) */}
+          <div className="hidden md:flex items-center gap-4">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
+            <a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
+            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
+            <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</a>
+          </div>
+
+          <div className="hidden md:block w-px h-5 bg-border" />
+
           {/* Theme Toggle (icon only always) */}
           <button
             onClick={toggleTheme}
@@ -166,7 +176,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="max-w-5xl mx-auto px-8 py-24">
+      <section id="features" className="max-w-5xl mx-auto px-8 py-24 scroll-mt-16">
         <div className="text-center mb-16">
           <h2 className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p>
@@ -188,7 +198,7 @@ export default function LandingPage() {
       </section>
 
       {/* Coverage Map Info */}
-      <section className="max-w-5xl mx-auto px-8 pb-24">
+      <section id="coverage" className="max-w-5xl mx-auto px-8 pb-24 scroll-mt-16">
         <div className="rounded-xl border border-border bg-card p-8 flex flex-col md:flex-row items-center gap-8">
           <div className="w-16 h-16 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
             <Globe className="w-8 h-8 text-accent" />
@@ -211,7 +221,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="max-w-4xl mx-auto px-8 pb-24">
+      <section id="pricing" className="max-w-4xl mx-auto px-8 pb-24 scroll-mt-16">
         <div className="text-center mb-16">
           <h2 className="font-heading text-3xl font-bold mb-4">{t("landing.pricing.title")}</h2>
         </div>
@@ -246,17 +256,53 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8">
-        <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="JeryMotro" className="h-6 rounded" />
-            <span className="font-heading font-semibold text-foreground">JeryMotro</span>
-            <span>— {t("landing.footer.surveillance")}</span>
+      <footer id="about" className="border-t border-border bg-secondary/10 scroll-mt-16">
+        <div className="max-w-5xl mx-auto px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* Col 1: About */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
+                <span className="font-heading font-bold text-lg text-foreground">JeryMotro</span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t("landing.footer.about.desc")}
+              </p>
+            </div>
+
+            {/* Col 2: Useful Links */}
+            <div>
+              <h4 className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.links")}</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a></li>
+                <li><a href="#coverage" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a></li>
+                <li><a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a></li>
+                <li><Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link></li>
+                <li><Link href="/register" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.register.title")}</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Contact & Tech */}
+            <div>
+              <h4 className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.contact")}</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-4 h-4" />
+                  <a href="mailto:contact@jerymotro.mg" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a>
+                </li>
+                <li className="text-muted-foreground">{t("landing.footer.data")}</li>
+                <li className="text-muted-foreground">{t("landing.footer.ai")}</li>
+              </ul>
+            </div>
           </div>
-          <div className="flex items-center gap-6">
-            <span>{t("landing.footer.data")}</span>
-            <span>{t("landing.footer.ai")}</span>
-            <span>© 2026</span>
+
+          {/* Bottom bar */}
+          <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span>
+            <div className="flex items-center gap-4">
+              <span className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</span>
+              <span className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</span>
+            </div>
           </div>
         </div>
       </footer>

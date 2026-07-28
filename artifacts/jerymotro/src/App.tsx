@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
-import { I18nProvider, getInitialLang } from "@/hooks/use-i18n";
+import { I18nProvider, useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
@@ -72,7 +72,23 @@ const queryClient = new QueryClient({
 
 function AuthedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const { t } = useI18n();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
   if (!isAuthenticated) return <Redirect to="/" />;
+
+  if (isLoading) {
+    return <LoadingPage message={t("common.loading")} />;
+  }
+
   return (
     <AppShell>
       <Component />
@@ -136,24 +152,6 @@ function Router() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const currentLang = getInitialLang();
-  const loadingMessages = {
-    fr: "Chargement de JeryMotro...",
-    mg: "Ampandrosoana ny JeryMotro...",
-    en: "Loading JeryMotro...",
-  };
-
   const getWouterBase = () => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     const path = window.location.pathname;
@@ -164,20 +162,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        {isLoading ? (
-          <LoadingPage message={loadingMessages[currentLang]} />
-        ) : (
-          <I18nProvider>
-            <AuthProvider>
-              <TooltipProvider>
-                <WouterRouter base={getWouterBase()}>
-                  <Router />
-                </WouterRouter>
-                <Toaster />
-              </TooltipProvider>
-            </AuthProvider>
-          </I18nProvider>
-        )}
+        <I18nProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <WouterRouter base={getWouterBase()}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+            </TooltipProvider>
+          </AuthProvider>
+        </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
