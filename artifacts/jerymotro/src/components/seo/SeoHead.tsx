@@ -122,11 +122,6 @@ export function SeoHead() {
       <meta name="description" content={seo.description} />
       <link rel="canonical" href={canonical} />
 
-      {/* ── Google Search Console Verification ── */}
-      {location === '/' && (
-        <meta name="google-site-verification" content="pyJViXuA7KVFN960RRGMoP8kZSLmvmi2JE2MwQ9rogA" />
-      )}
-
       {/* ── Open Graph ── */}
       <meta property="og:type"        content="website" />
       <meta property="og:url"         content={canonical} />
