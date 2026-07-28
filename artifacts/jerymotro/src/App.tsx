@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
-import { I18nProvider } from "@/hooks/use-i18n";
+import { I18nProvider, getInitialLang } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
@@ -147,16 +147,30 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  const currentLang = getInitialLang();
+  const loadingMessages = {
+    fr: "Chargement de JeryMotro...",
+    mg: "Ampandrosoana ny JeryMotro...",
+    en: "Loading JeryMotro...",
+  };
+
+  const getWouterBase = () => {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const path = window.location.pathname;
+    const match = path.match(/^\/(fr|mg|en)\b/);
+    return match ? `${base}/${match[1]}` : base;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         {isLoading ? (
-          <LoadingPage message="Chargement de JeryMotro..." />
+          <LoadingPage message={loadingMessages[currentLang]} />
         ) : (
           <I18nProvider>
             <AuthProvider>
               <TooltipProvider>
-                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <WouterRouter base={getWouterBase()}>
                   <Router />
                 </WouterRouter>
                 <Toaster />

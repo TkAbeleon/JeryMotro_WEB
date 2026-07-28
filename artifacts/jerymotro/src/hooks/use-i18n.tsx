@@ -14,7 +14,16 @@ const I18nContext = createContext<I18nContextType | null>(null);
 const STORAGE_KEY = "jerymotro_lang";
 const DEFAULT_LANG: Lang = "fr";
 
-function getInitialLang(): Lang {
+export function getInitialLang(): Lang {
+  try {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(fr|mg|en)\b/);
+    if (match) {
+      const urlLang = match[1] as Lang;
+      try { localStorage.setItem(STORAGE_KEY, urlLang); } catch {}
+      return urlLang;
+    }
+  } catch {}
   try {
     const stored = localStorage.getItem(STORAGE_KEY) as Lang | null;
     if (stored && stored in translations) return stored;
