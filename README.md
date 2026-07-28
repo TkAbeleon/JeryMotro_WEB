@@ -6,18 +6,14 @@ Plateforme de surveillance environnementale utilisant l'IA et les données satel
 
 ## 🚀 Déploiement Production (tout-en-un)
 
-Un seul script fait **tout** : install des dépendances, build Vite (qui déclenche automatiquement le prerendering des routes publiques), lancement avec PM2 (Vite preview pour servir la SPA et les fichiers statiques prerendus), et push Git.
+Un seul script fait **tout** : install des dépendances, build Vite (qui déclenche automatiquement le prerendering des routes publiques), rechargement de nginx, et push Git.
 
 ```bash
 chmod +x deploy_prod.sh
 ./deploy_prod.sh
 ```
 
-Le trafic public pointe directement vers Vite preview sur le **port 4173** (ou le port configuré).
-
-| Service | Port | Description |
-|---|---|---|
-| Vite preview | `4173` | Point d'entrée principal — sert les fichiers statiques prerendus et la SPA |
+**Nginx sert directement les fichiers statiques** depuis `dist/public/`. Aucun process Node en arrière-plan n'est nécessaire.
 
 Variables d'environnement disponibles : voir [`artifacts/jerymotro/README-prerender.md`](artifacts/jerymotro/README-prerender.md).
 
@@ -73,8 +69,8 @@ L'URL de l'API backend est résolue dynamiquement :
 - **SEO / Bots :** Prerendering statique au build avec Puppeteer (Chrome headless)
 
 ### Infra Production
-- **Process Manager :** PM2
-- **Serveur web :** Vite preview (ou Nginx configuré selon le README-prerender)
+- **Serveur web :** Nginx (fichiers statiques depuis `dist/public/`)
+- **SSL :** Let's Encrypt (Certbot)
 
 ---
 

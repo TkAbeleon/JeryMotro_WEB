@@ -4,21 +4,22 @@
 #
 #  Ce script fait TOUT en une seule commande :
 #    1. Installe les dépendances
-#    2. Build le frontend Vite
-#    3. Démarre Vite preview avec PM2
-#    4. Sauvegarde la config PM2
-#    5. Pousse les changements sur Git
+#    2. Build le frontend Vite (+ prerendering automatique via postbuild)
+#    3. Recharge nginx pour servir les nouveaux fichiers
+#    4. Pousse les changements sur Git
+#
+#  Nginx sert directement les fichiers statiques depuis dist/public/.
+#  Aucun process Node en background n'est nécessaire.
 #
 #  Variables d'environnement disponibles (optionnelles) :
 #    APP_DIR        Chemin vers le dossier du frontend  (défaut: répertoire du script)
-#    VITE_PORT      Port de Vite preview                (défaut: 4173)
 #    GIT_MSG        Message du commit Git                (défaut: généré automatiquement)
 #
 #  Usage :
 #    chmod +x deploy_prod.sh
 #    ./deploy_prod.sh
 #    ou avec options :
-#    VITE_PORT=8080 GIT_MSG="feat: update map" ./deploy_prod.sh
+#    GIT_MSG="feat: update map" ./deploy_prod.sh
 # ==============================================================================
 
 set -euo pipefail
@@ -48,10 +49,7 @@ else
 fi
 
 APP_DIR="${APP_DIR:-$DEFAULT_APP_DIR}"
-VITE_PORT="${VITE_PORT:-4173}"
 GIT_MSG="${GIT_MSG:-"chore: deploy production $(date '+%Y-%m-%d %H:%M')"}"
-
-PM2_VITE="jerymotro-vite"
 
 # ── Bannière ───────────────────────────────────────────────────────────────────
 echo -e ""
@@ -60,7 +58,7 @@ echo "╔═══════════════════════�
 echo "║         🔥  JeryMotro — Déploiement Production             ║"
 echo "╠══════════════════════════════════════════════════════════════╣"
 printf "║  %-60s║\n" "  Frontend : $APP_DIR"
-printf "║  %-60s║\n" "  Vite     : http://localhost:$VITE_PORT"
+printf "║  %-60s║\n" "  Serveur  : nginx (fichiers statiques)"
 printf "║  %-60s║\n" "  Heure    : $(date '+%Y-%m-%d %H:%M:%S')"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo -e "${RESET}"
@@ -79,8 +77,14 @@ check_cmd() {
 
 check_cmd pnpm
 check_cmd node
-check_cmd pm2
 check_cmd git
+
+# Vérifier nginx (pas obligatoire, juste un warning)
+if command -v nginx &>/dev/null; then
+  log_ok "nginx disponible ($(command -v nginx))"
+else
+  log_warn "nginx non trouvé — le rechargement automatique sera ignoré"
+fi
 
 if [[ ! -d "$APP_DIR" ]]; then
   log_err "Dossier frontend introuvable : $APP_DIR"
@@ -108,8 +112,8 @@ fi
 
 log_ok "$(TS) Dépendances installées"
 
-# ── Étape 2 : Build Vite ──────────────────────────────────────────────────────
-log_step "Build de production Vite"
+# ── Étape 2 : Build Vite + Prerendering ───────────────────────────────────────
+log_step "Build de production Vite (+ prerendering postbuild)"
 log_info "$(TS) pnpm run build ..."
 
 (cd "$APP_DIR" && pnpm run build 2>&1 | sed 's/^/    /')
@@ -122,58 +126,51 @@ fi
 BUILD_SIZE=$(du -sh "$APP_DIR/dist" 2>/dev/null | cut -f1 || echo "?")
 log_ok "$(TS) Build terminé (dist/ = $BUILD_SIZE)"
 
-# ── Étape 3 : Arrêt des anciennes instances PM2 ───────────────────────────────
-log_step "Nettoyage des anciennes instances PM2"
-
-stop_pm2() {
-  local name="$1"
-  if pm2 describe "$name" &>/dev/null; then
-    pm2 stop "$name"    &>/dev/null || true
-    pm2 delete "$name"  &>/dev/null || true
-    log_ok "Instance '$name' arrêtée et supprimée"
-  else
-    log_info "Instance '$name' n'existait pas (rien à faire)"
-  fi
-}
-
-stop_pm2 "$PM2_VITE"
-
-# ── Étape 4 : Lancement Vite preview avec PM2 ─────────────────────────────────
-log_step "Lancement de Vite preview (port $VITE_PORT)"
-log_info "$(TS) Démarrage PM2 : $PM2_VITE ..."
-
-pm2 start pnpm \
-  --name "$PM2_VITE" \
-  --cwd "$APP_DIR" \
-  -- run serve 2>&1 | sed 's/^/    /'
-
-log_ok "$(TS) Vite preview démarré → http://localhost:$VITE_PORT"
-
-# Attendre que Vite soit prêt (max 15s)
-log_info "Attente que Vite soit prêt..."
-VITE_READY=false
-for i in $(seq 1 15); do
-  if curl -sf "http://localhost:$VITE_PORT" &>/dev/null; then
-    VITE_READY=true
-    log_ok "Vite répond sur le port $VITE_PORT (délai: ${i}s)"
-    break
-  fi
-  sleep 1
-done
-
-if [[ "$VITE_READY" == false ]]; then
-  log_warn "Vite ne répond pas encore."
+# Vérifier que le prerendering a produit les fichiers
+if [[ -d "$APP_DIR/dist/public/fr" ]]; then
+  PRERENDER_COUNT=$(find "$APP_DIR/dist/public/fr" "$APP_DIR/dist/public/mg" "$APP_DIR/dist/public/en" -name "index.html" 2>/dev/null | wc -l)
+  log_ok "Fichiers prerendus détectés : $PRERENDER_COUNT fichiers HTML"
+else
+  log_warn "Aucun fichier prerendu détecté dans dist/public/fr/ — le prerendering a peut-être échoué"
 fi
 
-# Le build-time prerendering a généré les fichiers dans dist/public/
-# pnpm run serve va directement les servir.
+# ── Étape 3 : Nettoyage PM2 (anciennes instances, si existantes) ──────────────
+if command -v pm2 &>/dev/null; then
+  log_step "Nettoyage des anciennes instances PM2 (si existantes)"
 
-# ── Étape 6 : Sauvegarde PM2 ──────────────────────────────────────────────────
-log_step "Sauvegarde de la configuration PM2"
-pm2 save 2>&1 | sed 's/^/    /'
-log_ok "Configuration PM2 sauvegardée (redémarrage automatique au boot actif)"
+  stop_pm2() {
+    local name="$1"
+    if pm2 describe "$name" &>/dev/null; then
+      pm2 stop "$name"    &>/dev/null || true
+      pm2 delete "$name"  &>/dev/null || true
+      log_ok "Instance '$name' arrêtée et supprimée"
+    else
+      log_info "Instance '$name' n'existait pas (rien à faire)"
+    fi
+  }
 
-# ── Étape 7 : Commit & Push Git ───────────────────────────────────────────────
+  stop_pm2 "jerymotro-vite"
+  stop_pm2 "jerymotro-render"
+  pm2 save &>/dev/null || true
+  log_info "PM2 nettoyé — nginx sert les fichiers statiques directement"
+fi
+
+# ── Étape 4 : Rechargement nginx ──────────────────────────────────────────────
+if command -v nginx &>/dev/null; then
+  log_step "Rechargement de nginx"
+  if sudo nginx -t 2>&1 | sed 's/^/    /'; then
+    sudo systemctl reload nginx 2>&1 | sed 's/^/    /'
+    log_ok "$(TS) nginx rechargé — les nouveaux fichiers sont servis"
+  else
+    log_warn "La configuration nginx a une erreur de syntaxe"
+    log_warn "Corrigez /etc/nginx/sites-available/default puis : sudo systemctl reload nginx"
+  fi
+else
+  log_step "Rechargement nginx (ignoré — nginx non installé)"
+  log_info "Rechargez nginx manuellement : sudo systemctl reload nginx"
+fi
+
+# ── Étape 5 : Commit & Push Git ───────────────────────────────────────────────
 log_step "Commit & Push Git"
 REPO_ROOT="$(cd "$APP_DIR" && git rev-parse --show-toplevel 2>/dev/null || echo '')"
 
@@ -208,15 +205,12 @@ echo -e "${BOLD}${GREEN}"
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║              ✅  Déploiement terminé avec succès            ║"
 echo "╠══════════════════════════════════════════════════════════════╣"
-printf "║  %-60s║\n" "  🌐 Application disponible : http://localhost:$VITE_PORT"
+printf "║  %-60s║\n" "  🌐 https://jerymotro.duckdns.org"
+printf "║  %-60s║\n" "  📁 Fichiers : $APP_DIR/dist/public/"
 echo "╠══════════════════════════════════════════════════════════════╣"
 echo "║  Commandes utiles :                                          ║"
-echo "║    pm2 status          — état des services                   ║"
-echo "║    pm2 logs            — voir tous les logs en live          ║"
-echo "║    pm2 restart all     — redémarrer tout                     ║"
-echo "║    pm2 stop all        — arrêter tout                        ║"
+echo "║    sudo nginx -t          — tester la config nginx           ║"
+echo "║    sudo systemctl reload nginx — recharger nginx             ║"
+echo "║    cat dist/public/fr/index.html | head -20  — vérifier SEO  ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo -e "${RESET}"
-
-# Afficher l'état PM2 en fin de script
-pm2 status
