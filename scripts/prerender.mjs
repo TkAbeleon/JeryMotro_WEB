@@ -48,7 +48,7 @@ import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR  = resolve(__dirname, '..');           // artifacts/jerymotro/
+const ROOT_DIR  = join(resolve(__dirname, '..'), 'artifacts', 'jerymotro');
 const DIST_DIR  = join(ROOT_DIR, 'dist', 'public');  // sortie de vite build
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
