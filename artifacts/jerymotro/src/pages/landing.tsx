@@ -70,6 +70,8 @@ export default function LandingPage() {
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
             <a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
+            <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
+            <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
             <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</a>
           </div>
 
@@ -126,12 +128,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-              {t("landing.hero.cta.getStarted")}
-              <ChevronRight className="w-4 h-4" />
+            <Link href="/map" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+              <Map className="w-4 h-4" />
+              {t("landing.hero.cta.map")}
             </Link>
-            <Link href="/login" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors">
-              {t("landing.hero.cta.login")}
+            <Link href="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border bg-card px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors">
+              <Activity className="w-4 h-4" />
+              {t("landing.hero.cta.dashboard")}
             </Link>
           </div>
         </div>

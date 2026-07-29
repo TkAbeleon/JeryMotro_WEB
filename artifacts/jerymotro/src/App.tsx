@@ -15,9 +15,9 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
+import MapPage from "@/pages/map";
+import DashboardPage from "@/pages/dashboard";
 
-const MapPage = lazy(() => import("@/pages/map"));
-const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const DetectionsPage = lazy(() => import("@/pages/detections"));
 const ClustersPage = lazy(() => import("@/pages/clusters"));
 const PredictionsPage = lazy(() => import("@/pages/predictions"));
@@ -103,19 +103,7 @@ function AuthedRoute({ component: Component }: { component: React.ComponentType 
 }
 
 function PublicRoute({ component: Component }: { component: React.ComponentType }) {
-  const [isLoading, setIsLoading] = useState(true);
   const { t } = useI18n();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return <LoadingPage message={t("common.loading")} />;
-  }
 
   return (
     <AppShell isPublic>
