@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowLeft, Mail, Phone, MapPin, GraduationCap, Briefcase, Award, Heart, User, Code, FileDown, Globe } from "lucide-react";
+import { ArrowLeft, Mail, Phone, MapPin, GraduationCap, Briefcase, Award, Heart, User, Code, FileDown } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 
@@ -43,7 +43,7 @@ export default function CvPage() {
                   alt="RANDRIAMANANTENA Tsiky Ny Antsa"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80";
+                    e.currentTarget.src = "https://ibb.co/yBVMw3n0";
                   }}
                 />
               </div>
@@ -123,7 +123,7 @@ export default function CvPage() {
                 {/* Social Links */}
                 <div>
                   <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-primary" />
+                    <GlobeIcon />
                     <span>{lang === "mg" ? "Réseaux / Fifandraisana" : lang === "en" ? "Social Networks" : "Réseaux sociaux"}</span>
                   </h3>
                   <div className="space-y-2 text-sm">
@@ -351,6 +351,16 @@ function FacebookIcon() {
   return (
     <svg className="w-5 h-5 text-primary flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg className="w-4 h-4 text-primary flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
     </svg>
   );
 }
