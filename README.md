@@ -1,133 +1,116 @@
-# JeryMotro Platform — Surveillance des Feux de Brousse à Madagascar
+# JeryMotro — Plateforme Intelligente de Surveillance Environnementale
 
-Plateforme de surveillance environnementale utilisant l'IA et les données satellitaires NASA FIRMS pour détecter, prédire et alerter sur les feux de brousse à Madagascar.
-
----
-
-## 🚀 Déploiement Production (tout-en-un)
-
-Un seul script fait **tout** : install des dépendances, build Vite (qui déclenche automatiquement le prerendering des routes publiques), rechargement de nginx, et push Git.
-
-```bash
-chmod +x deploy_prod.sh
-./deploy_prod.sh
-```
-
-**Nginx sert directement les fichiers statiques** depuis `dist/public/`. Aucun process Node en arrière-plan n'est nécessaire.
-
-Variables d'environnement disponibles : voir [`artifacts/jerymotro/README-prerender.md`](artifacts/jerymotro/README-prerender.md).
-
----
-
-## 💻 Développement local
-
-Cette plateforme est structurée en monorepo géré via **pnpm workspaces**. Toutes les commandes de développement doivent être lancées depuis la racine du workspace.
-
-### Lancer le Frontend React (dev)
-
-```bash
-pnpm --filter @workspace/jerymotro run dev
-```
-
-### Commandes utiles
-
-```bash
-# Builder le frontend (lance le prerender automatiquement à la fin)
-pnpm --filter @workspace/jerymotro run build
-
-# Lancer manuellement le prerender (sans build complet)
-pnpm --filter @workspace/jerymotro run prerender
-
-# Vérifier les types TypeScript
-pnpm run typecheck
-```
-
----
-
-## 🌐 Connexion API & Configuration
-
-L'URL de l'API backend est résolue dynamiquement :
-
-- **En développement** : `${window.location.protocol}//${window.location.hostname}:${apiPort}` (port lu depuis `artifacts/api-server/.env`)
-- **En production** : Variable `VITE_API_URL` dans `artifacts/jerymotro/.env` (ex: `http://35.192.27.164`)
-
-- **API de production :** `http://35.192.27.164`
-- **Documentation Swagger :** `/docs` sur l'hôte API
-- **Health Check :** `GET /healthz`
+JeryMotro est une plateforme web d'analyse et d'alerte précoce pour la surveillance des feux de brousse à Madagascar. Elle combine l'intelligence artificielle (XGBoost) et les données satellitaires NASA FIRMS en temps réel pour offrir des outils décisionnels avancés aux acteurs de la conservation et de la sécurité environnementale.
 
 ---
 
 ## 🛠️ Stack Technique
 
 ### Frontend (React & Vite)
-- **Langage & Compilateur :** React + Vite + TypeScript 5.9 + esbuild
-- **Gestionnaire de Paquets :** pnpm workspaces
-- **Client API :** Orval (généré automatiquement à partir de la spécification OpenAPI)
-- **Rendu & Contenus :** ReactMarkdown + remark-gfm + rendu client-side Mermaid.js dynamique
-- **Cartographie :** Leaflet (React Leaflet) + MarkerCluster
-- **Style :** TailwindCSS v4 + Framer Motion (animations fluides & premium)
-- **SEO / Bots :** Prerendering statique au build avec Puppeteer (Chrome headless)
+- **Framework & Langage :** React 18, TypeScript 5.9, Vite
+- **Architecture de Build :** Monorepo géré avec `pnpm` workspaces
+- **Client API :** Génération automatique de hooks React Query via Orval d'après la spécification OpenAPI
+- **Cartographie :** Leaflet (React Leaflet) avec gestion performante de clusters (`MarkerCluster`)
+- **Design System :** TailwindCSS v4, animations de transition fluides avec Framer Motion
+- **Optimisation SEO & Performance :** SSG/SSR Hybride (pré-rendu statique au build via Node.js et `react-dom/server` pour les pages publiques)
 
-### Infra Production
-- **Serveur web :** Nginx (fichiers statiques depuis `dist/public/`)
-- **SSL :** Let's Encrypt (Certbot)
+### Infrastructure & Production
+- **Serveur Web :** Nginx servant les pages pré-rendues statiquement avec routage dynamique basé sur la langue
+- **SSL / Sécurité :** Let's Encrypt (Certbot) avec configuration TLS renforcée
+- **Backend & Modèles :** API REST en FastAPI, base de données PostgreSQL, intégration n8n pour les pipelines d'alerte, base vectorielle Qdrant pour le module RAG
+
+---
+
+## 🚀 Déploiement en Production
+
+La plateforme utilise un pipeline de déploiement automatisé :
+
+```bash
+# Rendre le script exécutable (si nécessaire)
+chmod +x deploy_prod.sh
+
+# Lancer le déploiement
+./deploy_prod.sh
+```
+
+Le script de déploiement exécute les étapes suivantes :
+1. Restauration des dépendances via `pnpm`
+2. Compilation des bundles de production (client et serveur)
+3. Exécution du pipeline de pré-rendu statique (SSG/SSR) générant l'arborescence multilingue dans `dist/public/`
+4. Validation de la configuration Nginx et rechargement à chaud
+
+---
+
+## 💻 Développement Local
+
+### Prérequis
+- Node.js (LTS recommandé)
+- `pnpm` (installé globalement)
+
+### Démarrer le serveur de développement frontend
+
+```bash
+pnpm --filter @workspace/jerymotro run dev
+```
+
+### Commandes de Build et de Validation
+
+```bash
+# Compiler le projet et lancer le script de pré-rendu (SSG)
+pnpm --filter @workspace/jerymotro run build
+
+# Valider l'intégrité des types TypeScript
+pnpm run typecheck
+```
+
+---
+
+## 🌐 Résolution API & Configuration
+
+L'adresse de l'API backend est configurée dynamiquement :
+- **Environnement de développement :** Détection automatique de l'hôte et du port d'API.
+- **Environnement de production :** Spécifiée via la variable `VITE_API_URL` (définie dans le fichier d'environnement de production).
 
 ---
 
 ## 📁 Structure du Projet
 
 ```
-├── Conception/                    # Spécifications de conception et d'architecture
-│   ├── FastAPI_Conception_Principale.md
-│   ├── FastAPI_Contrats_API.md
-│   ├── FastAPI_Modeles_BDD.md
-│   ├── FastAPI_Schemas_Pydantic.md
-│   ├── FastAPI_Services_Metier.md
-│   ├── JeryMotro_Design_System.md
-│   └── PLAN_IMPL_STATUS.md
-├── lib/                           # Bibliothèques et générateurs partagés
-│   ├── api-spec/                  # Spécification OpenAPI (openapi.yaml)
-│   ├── api-zod/                   # Schémas de validation Zod générés automatiquement
-│   └── api-client-react/          # Hooks React Query générés pour le client API
+├── Conception/                    # Spécifications fonctionnelles, d'architecture et de base de données
+├── lib/                           # Composants partagés et clients d'API générés
+│   ├── api-spec/                  # Contrat OpenAPI (openapi.yaml)
+│   ├── api-zod/                   # Schémas de validation Zod issus du contrat d'API
+│   └── api-client-react/          # SDK et hooks de communication client générés
 ├── artifacts/
-│   └── jerymotro/                 # Application web frontend React (Vite)
-│       ├── src/                   # Code source React
-│       └── README-prerender.md    # Guide du prerendering statique
-├── scripts/                       # Scripts utilitaires de traitement de données
-└── deploy_prod.sh                 # Script de déploiement production tout-en-un
+│   └── jerymotro/                 # Application web frontend (React / Vite)
+│       ├── src/                   # Code source de l'application
+│       └── README-prerender.md    # Documentation technique du pipeline SSG
+├── scripts/                       # Scripts système et de pré-rendu statique
+└── deploy_prod.sh                 # Automatisation du déploiement
 ```
 
 ---
 
-## 🛡️ Décisions Architecturales Clés
+## 🛡️ Choix d'Architecture Majeurs
 
-- **Prerendering Statique (SEO) :** Un script postbuild lance Puppeteer pour générer du HTML statique complet pour les pages publiques, sans modifier le code React. Les pages privées restent en CSR classique.
-- **Modularité ML :** Les modèles ML (XGBoost, ConvLSTM) sont déployés sur des conteneurs isolés et interrogeables via des contrats d'API stricts.
-- **RAG & Rendu Avancé :** Intégration de RAG (Retrieval-Augmented Generation) pour le chat de la plateforme. La réponse de l'IA supporte le Markdown, les tableaux et les diagrammes Mermaid.
-- **Robustesse CSS Grid :** Utilisation systématique de `minmax(0, 1fr)` pour les colonnes sous CSS Grid.
-
----
-
-## 👤 Rôles & Expérience Utilisateur
-
-### Niveaux de Droits
-1. **Visiteur :** Accès à la carte en temps réel et aux prédictions globales de risques.
-2. **Standard :** Abonnement aux alertes EMAIL personnalisées et consultation de l'historique personnel.
-3. **Premium (ONG, Ministères, Parcs Nationaux) :** Alertes multicanales (Email, SMS, WhatsApp), création de Zones Prioritaires, agent d'analyse IA dédié, et export de données.
-
-### Comptes de Test
-
-| Rôle | Email | Mot de passe |
-|------|-------|-------------|
-| **Admin** | `randriamanantenatsikynyantsa@gmail.com` | `password123` |
-| **Premium** | `tkabeleon@gmail.com` | `password123` |
-| **Premium** | `rtsikynyantsa@gmail.com` | `password123` |
-| **Standard** | `tsikynyantsa1@outlook.fr` | `password123` |
+- **SSG Hybride & SSR React :** Afin d'assurer un excellent référencement naturel (SEO) et un temps de chargement immédiat tout en contournant l'incompatibilité de Leaflet (dépendant de l'objet global `window`) côté serveur, les routes dynamiques et cartographiques complexes font l'objet d'un rendu HTML sémantique léger optimisé pour les robots d'indexation et les requêtes curl, tandis que les pages statiques textuelles sont intégralement compilées en SSR React. Le client web prend ensuite le relais (hydratation) pour les fonctionnalités interactives.
+- **Modélisation ML Découplée :** Les modèles prédictifs (XGBoost v2.1) sont isolés du serveur applicatif principal, communiquant via des APIs à contrats d'interface stricts.
+- **Intégration RAG & Analyse Assistée :** Le module d'assistance JeryMotro AI utilise une base vectorielle (Qdrant) pour répondre aux requêtes complexes des utilisateurs en y intégrant un moteur de rendu de graphes (Mermaid.js) et de tableaux interactifs directement au sein de l'interface de messagerie.
 
 ---
 
-## 💡 Notes de Conception
+## 👤 Rôles et Niveaux d'Accès
 
-- **Priorité Nocturne :** Le thème sombre est configuré par défaut, offrant un contraste optimal pour une veille prolongée.
-- **Signification des Couleurs :** La couleur orange vif (`--fire`) est sémantiquement réservée aux indicateurs de feux réels.
-- **Défense Supply-Chain :** Sécurité de déploiement via pnpm imposant un âge de publication minimal de 24h pour toutes les dépendances npm de production.
+La plateforme segmente ses fonctionnalités selon trois profils d'utilisateurs :
+
+1. **Visiteur :** Consultation de la cartographie en temps réel et des indices de risques actuels.
+2. **Utilisateur standard :** Abonnement aux alertes e-mail configurées pour des périmètres précis et accès aux statistiques globales.
+3. **Premium (ONG, Ministères, Parcs Nationaux) :** Réception d'alertes instantanées multi-canaux (Email, SMS, WhatsApp), personnalisation de zones prioritaires dédiées, agent d'analyse IA conversationnel avancé et export structuré des données historiques.
+
+---
+
+## 💡 Principes de Design System
+
+- **Mode Sombre par Défaut :** L'interface privilégie une palette sombre afin de réduire la fatigue visuelle des opérateurs en veille de nuit ou en conditions opérationnelles prolongées.
+- **Code Couleur Sémantique :** La teinte orange vif (`#FF5A1F` / `--fire`) est strictement réservée pour la représentation visuelle et graphique des foyers d'incendie actifs.
+- **Sécurité et Résilience :** Intégration systématique de plans de secours (`<noscript>`) pour préserver l'accès à l'information essentielle même en cas de dysfonctionnement du JavaScript client.
