@@ -15,8 +15,10 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
-import MapPage from "@/pages/map";
-import DashboardPage from "@/pages/dashboard";
+// MapPage and DashboardPage are lazy to prevent Leaflet (which reads navigator.userAgent
+// at ESM module-load time) from being bundled into the SSR server build and crashing Node.
+const MapPage = lazy(() => import("@/pages/map"));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
 
 const DetectionsPage = lazy(() => import("@/pages/detections"));
 const ClustersPage = lazy(() => import("@/pages/clusters"));
