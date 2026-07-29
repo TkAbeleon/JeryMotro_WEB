@@ -102,6 +102,30 @@ function AuthedRoute({ component: Component }: { component: React.ComponentType 
   );
 }
 
+function PublicRoute({ component: Component }: { component: React.ComponentType }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const { t } = useI18n();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingPage message={t("common.loading")} />;
+  }
+
+  return (
+    <AppShell isPublic>
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <Component />
+      </Suspense>
+    </AppShell>
+  );
+}
+
 function HomeRedirect() {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <Redirect to="/map" /> : <LandingPage />;
@@ -116,10 +140,10 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/map">
-        {() => <AuthedRoute component={MapPage} />}
+        {() => <PublicRoute component={MapPage} />}
       </Route>
       <Route path="/dashboard">
-        {() => <AuthedRoute component={DashboardPage} />}
+        {() => <PublicRoute component={DashboardPage} />}
       </Route>
       <Route path="/detections">
         {() => <AuthedRoute component={DetectionsPage} />}

@@ -43,6 +43,8 @@ const PUBLIC_ROUTES = [
   { path: '/',          slug: '',         title: 'Landing page'  },
   { path: '/login',     slug: 'login',    title: 'Login'         },
   { path: '/register',  slug: 'register', title: 'Register'      },
+  { path: '/map',        slug: 'map',        title: 'Map'           },
+  { path: '/dashboard',  slug: 'dashboard',  title: 'Dashboard'     },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

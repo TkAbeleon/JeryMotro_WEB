@@ -28,17 +28,17 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, isPublic }: { children: React.ReactNode; isPublic?: boolean }) {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isPublic) {
       setLocation("/login");
     }
-  }, [isAuthenticated, setLocation]);
+  }, [isAuthenticated, isPublic, setLocation]);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated && !isPublic) return null;
 
   return (
     <SidebarProvider>

@@ -62,7 +62,7 @@ const SIDEBAR_COLLAPSED = 64;
 
 export function Sidebar() {
   const [location] = useLocation();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const { t } = useI18n();
   const { isCollapsed, isOpen, isMobile, toggle, close } = useSidebar();
 
@@ -141,21 +141,34 @@ export function Sidebar() {
         ))}
       </div>
 
-      {/* Logout */}
+      {/* Logout or Login */}
       <div
         className="border-t border-sidebar-border flex-shrink-0"
         style={{ padding: collapsed ? "0.5rem 0" : "0.75rem", display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : undefined }}
       >
-        <button
-          onClick={logout}
-          title={collapsed ? t("common.logout") : undefined}
-          className={`flex items-center rounded-md transition-colors text-sm font-medium text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground ${
-            collapsed ? "w-10 h-10 justify-center" : "gap-3 px-2 py-2 w-full text-left"
-          }`}
-        >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          {!collapsed && <span>{t("common.logout")}</span>}
-        </button>
+        {isAuthenticated ? (
+          <button
+            onClick={logout}
+            title={collapsed ? t("common.logout") : undefined}
+            className={`flex items-center rounded-md transition-colors text-sm font-medium text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground ${
+              collapsed ? "w-10 h-10 justify-center" : "gap-3 px-2 py-2 w-full text-left"
+            }`}
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && <span>{t("common.logout")}</span>}
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            title={collapsed ? t("auth.login.title") : undefined}
+            className={`flex items-center rounded-md transition-colors text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
+              collapsed ? "w-10 h-10 justify-center" : "gap-3 px-2 py-2 w-full"
+            }`}
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0 rotate-180 text-primary" />
+            {!collapsed && <span>{t("auth.login.title")}</span>}
+          </Link>
+        )}
       </div>
 
       {/* Desktop collapse toggle */}
