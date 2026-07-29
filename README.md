@@ -1,6 +1,40 @@
 # JeryMotro — Plateforme Intelligente de Surveillance Environnementale
 
+[![Website](https://img.shields.io/website?up_message=en%20ligne&down_message=hors%20ligne&url=https%3A%2F%2Fjerymotro.duckdns.org%2F)](https://jerymotro.duckdns.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-B73BFE?logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Made with ❤️ in Madagascar](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%20in-Madagascar-FF5A1F?labelColor=001833)](https://jerymotro.duckdns.org/)
+
 JeryMotro est une plateforme web d'analyse et d'alerte précoce pour la surveillance des feux de brousse à Madagascar. Elle combine l'intelligence artificielle (XGBoost) et les données satellitaires NASA FIRMS en temps réel pour offrir des outils décisionnels avancés aux acteurs de la conservation et de la sécurité environnementale.
+
+---
+
+## 📑 Table des Matières
+
+- [🌍 Accès à la Plateforme](#-accès-à-la-plateforme)
+- [🛠️ Stack Technique](#️-stack-technique)
+  - [Frontend (React & Vite)](#frontend-react--vite)
+  - [Infrastructure & Production](#infrastructure--production)
+- [🚀 Déploiement en Production](#-déploiement-en-production)
+- [💻 Développement Local](#-développement-local)
+  - [Prérequis](#prérequis)
+  - [Démarrer le serveur de développement frontend](#démarrer-le-serveur-de-développement-frontend)
+  - [Commandes de Build et de Validation](#commandes-de-build-et-de-validation)
+- [🌐 Résolution API & Configuration](#-résolution-api--configuration)
+- [📁 Structure du Projet](#-structure-du-projet)
+- [🛡️ Choix d'Architecture Majeurs](#️-choix-darchitecture-majeurs)
+- [👤 Rôles et Niveaux d'Accès](#-rôles-et-niveaux-daccès)
+- [💡 Principes de Design System](#-principes-de-design-system)
+
+---
+
+## 🌍 Accès à la Plateforme
+
+La plateforme est accessible en ligne à l'adresse suivante :
+**[https://jerymotro.duckdns.org/](https://jerymotro.duckdns.org/)**
 
 ---
 
