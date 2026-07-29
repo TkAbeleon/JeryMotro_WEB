@@ -218,4 +218,40 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/register/" />
   </url>
 
+  <!-- ════════════════════════════════════════════════════
+       PAGE MÉTHODOLOGIE / ABOUT
+       ════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://jerymotro.duckdns.org/fr/about/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/about/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/about/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/about/" />
+  </url>
+
+  <url>
+    <loc>https://jerymotro.duckdns.org/mg/about/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/about/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/about/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/about/" />
+  </url>
+
+  <url>
+    <loc>https://jerymotro.duckdns.org/en/about/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/about/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/about/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/about/" />
+  </url>
+
 </urlset>

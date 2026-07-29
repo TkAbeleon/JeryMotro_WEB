@@ -72,7 +72,7 @@ export default function LandingPage() {
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
             <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
             <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
-            <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</a>
+            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</Link>
           </div>
 
           <div className="hidden md:block w-px h-5 bg-border" />
@@ -118,6 +118,19 @@ export default function LandingPage() {
             <span>{t("landing.tagline")}</span>
           </div>
 
+          {/* Social proof badges */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground">
+              <span className="text-base">🛰️</span> Données NASA FIRMS
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground">
+              <span className="text-base">🤖</span> XGBoost v2.1 — 89% de précision
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground">
+              <span className="text-base">🎓</span> Mémoire L3 Génie Logiciel 2026
+            </span>
+          </div>
+
           <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
             {t("landing.hero.title")}<br />
             <span className="text-primary">{t("landing.hero.subtitle")}</span>
@@ -136,6 +149,15 @@ export default function LandingPage() {
               <Activity className="w-4 h-4" />
               {t("landing.hero.cta.dashboard")}
             </Link>
+          </div>
+
+          {/* Demo account callout */}
+          <div className="mt-6 inline-flex items-center gap-2 border border-border bg-card/80 px-4 py-2.5 rounded-lg text-sm">
+            <span className="text-accent font-semibold">Demo :</span>
+            <code className="text-xs font-mono text-muted-foreground">demo@jerymotro.mg</code>
+            <span className="text-muted-foreground/50">/</span>
+            <code className="text-xs font-mono text-muted-foreground">demo1234</code>
+            <Link href="/login" className="ml-1 text-xs text-primary hover:underline">Essayer →</Link>
           </div>
         </div>
 
@@ -253,6 +275,11 @@ export default function LandingPage() {
               <Link href="/register" className={`block text-center py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90 ${tier.highlighted ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-secondary'}`}>
                 {tier.cta}
               </Link>
+              {tier.highlighted && (
+                <p className="text-xs text-center text-muted-foreground mt-3">
+                  {t("landing.pricing.trialNote")}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -303,6 +330,7 @@ export default function LandingPage() {
           <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span>
             <div className="flex items-center gap-4">
+              <Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link>
               <Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link>
               <Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link>
             </div>

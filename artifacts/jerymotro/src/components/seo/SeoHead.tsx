@@ -29,7 +29,9 @@ const SITE_URL = import.meta.env.VITE_SITE_URL || 'https://jerymotro.duckdns.org
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 /** Routes publiques qui bénéficient du prerendering SEO */
-const PUBLIC_ROUTES_SET = new Set(['/', '/login', '/register']);
+const PUBLIC_ROUTES_SET = new Set([
+  '/', '/login', '/register', '/map', '/dashboard', '/about', '/legal', '/privacy'
+]);
 
 /** Codes BCP-47 pour les balises hreflang */
 const LANG_BCP47: Record<Lang, string> = {
@@ -60,6 +62,26 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
       title:       'Créer un compte — JeryMotro',
       description: 'Créez votre compte JeryMotro gratuitement. Surveillez les feux de brousse à Madagascar, recevez des alertes Email/SMS/WhatsApp et exploitez les prédictions XGBoost.',
     },
+    '/map': {
+      title:       'Carte des feux en temps réel — JeryMotro',
+      description: 'Carte interactive des feux de brousse à Madagascar. Détections MODIS/VIIRS en temps réel, clustering par région, filtrage par niveau de risque.',
+    },
+    '/dashboard': {
+      title:       'Tableau de bord — JeryMotro',
+      description: 'Statistiques et analyses des feux de brousse à Madagascar : détections, clusters actifs, alertes envoyées, précision IA XGBoost 89%.',
+    },
+    '/about': {
+      title:       'Méthodologie & Sources — JeryMotro',
+      description: 'Sources de données NASA FIRMS, modèle XGBoost v2.1, pipeline de traitement et limites de la plateforme de surveillance JeryMotro.',
+    },
+    '/legal': {
+      title:       'Mentions légales — JeryMotro',
+      description: 'Informations réglementaires et éditeur de la plateforme de surveillance des feux JeryMotro.',
+    },
+    '/privacy': {
+      title:       'Politique de confidentialité — JeryMotro',
+      description: 'Comment JeryMotro collecte, traite et protège vos données personnelles. Conforme RGPD.',
+    },
   },
 
   mg: {
@@ -75,6 +97,26 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
       title:       'Mamorona kaonty — JeryMotro',
       description: 'Mamorona kaonty JeryMotro maimaim-poana. Araho ny afo eto Madagasikara, handraisa fampitandremana Email/SMS/WhatsApp ary ampiasao faminaniana XGBoost.',
     },
+    '/map': {
+      title:       'Sarintany ny afo — JeryMotro',
+      description: 'Sarintany mifandraika momba ny afo eto Madagasikara. Fahitana MODIS/VIIRS amin\'izao fotoana izao.',
+    },
+    '/dashboard': {
+      title:       'Tabilao — JeryMotro',
+      description: 'Statistika sy famakafakana ny afo eto Madagasikara: fahitana, vondrona mavitrika, fampitandremana nalefa, fahamarinan\'ny AI.',
+    },
+    '/about': {
+      title:       'Fomba Fiasa sy Loharanon-angona — JeryMotro',
+      description: 'Loharanon-angona NASA FIRMS, modely XGBoost v2.1, rafitra fandraharahana ary fetra.',
+    },
+    '/legal': {
+      title:       'Filazana ara-dalàna — JeryMotro',
+      description: 'Fampahalalana momba ny lalana mifehy ny sehatra JeryMotro.',
+    },
+    '/privacy': {
+      title:       'Politika Tsiambaratelo — JeryMotro',
+      description: 'Ny fomba fanangonana sy fikarakarana ny angon-drakitra manokana ao amin\'ny JeryMotro.',
+    },
   },
 
   en: {
@@ -89,6 +131,26 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
     '/register': {
       title:       'Create an account — JeryMotro',
       description: 'Create your free JeryMotro account. Monitor Madagascar wildfires, receive Email/SMS/WhatsApp alerts and use XGBoost predictions.',
+    },
+    '/map': {
+      title:       'Real-time wildfire map — JeryMotro',
+      description: 'Interactive wildfire map of Madagascar. Real-time MODIS/VIIRS detections, regional clustering, risk-level filtering.',
+    },
+    '/dashboard': {
+      title:       'Dashboard — JeryMotro',
+      description: 'Wildfire statistics for Madagascar: detections, active clusters, alerts sent, 89% AI accuracy.',
+    },
+    '/about': {
+      title:       'Methodology & Sources — JeryMotro',
+      description: 'NASA FIRMS data sources, XGBoost v2.1 model, processing pipeline and platform limitations.',
+    },
+    '/legal': {
+      title:       'Legal Notice — JeryMotro',
+      description: 'Regulatory information about the JeryMotro wildfire surveillance platform.',
+    },
+    '/privacy': {
+      title:       'Privacy Policy — JeryMotro',
+      description: 'How JeryMotro collects, processes and protects your personal data. GDPR compliant.',
     },
   },
 };
