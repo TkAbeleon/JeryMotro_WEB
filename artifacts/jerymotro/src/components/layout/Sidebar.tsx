@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Activity, LayoutDashboard, Flame, BarChart3, Bot, MapPin, Bell, CreditCard, User, LogOut, ChevronLeft, ChevronRight, X, Map } from "lucide-react";
+import { Activity, LayoutDashboard, Flame, BarChart3, Bot, MapPin, Bell, CreditCard, User, LogOut, ChevronLeft, ChevronRight, X, Map, BookOpen, FileText, Shield, Download, UserSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import { useSidebar } from "@/hooks/use-sidebar";
@@ -16,6 +16,8 @@ interface NavItem {
 interface NavGroup {
   sectionKey: TranslationKey;
   items: NavItem[];
+  /** Si true, affiché uniquement pour les utilisateurs connectés */
+  authOnly?: boolean;
 }
 
 const navGroups: NavGroup[] = [
@@ -27,6 +29,7 @@ const navGroups: NavGroup[] = [
   },
   {
     sectionKey: "nav.section.detections",
+    authOnly: true,
     items: [
       { labelKey: "nav.detections", href: "/detections", icon: Activity },
       { labelKey: "nav.clusters", href: "/clusters", icon: Flame },
@@ -34,6 +37,7 @@ const navGroups: NavGroup[] = [
   },
   {
     sectionKey: "nav.section.analyse",
+    authOnly: true,
     items: [
       { labelKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
       { labelKey: "nav.predictions", href: "/predictions", icon: MapPin },
@@ -43,16 +47,28 @@ const navGroups: NavGroup[] = [
   },
   {
     sectionKey: "nav.section.premium",
+    authOnly: true,
     items: [
       { labelKey: "nav.zones", href: "/zones", icon: MapPin, locked: true },
     ],
   },
   {
     sectionKey: "nav.section.account",
+    authOnly: true,
     items: [
       { labelKey: "nav.alerts", href: "/alerts", icon: Bell },
       { labelKey: "nav.subscriptions", href: "/subscriptions", icon: CreditCard },
       { labelKey: "nav.profile", href: "/profile", icon: User },
+      { labelKey: "nav.export", href: "/export", icon: Download },
+    ],
+  },
+  {
+    sectionKey: "nav.section.resources",
+    items: [
+      { labelKey: "nav.about", href: "/about", icon: BookOpen },
+      { labelKey: "nav.cv", href: "/cv", icon: UserSquare },
+      { labelKey: "nav.legal", href: "/legal", icon: FileText },
+      { labelKey: "nav.privacy", href: "/privacy", icon: Shield },
     ],
   },
 ];
@@ -95,7 +111,7 @@ export function Sidebar() {
         className="flex-1 overflow-y-auto py-4 flex flex-col gap-4"
         style={{ paddingLeft: collapsed ? 0 : "0.75rem", paddingRight: collapsed ? 0 : "0.75rem" }}
       >
-        {navGroups.map((group) => (
+        {navGroups.filter(g => !g.authOnly || isAuthenticated).map((group) => (
           <div key={group.sectionKey}>
             {!collapsed && (
               <h4 className="px-2 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2">

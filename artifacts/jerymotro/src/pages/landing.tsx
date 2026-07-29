@@ -169,7 +169,7 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-destructive" />
               <div className="w-3 h-3 rounded-full bg-[#f59e0b]" />
               <div className="w-3 h-3 rounded-full bg-accent" />
-              <span className="text-xs text-muted-foreground ml-2 font-mono truncate">dashboard.jerymotro.mg</span>
+              <span className="text-xs text-muted-foreground ml-2 font-mono truncate">jerymotro.duckdns.org</span>
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {[
