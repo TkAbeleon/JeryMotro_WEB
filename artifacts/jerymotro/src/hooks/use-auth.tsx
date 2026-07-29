@@ -30,7 +30,7 @@ function isTokenExpired(token: string): boolean {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(typeof window === "undefined" ? false : true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("jerymotro_token");
