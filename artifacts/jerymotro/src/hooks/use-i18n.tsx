@@ -31,8 +31,8 @@ export function getInitialLang(): Lang {
   return DEFAULT_LANG;
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(getInitialLang);
+export function I18nProvider({ children, initialLang }: { children: ReactNode; initialLang?: Lang }) {
+  const [lang, setLangState] = useState<Lang>(() => initialLang || getInitialLang());
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);

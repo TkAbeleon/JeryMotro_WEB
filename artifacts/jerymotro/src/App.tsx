@@ -9,24 +9,25 @@ import { I18nProvider, useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 
 import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
-import MapPage from "@/pages/map";
-import DashboardPage from "@/pages/dashboard";
-import DetectionsPage from "@/pages/detections";
-import ClustersPage from "@/pages/clusters";
-import PredictionsPage from "@/pages/predictions";
-import StatsPage from "@/pages/stats";
-import ChatPage from "@/pages/chat";
-import ZonesPage from "@/pages/zones";
-import AlertsPage from "@/pages/alerts";
-import SubscriptionsPage from "@/pages/subscriptions";
-import ProfilePage from "@/pages/profile";
-import ExportPage from "@/pages/export";
 import NotFound from "@/pages/not-found";
+
+const MapPage = lazy(() => import("@/pages/map"));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const DetectionsPage = lazy(() => import("@/pages/detections"));
+const ClustersPage = lazy(() => import("@/pages/clusters"));
+const PredictionsPage = lazy(() => import("@/pages/predictions"));
+const StatsPage = lazy(() => import("@/pages/stats"));
+const ChatPage = lazy(() => import("@/pages/chat"));
+const ZonesPage = lazy(() => import("@/pages/zones"));
+const AlertsPage = lazy(() => import("@/pages/alerts"));
+const SubscriptionsPage = lazy(() => import("@/pages/subscriptions"));
+const ProfilePage = lazy(() => import("@/pages/profile"));
+const ExportPage = lazy(() => import("@/pages/export"));
 
 const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
@@ -34,14 +35,17 @@ const getApiUrl = () => {
     return envUrl;
   }
   const apiPort = import.meta.env.VITE_API_BACKEND_PORT || "8081";
-  const { protocol, hostname } = window.location;
-  const host = hostname || "localhost";
-  return `${protocol}//${host}:${apiPort}`;
+  if (typeof window !== "undefined") {
+    const { protocol, hostname } = window.location;
+    const host = hostname || "localhost";
+    return `${protocol}//${host}:${apiPort}`;
+  }
+  return `http://localhost:${apiPort}`;
 };
 
 // Wire auth token and backend URL to every API call
 setBaseUrl(getApiUrl());
-setAuthTokenGetter(() => localStorage.getItem("jerymotro_token"));
+setAuthTokenGetter(() => typeof localStorage !== "undefined" ? localStorage.getItem("jerymotro_token") : null);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,7 +95,9 @@ function AuthedRoute({ component: Component }: { component: React.ComponentType 
 
   return (
     <AppShell>
-      <Component />
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <Component />
+      </Suspense>
     </AppShell>
   );
 }
@@ -151,10 +157,10 @@ function Router() {
   );
 }
 
-function App() {
+function App({ initialLang }: { initialLang?: "fr" | "mg" | "en" }) {
   const getWouterBase = () => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-    const path = window.location.pathname;
+    const path = typeof window !== "undefined" ? window.location.pathname : "/";
     const match = path.match(/^\/(fr|mg|en)\b/);
     return match ? `${base}/${match[1]}` : base;
   };
@@ -162,7 +168,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <I18nProvider>
+        <I18nProvider initialLang={initialLang}>
           <AuthProvider>
             <TooltipProvider>
               <WouterRouter base={getWouterBase()}>
