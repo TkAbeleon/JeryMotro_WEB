@@ -336,22 +336,22 @@ export default function AboutPage() {
 
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="font-heading text-lg font-bold text-foreground">
-                    RANDIAMANANTENA Tsiky Ny Antsa
+                    RANDRIAMANANTENA Tsiky Ny Antsa
                   </h3>
                   <p className="text-primary text-sm font-semibold mb-3">
                     {lang === "mg"
-                      ? "Mpianatra Génie Logiciel L2 — Oniversiten'i Vakinakaratra"
+                      ? "Mpianatra Licence 3 Génie Logiciel — ESP-Antsirabe"
                       : lang === "en"
-                        ? "L2 Software Engineering Student — University of Vakinakaratra"
-                        : "Étudiant L2 Génie Logiciel — Université de Vakinakaratra"}
+                        ? "L3 Software Engineering Student — ESP-Antsirabe"
+                        : "Étudiant Licence 3 Génie Logiciel — ESP-Antsirabe"}
                   </p>
 
                   <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                     {lang === "mg"
-                      ? "Mpianatra amin'ny taona faharoa, liana sy mankafy ny matematika ampiharina, ny cryptographie ary ny intelligence artificielle. Mpamorona sy mpampiasa fototra ny JeryMotro."
+                      ? "Mpianatra amin'ny taona fahatelo, liana sy mankafy ny matematika ampiharina, ny cryptographie ary ny intelligence artificielle. Mpamorona sy mpampiasa fototra ny JeryMotro."
                       : lang === "en"
-                        ? "Second-year student passionate about applied mathematics, cryptography, and artificial intelligence. Creator and lead developer of the JeryMotro platform."
-                        : "Étudiant de deuxième année, passionné par les mathématiques appliquées, la cryptographie et l'intelligence artificielle. Concepteur et développeur principal de la plateforme JeryMotro."}
+                        ? "Third-year student passionate about applied mathematics, cryptography, and artificial intelligence. Creator and lead developer of the JeryMotro platform."
+                        : "Étudiant de troisième année, passionné par les mathématiques appliquées, la cryptographie et l'intelligence artificielle. Concepteur et développeur principal de la plateforme JeryMotro."}
                   </p>
 
                   {/* Social and Contact Links */}
