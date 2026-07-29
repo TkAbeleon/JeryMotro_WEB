@@ -303,8 +303,8 @@ export default function LandingPage() {
           <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span>
             <div className="flex items-center gap-4">
-              <span className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</span>
-              <span className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</span>
+              <Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link>
+              <Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link>
             </div>
           </div>
         </div>

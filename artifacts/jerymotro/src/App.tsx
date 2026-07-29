@@ -15,6 +15,8 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
+import LegalPage from "@/pages/legal";
+import PrivacyPage from "@/pages/privacy";
 // MapPage and DashboardPage are lazy to prevent Leaflet (which reads navigator.userAgent
 // at ESM module-load time) from being bundled into the SSR server build and crashing Node.
 const MapPage = lazy(() => import("@/pages/map"));
@@ -134,6 +136,12 @@ function Router() {
       </Route>
       <Route path="/dashboard">
         {() => <PublicRoute component={DashboardPage} />}
+      </Route>
+      <Route path="/legal">
+        {() => <PublicRoute component={LegalPage} />}
+      </Route>
+      <Route path="/privacy">
+        {() => <PublicRoute component={PrivacyPage} />}
       </Route>
       <Route path="/detections">
         {() => <AuthedRoute component={DetectionsPage} />}

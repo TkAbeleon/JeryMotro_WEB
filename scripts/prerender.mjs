@@ -48,6 +48,8 @@ const REACT_ROUTES = [
   { path: '/',         slug: '',         title: 'Landing page' },
   { path: '/login',    slug: 'login',    title: 'Login'        },
   { path: '/register', slug: 'register', title: 'Register'     },
+  { path: '/legal',    slug: 'legal',    title: 'Mentions légales' },
+  { path: '/privacy',  slug: 'privacy',  title: 'Politique de confidentialité' },
 ];
 
 // Routes rendues en HTML statique (évite Leaflet/window crash dans Node)
