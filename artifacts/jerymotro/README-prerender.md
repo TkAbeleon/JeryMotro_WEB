@@ -1,144 +1,92 @@
-# Prerendering Statique — JeryMotro
+# Pipeline de Pré-rendu Statique (SSG/SSR) — JeryMotro
 
-## Vue d'ensemble
-
-**Principe : build-time, pas de serveur runtime.**
-
-Après chaque `pnpm run build`, le script `scripts/prerender.mjs` :
-1. Lance `vite preview` en local sur un port temporaire (4174)
-2. Ouvre chaque page publique dans Chrome headless (Puppeteer) — en injectant la langue via `localStorage`
-3. Attend `networkidle0` (réseau calme = React + data chargés)
-4. Capture le HTML final et l'écrit dans `dist/public/<lang>/<route>/index.html`
-5. Génère `dist/public/sitemap.xml` avec balises `hreflang`
-
-Les pages **authentifiées** (`/map`, `/dashboard`, etc.) ne sont **jamais touchées** — `dist/public/index.html` reste le SPA shell classique.
+Ce document détaille l'architecture et le fonctionnement du pipeline de pré-rendu hybride (Static Site Generation / Server-Side Rendering) conçu pour assurer l'accessibilité SEO des pages publiques de la plateforme JeryMotro.
 
 ---
 
-## Structure de sortie
+## ⚙️ Principes de Fonctionnement
+
+Contrairement à un SPA classique où le navigateur reçoit un fichier HTML vide et construit l'interface en JavaScript, JeryMotro compile statiquement ses pages au moment du build.
+
+### Caractéristiques majeures :
+1. **Zéro dépendance d'exécution de navigateur :** Le pré-rendu utilise `react-dom/server` (Node.js) pour générer les chaînes HTML. Il n'a plus recours à des solutions lourdes ou instables comme Puppeteer (Chrome Headless).
+2. **Gestion sécurisée des modules tiers (Leaflet) :** Les composants complexes dépendants de l'objet global `window` (comme la cartographie Leaflet ou les graphes interactifs du tableau de bord) sont isolés via chargement paresseux (`lazy`). Ils ne s'exécutent pas lors du pré-rendu côté serveur, ce qui évite les erreurs critiques de compilation dans Node.
+3. **Optimisation SEO :** Pour ces pages cartographiques complexes, le script écrit une structure HTML sémantique riche et légère à destination des robots d'indexation (`curl`, Googlebot). Au chargement dans le navigateur d'un utilisateur, le bundle React prend le relais pour hydrater l'application et charger la carte dynamique.
+
+---
+
+## 📁 Structure Générée en Production
+
+Le livrable final est structuré sous `dist/public/` :
 
 ```
 dist/public/
-├── index.html              ← SPA shell INCHANGÉ (routes authentifiées)
-├── assets/                 ← INCHANGÉS
-├── sitemap.xml             ← Généré par le prerender
+├── index.html              # Fichier de base de la SPA (utilisé pour les sessions connectées)
+├── assets/                 # Fiches CSS, JS et images minifiés
+├── sitemap.xml             # Sitemap multilingue complet généré dynamiquement
 ├── fr/
-│   ├── index.html          ← Landing prerendue en Français
-│   ├── login/
-│   │   └── index.html
-│   └── register/
-│       └── index.html
-├── mg/
-│   ├── index.html          ← Landing prerendue en Malgache
+│   ├── index.html          # Page d'accueil (Français)
+│   ├── login/index.html    # Connexion (Français)
+│   ├── register/index.html # Inscription (Français)
+│   ├── cv/index.html       # CV Développeur (Français)
 │   └── ...
+├── mg/
+│   └── ...                 # Arborescence identique pour le Malagasy (mg)
 └── en/
-    ├── index.html          ← Landing prerendue en Anglais
-    └── ...
+    └── ...                 # Arborescence identique pour l'English (en)
 ```
 
 ---
 
-## Usage
+## 🚀 Utilisation
 
-### Build complet avec prerendering automatique
-
+### Compilation et Pré-rendu automatiques
+Le pré-rendu fait partie intégrante du processus de build standard de l'application :
 ```bash
-# Depuis artifacts/jerymotro/
+# Lance le build de production puis le pré-rendu statique
 pnpm run build
-# → le "postbuild" lance automatiquement le prerender après Vite
 ```
 
-### Prerendering seul (après un build existant)
-
+### Exécution du pré-rendu uniquement
+Si le projet a déjà été compilé, le pré-rendu peut être relancé manuellement :
 ```bash
-pnpm run prerender
-
-# Ou depuis la racine du workspace :
+# Depuis la racine du monorepo
 pnpm --filter @workspace/jerymotro run prerender
 ```
 
-### Variables d'environnement disponibles
+### Paramètres de configuration
+Les variables d'environnement suivantes permettent d'ajuster le comportement du générateur :
 
-| Variable | Défaut | Description |
+| Variable | Valeur par défaut | Description |
 |---|---|---|
-| `PRERENDER_BASE_URL` | `https://jerymotro.mg` | URL de base pour le sitemap |
-| `PRERENDER_PORT` | `4174` | Port Vite preview temporaire |
-| `PRERENDER_TIMEOUT` | `20000` | Timeout Puppeteer par page (ms) |
+| `PRERENDER_BASE_URL` | `https://jerymotro.duckdns.org` | URL absolue servant de base aux balises canoniques et au sitemap. |
 
+Exemple d'utilisation :
 ```bash
-PRERENDER_BASE_URL=https://staging.jerymotro.mg pnpm run prerender
+PRERENDER_BASE_URL=https://staging.jerymotro.duckdns.org pnpm run prerender
 ```
 
 ---
 
-## Vérifier le HTML généré
+## 🛡️ Configuration du Serveur Web (Nginx)
 
-```bash
-# Vérifier la landing en français
-cat dist/public/fr/index.html | head -n 30
-
-# Vérifier que le titre est bien présent
-grep -o '<title>[^<]*' dist/public/fr/index.html
-grep -o '<title>[^<]*' dist/public/mg/index.html
-grep -o '<title>[^<]*' dist/public/en/index.html
-
-# Vérifier la page login en malgache
-cat dist/public/mg/login/index.html | grep "<h1"
-
-# Vérifier que le contenu est bien rendu (pas juste le SPA shell vide)
-# Une page correctement rendue doit contenir du texte visible, par ex :
-grep "Feux de brousse\|JeryMotro\|surveillance" dist/public/fr/index.html
-
-# Voir le sitemap
-cat dist/public/sitemap.xml
-```
-
----
-
-## Ajouter une nouvelle route publique
-
-Ouvrez [`scripts/prerender.mjs`](../../scripts/prerender.mjs) et ajoutez un objet dans le tableau `PUBLIC_ROUTES` :
-
-```js
-const PUBLIC_ROUTES = [
-  { path: '/',           slug: '',          title: 'Landing page' },
-  { path: '/login',      slug: 'login',     title: 'Login'        },
-  { path: '/register',   slug: 'register',  title: 'Register'     },
-  // ↓ Ajoutez votre route ici :
-  { path: '/a-propos',   slug: 'a-propos',  title: 'À propos'     },
-];
-```
-
-- `path` : chemin exact de la route wouter
-- `slug` : sous-dossier de sortie (sans slashes), `''` pour la racine
-- `title` : description pour les logs
-
-Relancez ensuite `pnpm run prerender`.
-
----
-
-## ⚠️ Configuration du serveur web (nginx) requise
-
-> **Cette configuration est documentée ici pour votre validation — aucune modification de config existante n'a été faite.**
-
-Pour que les bots reçoivent le bon fichier prerendu en fonction de leur langue préférée (`Accept-Language`), nginx doit router vers le bon sous-dossier. Voici la config à appliquer :
+Pour router correctement les requêtes vers les fichiers HTML pré-rendus sans perturber le routage applicatif client (SPA), la configuration Nginx doit implémenter une logique de détection de langue et des directives de fichiers alternatives (`try_files`) :
 
 ```nginx
-# /etc/nginx/sites-available/jerymotro
-
+# Configuration de détection de langue par défaut ou demandée par le client
 map $http_accept_language $prerender_lang {
-    default                 fr;    # langue de fallback
+    default                 fr;
     ~*(^|,\s*)(mg)          mg;
     ~*(^|,\s*)(en)          en;
     ~*(^|,\s*)(fr)          fr;
 }
 
 server {
-    listen 80;
-    server_name jerymotro.mg www.jerymotro.mg;
-    root /var/www/jerymotro/dist/public;
+    server_name jerymotro.duckdns.org;
+    root /mnt/jerymotro/JeryMotro_WEB/artifacts/jerymotro/dist/public;
+    index index.html;
 
-    # ── Routes publiques : servir le prerendu en fonction d'Accept-Language ──
+    # ── Redirection des routes publiques vers les versions pré-rendues par langue ──
     location = / {
         try_files /$prerender_lang/index.html /index.html;
     }
@@ -151,56 +99,59 @@ server {
         try_files /$prerender_lang/register/index.html /index.html;
     }
 
-    # Servir directement les versions par langue (pour les liens hreflang)
+    location = /map {
+        try_files /$prerender_lang/map/index.html /index.html;
+    }
+
+    location = /dashboard {
+        try_files /$prerender_lang/dashboard/index.html /index.html;
+    }
+
+    location = /about {
+        try_files /$prerender_lang/about/index.html /index.html;
+    }
+
+    location = /cv {
+        try_files /$prerender_lang/cv/index.html /index.html;
+    }
+
+    location = /legal {
+        try_files /$prerender_lang/legal/index.html /index.html;
+    }
+
+    location = /privacy {
+        try_files /$prerender_lang/privacy/index.html /index.html;
+    }
+
+    # Accès direct multilingue (ex: /mg/cv/)
     location ~ ^/(fr|mg|en)(/.*)?$ {
         try_files $uri $uri/ /$1/index.html /index.html;
     }
 
-    # ── Sitemap ──
+    # Sitemap
     location = /sitemap.xml {
         try_files /sitemap.xml =404;
     }
 
-    # ── Routes authentifiées : toujours servir le SPA shell ──
-    location ~ ^/(map|dashboard|detections|clusters|predictions|stats|chat|zones|alerts|subscriptions|profile|export) {
-        try_files /index.html =200;
-    }
-
-    # ── Assets statiques (cache long terme) ──
+    # Mise en cache agressive des éléments statiques compilés
     location /assets/ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 
-    # ── Fallback SPA ──
+    # Toutes les autres routes (sessions utilisateur connectées)
     location / {
         try_files $uri $uri/ /index.html;
     }
 }
 ```
 
-**Pour l'activer :**
-```bash
-sudo ln -s /etc/nginx/sites-available/jerymotro /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
 ---
 
-## ⚠️ Note sur les balises SEO
+## 🔎 Audit SEO et Validation
 
-Le script audite les balises SEO dans chaque HTML rendu et émet des warnings si `<title>`, `meta description`, `og:title`, `og:description`, `hreflang`, ou `<h1>` sont absents.
-
-Nous avons mis en place le composant additif `SeoHead.tsx` qui utilise les capacités natives de hoisting de **React 19** pour injecter dynamiquement ces éléments directement dans le `<head>` sans avoir besoin de bibliothèques externes lourdes comme `react-helmet-async`.
-
----
-
-## Désactiver le postbuild automatique
-
-Si vous souhaitez désactiver le prerender automatique après `pnpm run build` (ex: en CI pour accélérer), retirez temporairement le script `postbuild` du `package.json` ou sautez-le avec :
-
-```bash
-# Lancer uniquement le build Vite, sans prerender
-pnpm run build --ignore-scripts
-```
+À la fin de la compilation, le pipeline effectue un audit automatique des balises méta indispensables au référencement. Il s'assure de la présence de :
+- Balises `<title>` et `<meta name="description">`
+- Métadonnées Open Graph (`og:title`, `og:description`)
+- Attributs multilingues alternatifs (`hreflang` et `x-default`)
+- Structuration sémantique de base (`<h1>`)
