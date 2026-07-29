@@ -105,7 +105,30 @@ function generateSitemap() {
   const today = new Date().toISOString().split('T')[0];
 
   const urlEntries = ALL_ROUTES.flatMap(route => {
-    return LANGS.map(lang => {
+    const isHigh = (route.slug === '' || route.slug === 'map' || route.slug === 'dashboard');
+    const priority = isHigh ? '1.0' : '0.8';
+    const changefreq = isHigh ? 'daily' : 'weekly';
+
+    // 1. Version racine canonique sans langue
+    const rootCanonical = `${BASE_URL}${route.slug ? '/' + route.slug : ''}`;
+    const alternatesForRoot = LANGS.map(l => {
+      const altPath = `/${l.key}${route.slug ? '/' + route.slug : ''}`;
+      return `    <xhtml:link rel="alternate" hreflang="${l.bcp47}" href="${BASE_URL}${altPath}/"/>`;
+    }).join('\n');
+    const defaultPath = `/fr${route.slug ? '/' + route.slug : ''}`;
+    const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${defaultPath}/"/>`;
+
+    const rootEntry = `  <url>
+    <loc>${rootCanonical}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+${alternatesForRoot}
+${xDefault}
+  </url>`;
+
+    // 2. Versions spécifiques par langue
+    const langEntries = LANGS.map(lang => {
       const langPath = `/${lang.key}${route.slug ? '/' + route.slug : ''}`;
       const canonical = `${BASE_URL}${langPath}/`;
 
@@ -114,20 +137,17 @@ function generateSitemap() {
         return `    <xhtml:link rel="alternate" hreflang="${l.bcp47}" href="${BASE_URL}${altPath}/"/>`;
       }).join('\n');
 
-      const defaultPath = `/fr${route.slug ? '/' + route.slug : ''}`;
-      const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${defaultPath}/"/>`;
-
-      const isHigh = (route.slug === '' || route.slug === 'map' || route.slug === 'dashboard');
-
       return `  <url>
     <loc>${canonical}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>${isHigh ? 'daily' : 'weekly'}</changefreq>
-    <priority>${isHigh ? '1.0' : '0.8'}</priority>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${isHigh ? '0.9' : '0.7'}</priority>
 ${alternates}
 ${xDefault}
   </url>`;
     });
+
+    return [rootEntry, ...langEntries];
   });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
