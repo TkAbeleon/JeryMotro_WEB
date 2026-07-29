@@ -5,7 +5,7 @@
   <!-- Page d'accueil -->
   <url>
     <loc>https://jerymotro.duckdns.org/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jerymotro.duckdns.org/fr/" />
@@ -17,7 +17,7 @@
   <!-- Accueil — Français -->
   <url>
     <loc>https://jerymotro.duckdns.org/fr/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -25,7 +25,7 @@
   <!-- Accueil — Malagasy -->
   <url>
     <loc>https://jerymotro.duckdns.org/mg/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -33,7 +33,7 @@
   <!-- Accueil — English -->
   <url>
     <loc>https://jerymotro.duckdns.org/en/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -41,7 +41,7 @@
   <!-- Login -->
   <url>
     <loc>https://jerymotro.duckdns.org/login</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jerymotro.duckdns.org/fr/login" />
@@ -52,12 +52,34 @@
   <!-- Register -->
   <url>
     <loc>https://jerymotro.duckdns.org/register</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://jerymotro.duckdns.org/fr/register" />
     <xhtml:link rel="alternate" hreflang="mg" href="https://jerymotro.duckdns.org/mg/register" />
     <xhtml:link rel="alternate" hreflang="en" href="https://jerymotro.duckdns.org/en/register" />
+  </url>
+
+  <!-- Map -->
+  <url>
+    <loc>https://jerymotro.duckdns.org/map</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jerymotro.duckdns.org/fr/map" />
+    <xhtml:link rel="alternate" hreflang="mg" href="https://jerymotro.duckdns.org/mg/map" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://jerymotro.duckdns.org/en/map" />
+  </url>
+
+  <!-- Dashboard -->
+  <url>
+    <loc>https://jerymotro.duckdns.org/dashboard</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://jerymotro.duckdns.org/fr/dashboard" />
+    <xhtml:link rel="alternate" hreflang="mg" href="https://jerymotro.duckdns.org/mg/dashboard" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://jerymotro.duckdns.org/en/dashboard" />
   </url>
 
 </urlset>
