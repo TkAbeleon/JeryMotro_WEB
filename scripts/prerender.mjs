@@ -170,6 +170,39 @@ async function main() {
 
   // 2. Importer le bundle de rendu serveur compilé par Vite
   info(`Chargement du bundle serveur : ${serverBundlePath}`);
+  
+  // Mock window and document before importing server bundle so Leaflet doesn't crash on module load
+  if (typeof global !== "undefined") {
+    const domMock = {
+      location: {
+        pathname: "/",
+        protocol: "https:",
+        hostname: "jerymotro.duckdns.org",
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => {},
+    };
+    global.window = domMock;
+    global.document = {
+      createElement: () => ({
+        style: {},
+      }),
+      documentElement: {
+        style: {},
+      },
+    };
+    global.navigator = {
+      userAgent: "node",
+    };
+    global.localStorage = {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+    };
+  }
+
   const { render } = await import(pathToFileURL(serverBundlePath).href);
 
   let successCount = 0;
