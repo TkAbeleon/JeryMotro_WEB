@@ -51,6 +51,7 @@ const REACT_ROUTES = [
   { path: '/legal',    slug: 'legal',    title: 'Mentions légales' },
   { path: '/privacy',  slug: 'privacy',  title: 'Politique de confidentialité' },
   { path: '/about',    slug: 'about',    title: 'Méthodologie & Sources' },
+  { path: '/cv',       slug: 'cv',       title: 'CV Développeur' },
 ];
 
 // Routes rendues en HTML statique (évite Leaflet/window crash dans Node)

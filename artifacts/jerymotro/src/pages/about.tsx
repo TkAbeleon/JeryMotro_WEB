@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowLeft, Database, Brain, AlertCircle, Globe, Zap, FlaskConical } from "lucide-react";
+import { ArrowLeft, Database, Brain, AlertCircle, Globe, Zap, FlaskConical, Github, Linkedin, Facebook, Mail } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 
@@ -25,7 +25,7 @@ export default function AboutPage() {
                 <li><strong className="text-foreground">VIIRS</strong> (Visible Infrared Imaging Radiometer Suite) — résolution 375 m, passage 2×/jour.</li>
               </ul>
               <p>
-                Chaque détection est géolocalisée et inclut une mesure FRP (Fire Radiative Power, en MW) qui reflète l'intensité thermique de l'incendie. 
+                Chaque détection est géolocalisée et inclut une mesure FRP (Fire Radiative Power, en MW) qui reflète l'intensité thermique de l'incendie.
                 Les données sont actualisées toutes les heures environ.
               </p>
             </div>
@@ -50,7 +50,7 @@ export default function AboutPage() {
                 Cette précision varie selon la région et la saison. Elle est plus élevée pendant la saison sèche (avril–octobre).
               </p>
               <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-500/80 text-xs">
-                <strong>⚠️ Limite</strong> : les prédictions J+1 sont des estimations statistiques. 
+                <strong>⚠️ Limite</strong> : les prédictions J+1 sont des estimations statistiques.
                 Elles ne remplacent pas les observations terrain des agents de protection forestière.
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
             <div className="text-muted-foreground text-sm leading-relaxed space-y-2">
               <p>Pour toute question sur la méthodologie ou les données :</p>
               <p>
-                <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>
+                <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>
               </p>
               <p>Les données satellitaires utilisées sont publiées sous licence ouverte NASA. Les algorithmes de prédiction sont la propriété de l'équipe JeryMotro.</p>
             </div>
@@ -164,7 +164,7 @@ export default function AboutPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               Fanontaniana momba ny fomba fiasa:{" "}
-              <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>.
+              <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>.
             </p>
           ),
         },
@@ -251,7 +251,7 @@ export default function AboutPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               For methodology or data questions:{" "}
-              <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>.
+              <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>.
             </p>
           ),
         },
@@ -313,6 +313,92 @@ export default function AboutPage() {
                 </div>
               );
             })}
+
+            {/* Developer profile section */}
+            <div className="bg-card border border-primary/20 rounded-xl p-6 shadow-lg backdrop-blur-md relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+              <h2 className="font-heading text-xl font-bold text-foreground mb-6 pb-2 border-b border-border/60">
+                {lang === "mg" ? "Mpamorona ny Tetikasa" : lang === "en" ? "About the Developer" : "À propos du développeur"}
+              </h2>
+
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <div className="w-28 h-28 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md flex-shrink-0">
+                  <img
+                    src="/profil.jpg"
+                    alt="RANDRIAMANANTENA Tsiky Ny Antsa"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback image if profil.jpg is not found
+                      e.currentTarget.src = "https://ibb.co/yBVMw3n0";
+                    }}
+                  />
+                </div>
+
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="font-heading text-lg font-bold text-foreground">
+                    RANDIAMANANTENA Tsiky Ny Antsa
+                  </h3>
+                  <p className="text-primary text-sm font-semibold mb-3">
+                    {lang === "mg"
+                      ? "Mpianatra Génie Logiciel L2 — Oniversiten'i Vakinakaratra"
+                      : lang === "en"
+                        ? "L2 Software Engineering Student — University of Vakinakaratra"
+                        : "Étudiant L2 Génie Logiciel — Université de Vakinakaratra"}
+                  </p>
+
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                    {lang === "mg"
+                      ? "Mpianatra amin'ny taona faharoa, liana sy mankafy ny matematika ampiharina, ny cryptographie ary ny intelligence artificielle. Mpamorona sy mpampiasa fototra ny JeryMotro."
+                      : lang === "en"
+                        ? "Second-year student passionate about applied mathematics, cryptography, and artificial intelligence. Creator and lead developer of the JeryMotro platform."
+                        : "Étudiant de deuxième année, passionné par les mathématiques appliquées, la cryptographie et l'intelligence artificielle. Concepteur et développeur principal de la plateforme JeryMotro."}
+                  </p>
+
+                  {/* Social and Contact Links */}
+                  <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                    <a
+                      href="mailto:randriamanantenatsikynyantsa@gmail.com"
+                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-primary hover:text-primary-foreground text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                      title="Envoyer un e-mail"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email</span>
+                    </a>
+
+                    <a
+                      href="https://github.com/TkAbeleon"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-foreground hover:text-background text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                    >
+                      <Github className="w-3.5 h-3.5" />
+                      <span>GitHub</span>
+                    </a>
+
+                    <a
+                      href="https://www.linkedin.com/in/tsiky-ny-antsa-randriamanantena-7451b328a/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-blue-600 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                    >
+                      <Linkedin className="w-3.5 h-3.5" />
+                      <span>LinkedIn</span>
+                    </a>
+
+                    <a
+                      href="https://www.facebook.com/abeleon.tk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-blue-700 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                    >
+                      <Facebook className="w-3.5 h-3.5" />
+                      <span>Facebook</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

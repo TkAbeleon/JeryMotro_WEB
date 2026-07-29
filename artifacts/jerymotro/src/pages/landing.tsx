@@ -73,6 +73,7 @@ export default function LandingPage() {
             <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
             <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
             <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</Link>
+            <Link href="/cv" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "CV" : lang === "en" ? "CV" : "CV"}</Link>
           </div>
 
           <div className="hidden md:block w-px h-5 bg-border" />
@@ -318,7 +319,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2 text-muted-foreground">
                   <Mail className="w-4 h-4" />
-                  <a href="mailto:contact@jerymotro.mg" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a>
+                  <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a>
                 </li>
                 <li className="text-muted-foreground">{t("landing.footer.data")}</li>
                 <li className="text-muted-foreground">{t("landing.footer.ai")}</li>
@@ -331,6 +332,7 @@ export default function LandingPage() {
             <span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span>
             <div className="flex items-center gap-4">
               <Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link>
+              <Link href="/cv" className="hover:text-foreground cursor-pointer transition-colors">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link>
               <Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link>
               <Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link>
             </div>

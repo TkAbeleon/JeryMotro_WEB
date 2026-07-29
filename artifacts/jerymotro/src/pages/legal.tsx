@@ -17,8 +17,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               JeryMotro est un projet de surveillance environnementale à Madagascar.<br />
-              <strong>Responsable de la publication :</strong> Équipe JeryMotro<br />
-              <strong>Contact email :</strong> <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>
+              <strong>Responsable de la publication :</strong> RANDRIAMANANTENA Tsiky Ny Antsa<br />
+              <strong>Contact email :</strong> <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>
             </p>
           ),
         },
@@ -49,8 +49,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               Pour toute question ou signalement d'anomalie concernant cette plateforme, veuillez nous écrire à :{" "}
-              <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">
-                contact@jerymotro.mg
+              <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">
+                randriamanantenatsikynyantsa@gmail.com
               </a>.
             </p>
           ),
@@ -67,8 +67,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               JeryMotro dia tetikasa fanaraha-maso ny tontolo iainana eto Madagasikara.<br />
-              <strong>Tompon'andraikitra :</strong> Ny vondrona JeryMotro<br />
-              <strong>Iraka mailaka :</strong> <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>
+              <strong>Tompon'andraikitra :</strong> RANDRIAMANANTENA Tsiky Ny Antsa<br />
+              <strong>Mailaka :</strong> <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>
             </p>
           ),
         },
@@ -85,7 +85,7 @@ export default function LegalPage() {
         },
         {
           icon: FileText,
-          title: "Hanan-tsaina sy Fifanarahana",
+          title: "Fifanarahana",
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               Ny kaody loharanon'ny JeryMotro dia arovana amin'ny lalàna.
@@ -99,8 +99,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               Raha misy fanontaniana dia azonao atao ny manoratra aminay :{" "}
-              <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">
-                contact@jerymotro.mg
+              <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">
+                randriamanantenatsikynyantsa@gmail.com
               </a>.
             </p>
           ),
@@ -117,8 +117,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               JeryMotro is an environmental monitoring project for Madagascar.<br />
-              <strong>Publication Director:</strong> JeryMotro Team<br />
-              <strong>Contact email:</strong> <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">contact@jerymotro.mg</a>
+              <strong>Publication Director:</strong> RANDRIAMANANTENA Tsiky Ny Antsa<br />
+              <strong>Contact email:</strong> <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">randriamanantenatsikynyantsa@gmail.com</a>
             </p>
           ),
         },
@@ -149,8 +149,8 @@ export default function LegalPage() {
           body: (
             <p className="text-muted-foreground text-sm leading-relaxed">
               For any questions or support requests, please contact us at:{" "}
-              <a href="mailto:contact@jerymotro.mg" className="text-primary hover:underline">
-                contact@jerymotro.mg
+              <a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="text-primary hover:underline">
+                randriamanantenatsikynyantsa@gmail.com
               </a>.
             </p>
           ),

@@ -254,4 +254,40 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/about/" />
   </url>
 
+  <!-- ════════════════════════════════════════════════════
+       PAGE CV DEVELOPPEUR
+       ════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://jerymotro.duckdns.org/fr/cv/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/cv/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/cv/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/cv/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/cv/" />
+  </url>
+
+  <url>
+    <loc>https://jerymotro.duckdns.org/mg/cv/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/cv/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/cv/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/cv/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/cv/" />
+  </url>
+
+  <url>
+    <loc>https://jerymotro.duckdns.org/en/cv/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr-MG" href="https://jerymotro.duckdns.org/fr/cv/" />
+    <xhtml:link rel="alternate" hreflang="mg"    href="https://jerymotro.duckdns.org/mg/cv/" />
+    <xhtml:link rel="alternate" hreflang="en"    href="https://jerymotro.duckdns.org/en/cv/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jerymotro.duckdns.org/fr/cv/" />
+  </url>
+
 </urlset>

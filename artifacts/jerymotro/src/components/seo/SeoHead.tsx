@@ -30,7 +30,7 @@ const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 /** Routes publiques qui bénéficient du prerendering SEO */
 const PUBLIC_ROUTES_SET = new Set([
-  '/', '/login', '/register', '/map', '/dashboard', '/about', '/legal', '/privacy'
+  '/', '/login', '/register', '/map', '/dashboard', '/about', '/legal', '/privacy', '/cv'
 ]);
 
 /** Codes BCP-47 pour les balises hreflang */
@@ -82,6 +82,10 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
       title:       'Politique de confidentialité — JeryMotro',
       description: 'Comment JeryMotro collecte, traite et protège vos données personnelles. Conforme RGPD.',
     },
+    '/cv': {
+      title:       'CV RANDRIAMANANTENA Tsiky Ny Antsa — JeryMotro',
+      description: 'Curriculum Vitae de RANDRIAMANANTENA Tsiky Ny Antsa, étudiant en Licence 3 Génie Logiciel à l\'ESP-Antsirabe, concepteur de JeryMotro.',
+    },
   },
 
   mg: {
@@ -117,6 +121,10 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
       title:       'Politika Tsiambaratelo — JeryMotro',
       description: 'Ny fomba fanangonana sy fikarakarana ny angon-drakitra manokana ao amin\'ny JeryMotro.',
     },
+    '/cv': {
+      title:       'CV RANDRIAMANANTENA Tsiky Ny Antsa — JeryMotro',
+      description: 'Resaka momba ny fahaiza-manao sy ny diampianaran\'i RANDRIAMANANTENA Tsiky Ny Antsa, mpamorona ny JeryMotro.',
+    },
   },
 
   en: {
@@ -151,6 +159,10 @@ const SEO_DATA: Record<Lang, Record<string, SeoConfig>> = {
     '/privacy': {
       title:       'Privacy Policy — JeryMotro',
       description: 'How JeryMotro collects, processes and protects your personal data. GDPR compliant.',
+    },
+    '/cv': {
+      title:       'CV RANDRIAMANANTENA Tsiky Ny Antsa — JeryMotro',
+      description: 'Curriculum Vitae of RANDRIAMANANTENA Tsiky Ny Antsa, L3 Software Engineering student at ESP-Antsirabe, creator of JeryMotro.',
     },
   },
 };

@@ -470,7 +470,7 @@ export const translations = {
     "landing.footer.about.desc": "JeryMotro est une plateforme de surveillance des feux de brousse à Madagascar, propulsée par l'intelligence artificielle et les données satellitaires NASA FIRMS. Notre mission est de protéger l'environnement malgache en détectant les incendies en temps réel.",
     "landing.footer.links": "Liens utiles",
     "landing.footer.contact": "Contact",
-    "landing.footer.contact.email": "contact@jerymotro.mg",
+    "landing.footer.contact.email": "randriamanantenatsikynyantsa@gmail.com",
     "landing.footer.legal": "Mentions légales",
     "landing.footer.privacy": "Politique de confidentialité",
 
@@ -948,7 +948,7 @@ export const translations = {
     "landing.footer.about.desc": "JeryMotro dia sehatra fanaraha-maso ny afo an'ala eto Madagasikara, ampian'ny faharanitan-tsaina artifisialy sy ny angon-drakitra sateraita NASA FIRMS. Ny tanjonay dia ny miaro ny tontolo iainan'i Madagasikara amin'ny alalan'ny fitiliana ny afo amin'ny fotoana tena izy.",
     "landing.footer.links": "Rohy mahasoa",
     "landing.footer.contact": "Fifandraisana",
-    "landing.footer.contact.email": "contact@jerymotro.mg",
+    "landing.footer.contact.email": "randriamanantenatsikynyantsa@gmail.com",
     "landing.footer.legal": "Filazana ara-dalàna",
     "landing.footer.privacy": "Politika tsiambaratelo",
 
@@ -1420,7 +1420,7 @@ export const translations = {
     "landing.footer.about.desc": "JeryMotro is a wildfire surveillance platform for Madagascar, powered by artificial intelligence and NASA FIRMS satellite data. Our mission is to protect Madagascar's environment by detecting fires in real time.",
     "landing.footer.links": "Useful links",
     "landing.footer.contact": "Contact",
-    "landing.footer.contact.email": "contact@jerymotro.mg",
+    "landing.footer.contact.email": "randriamanantenatsikynyantsa@gmail.com",
     "landing.footer.legal": "Legal notice",
     "landing.footer.privacy": "Privacy policy",
 
