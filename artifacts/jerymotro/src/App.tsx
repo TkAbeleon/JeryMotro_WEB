@@ -53,6 +53,12 @@ const getApiUrl = () => {
 setBaseUrl(getApiUrl());
 setAuthTokenGetter(() => typeof localStorage !== "undefined" ? localStorage.getItem("jerymotro_token") : null);
 
+// Rafraîchit automatiquement toutes les données en arrière-plan (nouvelles
+// détections, clusters, alertes, etc.) sans que l'utilisateur ait à recharger
+// la page. S'applique à toutes les requêtes (useQuery et hooks générés) via
+// les defaultOptions du QueryClient, sauf si une page le surcharge localement.
+const BACKGROUND_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -67,6 +73,11 @@ const queryClient = new QueryClient({
         return failureCount < 1;
       },
       staleTime: 30000,
+      // Actualisation périodique en arrière-plan
+      refetchInterval: BACKGROUND_REFRESH_INTERVAL_MS,
+      // Continue à actualiser même si l'onglet n'est pas au premier plan
+      // (utile pour un dashboard affiché en continu)
+      refetchIntervalInBackground: true,
     },
     mutations: {
       onError: (error: unknown) => {
