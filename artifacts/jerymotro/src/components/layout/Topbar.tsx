@@ -63,7 +63,7 @@ export function Topbar() {
         <button
           onClick={toggleTheme}
           className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          aria-label="Toggle theme"
+          aria-label={t("topbar.themeToggle" as any) || "Toggle theme"}
         >
           {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
