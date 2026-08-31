@@ -1,5 +1,27 @@
 import { Link, useLocation } from "wouter";
-import { Activity, LayoutDashboard, Flame, BarChart3, Bot, MapPin, Bell, CreditCard, User, LogOut, ChevronLeft, ChevronRight, X, Map, BookOpen, FileText, Shield, Download, UserSquare } from "lucide-react";
+import {
+  Activity,
+  LayoutDashboard,
+  Flame,
+  BarChart3,
+  Bot,
+  MapPin,
+  Bell,
+  CreditCard,
+  User,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Map,
+  BookOpen,
+  FileText,
+  Shield,
+  Download,
+  UserSquare,
+  Sparkles,
+} from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import { useSidebar } from "@/hooks/use-sidebar";
@@ -16,16 +38,13 @@ interface NavItem {
 interface NavGroup {
   sectionKey: TranslationKey;
   items: NavItem[];
-  /** Si true, affiché uniquement pour les utilisateurs connectés */
   authOnly?: boolean;
 }
 
 const navGroups: NavGroup[] = [
   {
     sectionKey: "nav.section.map",
-    items: [
-      { labelKey: "nav.map", href: "/map", icon: Map },
-    ],
+    items: [{ labelKey: "nav.map", href: "/map", icon: Map }],
   },
   {
     sectionKey: "nav.section.detections",
@@ -48,9 +67,7 @@ const navGroups: NavGroup[] = [
   {
     sectionKey: "nav.section.premium",
     authOnly: true,
-    items: [
-      { labelKey: "nav.zones", href: "/zones", icon: MapPin, locked: true },
-    ],
+    items: [{ labelKey: "nav.zones", href: "/zones", icon: MapPin, locked: true }],
   },
   {
     sectionKey: "nav.section.account",
@@ -73,144 +90,206 @@ const navGroups: NavGroup[] = [
   },
 ];
 
-const SIDEBAR_FULL = 228;
-const SIDEBAR_COLLAPSED = 64;
+const SIDEBAR_FULL = 248;
+const SIDEBAR_COLLAPSED = 76;
+const MOBILE_SIDEBAR = "min(86vw, 340px)";
+
+export { SIDEBAR_FULL, SIDEBAR_COLLAPSED };
 
 export function Sidebar() {
   const [location] = useLocation();
   const { logout, isAuthenticated } = useAuth();
   const { t } = useI18n();
   const { isCollapsed, isOpen, isMobile, toggle, close } = useSidebar();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const collapsed = !isMobile && isCollapsed;
 
+  useEffect(() => {
+    if (!isMobile || !isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMobile, isOpen, close]);
+
+  const isActive = (href: string) => location === href || (href === "/map" && location === "/");
+
   const sidebarContent = (
-    <>
-      {/* Header */}
-      <div
-        className="h-[58px] flex items-center border-b border-sidebar-border flex-shrink-0"
-        style={{ paddingLeft: collapsed ? 0 : undefined, justifyContent: collapsed ? "center" : undefined }}
-      >
+    <div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
+      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-3 sm:h-[68px]">
         {collapsed ? (
-          <img src="/logo.png" alt="JeryMotro" className="h-7 w-7 rounded object-cover" />
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={t("common.open")}
+            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <img src="/logo.png" alt="JeryMotro" className="h-8 w-8 rounded-lg object-cover" />
+          </button>
         ) : (
-          <div className="flex items-center gap-3 px-4 flex-1 min-w-0">
-            <img src="/logo.png" alt="JeryMotro" className="h-8 rounded flex-shrink-0" />
-            <span className="font-heading font-bold text-lg text-sidebar-foreground truncate">JeryMotro</span>
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-2">
+            <img src="/logo.png" alt="JeryMotro" className="h-9 w-9 shrink-0 rounded-xl object-cover" />
+            <div className="min-w-0">
+              <div className="truncate font-heading text-[15px] font-bold tracking-tight">JeryMotro</div>
+              <div className="truncate text-[11px] font-medium text-sidebar-foreground/45">Fire intelligence</div>
+            </div>
           </div>
         )}
+
         {isMobile && (
-          <button onClick={close} className="mr-3 p-1.5 rounded-md hover:bg-sidebar-accent transition-colors text-sidebar-foreground/60">
-            <X className="w-4 h-4" />
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={close}
+            aria-label={t("common.close")}
+            className="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sidebar-foreground/65 outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>
 
-      {/* Nav */}
-      <div
-        className="flex-1 overflow-y-auto py-4 flex flex-col gap-4"
-        style={{ paddingLeft: collapsed ? 0 : "0.75rem", paddingRight: collapsed ? 0 : "0.75rem" }}
+      <nav
+        aria-label="Primary navigation"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 sm:px-3 sm:py-4"
+        style={{ scrollbarGutter: "stable", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
-        {navGroups.filter(g => !g.authOnly || isAuthenticated).map((group) => (
-          <div key={group.sectionKey}>
-            {!collapsed && (
-              <h4 className="px-2 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2">
-                {t(group.sectionKey)}
-              </h4>
-            )}
-            {collapsed && <div className="mx-auto w-6 border-t border-sidebar-border/50 mb-2" />}
-            <div className="flex flex-col gap-0.5" style={{ alignItems: collapsed ? "center" : undefined }}>
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = location === item.href || (item.href === "/map" && location === "/");
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={isMobile ? close : undefined}
-                    title={collapsed ? t(item.labelKey) : undefined}
-                    className={`flex items-center rounded-md transition-colors text-sm font-medium ${
-                      isActive
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    } ${collapsed ? "w-10 h-10 justify-center relative" : "gap-3 px-2 py-2 w-full"}`}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 truncate">{t(item.labelKey)}</span>
-                        {item.badge && (
-                          <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase">
-                            {item.badge}
-                          </span>
-                        )}
-                      </>
-                    )}
-                    {collapsed && item.badge && (
-                      <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+        <div className={collapsed ? "space-y-3" : "space-y-4"}>
+          {navGroups
+            .filter((group) => !group.authOnly || isAuthenticated)
+            .map((group, groupIndex) => (
+              <section key={group.sectionKey} aria-label={collapsed ? undefined : t(group.sectionKey)}>
+                {!collapsed ? (
+                  <h2 className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-sidebar-foreground/40">
+                    {t(group.sectionKey)}
+                  </h2>
+                ) : (
+                  groupIndex > 0 && <div className="mx-auto mb-2 h-px w-8 bg-sidebar-border/70" />
+                )}
 
-      {/* Logout or Login */}
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.href);
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={isMobile ? close : undefined}
+                        title={collapsed ? t(item.labelKey) : undefined}
+                        aria-current={active ? "page" : undefined}
+                        className={`group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none transition-[background-color,color,transform] duration-150 hover:translate-x-px focus-visible:ring-2 focus-visible:ring-primary ${
+                          active
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                            : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        } ${collapsed ? "mx-auto w-11 justify-center" : "w-full gap-3 px-3"}`}
+                      >
+                        {active && !collapsed && (
+                          <span aria-hidden className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary-foreground/85" />
+                        )}
+                        <Icon className={`${collapsed ? "h-[18px] w-[18px]" : "h-[18px] w-[18px]"} shrink-0`} />
+
+                        {!collapsed && (
+                          <>
+                            <span className="min-w-0 flex-1 truncate text-left">{t(item.labelKey)}</span>
+                            {item.locked && <span className="text-[10px] font-bold text-amber-500">PRO</span>}
+                            {item.badge && (
+                              <span className="inline-flex items-center gap-1 rounded-md bg-primary/12 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
+                                <Sparkles className="h-2.5 w-2.5" />
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+
+                        {collapsed && item.badge && (
+                          <span
+                            aria-hidden
+                            className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar"
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+        </div>
+      </nav>
+
       <div
-        className="border-t border-sidebar-border flex-shrink-0"
-        style={{ padding: collapsed ? "0.5rem 0" : "0.75rem", display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : undefined }}
+        className={`shrink-0 border-t border-sidebar-border ${collapsed ? "px-2 py-2" : "p-3"}`}
+        style={{ paddingBottom: collapsed ? "max(0.5rem, env(safe-area-inset-bottom))" : "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
         {isAuthenticated ? (
           <button
+            type="button"
             onClick={logout}
             title={collapsed ? t("common.logout") : undefined}
-            className={`flex items-center rounded-md transition-colors text-sm font-medium text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground ${
-              collapsed ? "w-10 h-10 justify-center" : "gap-3 px-2 py-2 w-full text-left"
+            className={`flex min-h-11 items-center rounded-xl text-[13px] font-semibold text-sidebar-foreground/70 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${
+              collapsed ? "mx-auto w-11 justify-center" : "w-full gap-3 px-3"
             }`}
           >
-            <LogOut className="w-4 h-4 flex-shrink-0" />
+            <LogOut className="h-[18px] w-[18px] shrink-0" />
             {!collapsed && <span>{t("common.logout")}</span>}
           </button>
         ) : (
           <Link
             href="/login"
+            onClick={isMobile ? close : undefined}
             title={collapsed ? t("auth.login.title") : undefined}
-            className={`flex items-center rounded-md transition-colors text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-              collapsed ? "w-10 h-10 justify-center" : "gap-3 px-2 py-2 w-full"
+            className={`flex min-h-11 items-center rounded-xl text-[13px] font-semibold text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-primary ${
+              collapsed ? "mx-auto w-11 justify-center" : "w-full gap-3 px-3"
             }`}
           >
-            <LogOut className="w-4 h-4 flex-shrink-0 rotate-180 text-primary" />
+            <LogOut className="h-[18px] w-[18px] shrink-0 rotate-180 text-primary" />
             {!collapsed && <span>{t("auth.login.title")}</span>}
           </Link>
         )}
       </div>
 
-      {/* Desktop collapse toggle */}
       {!isMobile && (
         <button
+          type="button"
           onClick={toggle}
-          className="absolute -right-3 top-[72px] w-6 h-6 rounded-full border border-sidebar-border bg-sidebar flex items-center justify-center shadow-sm hover:bg-sidebar-accent transition-colors z-10 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+          aria-label={isCollapsed ? t("common.open") : t("common.close")}
+          className="absolute -right-3 top-[77px] z-20 flex h-7 w-7 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/55 shadow-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary"
         >
-          {isCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+          {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
         </button>
       )}
-    </>
+    </div>
   );
 
   if (isMobile) {
     return (
       <>
-        {isOpen && (
-          <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={close} />
-        )}
+        <div
+          className={`fixed inset-0 z-30 bg-black/55 backdrop-blur-[2px] transition-opacity duration-200 lg:hidden ${
+            isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          aria-hidden
+          onClick={close}
+        />
         <aside
-          className="fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar flex flex-col z-40 transition-transform duration-300"
-          style={{
-            width: SIDEBAR_FULL,
-            transform: isOpen ? "translateX(0)" : `translateX(-${SIDEBAR_FULL}px)`,
-          }}
+          aria-label="Application navigation"
+          aria-hidden={!isOpen}
+          className={`fixed left-0 top-0 z-40 h-[100dvh] w-[min(86vw,340px)] border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{ width: MOBILE_SIDEBAR }}
         >
           {sidebarContent}
         </aside>
@@ -220,7 +299,8 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar flex flex-col z-20 transition-[width] duration-300 overflow-hidden"
+      aria-label="Application navigation"
+      className="fixed left-0 top-0 z-20 hidden h-[100dvh] flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out lg:flex"
       style={{ width: isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL }}
     >
       {sidebarContent}
