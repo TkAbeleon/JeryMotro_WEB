@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createElement, createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type Theme = "light" | "dark";
 
@@ -49,8 +49,4 @@ export function useTheme(): ThemeContextValue {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
-}
-
-function createElement(type: any, props: any, ...children: ReactNode[]) {
-  return require("react").createElement(type, props, ...children);
 }
