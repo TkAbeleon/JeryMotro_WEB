@@ -20,6 +20,7 @@ import {
   List,
   SlidersHorizontal,
   Loader2,
+  MapPin,
 } from "lucide-react";
 import L from "leaflet";
 // @ts-ignore

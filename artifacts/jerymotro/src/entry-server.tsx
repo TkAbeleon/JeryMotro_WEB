@@ -19,9 +19,14 @@ if (typeof global !== "undefined") {
       style: {},
     },
   };
-  (global as any).navigator = {
-    userAgent: "node",
-  };
+  // Node 21+ ships a built-in read-only `navigator` global (getter only, no setter),
+  // so a plain assignment throws "Cannot set property navigator of #<Object> which
+  // has only a getter". Use defineProperty to override it safely.
+  Object.defineProperty(global, "navigator", {
+    value: { userAgent: "node" },
+    writable: true,
+    configurable: true,
+  });
   (global as any).localStorage = {
     getItem: () => null,
     setItem: () => {},
