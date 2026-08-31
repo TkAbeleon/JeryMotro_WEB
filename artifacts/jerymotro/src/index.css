@@ -52,10 +52,8 @@
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
   --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-primary-border: var(--sidebar-primary-border);
   --color-sidebar-accent: hsl(var(--sidebar-accent));
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-accent-border: var(--sidebar-accent-border);
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 
   --font-sans: "Space Grotesk", sans-serif;
@@ -251,4 +249,55 @@
 
 .leaflet-container a.leaflet-popup-close-button:hover {
   opacity: 1;
+}
+
+/*
+ * Map workspace architecture:
+ * the global JeryMotro sidebar owns application navigation;
+ * the Map panel is contextual and overlays the map instead of becoming
+ * a second layout column. This keeps the map canvas spatially stable.
+ */
+main:has(.leaflet-container) > div:has(.leaflet-container) {
+  position: relative;
+}
+
+main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 998;
+  width: 280px !important;
+  max-width: calc(100vw - 24px);
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.08);
+}
+
+main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child.w-0 {
+  width: 0 !important;
+  max-width: 0;
+  box-shadow: none;
+}
+
+main:has(.leaflet-container) > div:has(.leaflet-container) > div:nth-child(2) {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+}
+
+@media (max-width: 1023px) {
+  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
+    width: min(88vw, 340px) !important;
+    max-width: calc(100vw - 16px);
+    border-right-width: 1px;
+    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.18);
+  }
+
+  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child.w-0 {
+    width: 0 !important;
+  }
+}
+
+@media (max-width: 639px) {
+  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
+    width: min(92vw, 340px) !important;
+    max-width: calc(100vw - 12px);
+  }
 }
