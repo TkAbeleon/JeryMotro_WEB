@@ -1,4 +1,4 @@
-import { Sidebar } from "./Sidebar";
+import { Sidebar, SIDEBAR_FULL, SIDEBAR_COLLAPSED } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
@@ -7,9 +7,6 @@ import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 import { Sun, Moon, Languages, LogIn } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
-
-const SIDEBAR_FULL = 228;
-const SIDEBAR_COLLAPSED = 64;
 
 function Shell({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobile } = useSidebar();
@@ -37,7 +34,6 @@ function PublicShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Guest Top Navbar */}
       <header className="h-[58px] border-b border-border bg-background/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-3">
@@ -54,16 +50,10 @@ function PublicShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-md hover:bg-secondary transition-colors"
-            aria-label="Toggle theme"
-          >
+          <button onClick={toggleTheme} className="p-2 rounded-md hover:bg-secondary transition-colors" aria-label="Toggle theme">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          {/* Language Selector */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Languages className="w-4 h-4 text-muted-foreground" />
             <select
@@ -84,7 +74,6 @@ function PublicShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Main page content - full width, padded by navbar */}
       <main className="flex-1 mt-[58px] overflow-auto">
         {children}
       </main>
@@ -104,12 +93,10 @@ export function AppShell({ children, isPublic }: { children: React.ReactNode; is
 
   if (!isAuthenticated && !isPublic) return null;
 
-  // If visitor is browsing a public page, show the clean layout without sidebar
   if (!isAuthenticated && isPublic) {
     return <PublicShell>{children}</PublicShell>;
   }
 
-  // If logged-in, show the full application shell
   return (
     <SidebarProvider>
       <Shell>{children}</Shell>
