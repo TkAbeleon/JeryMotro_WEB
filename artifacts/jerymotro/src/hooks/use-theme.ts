@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     try {
       window.localStorage.setItem("theme", theme);
     } catch {
-      // Storage may be unavailable in private/restricted browser contexts.
+      // Storage may be unavailable in restricted/private browser contexts.
     }
   }, [theme]);
 
@@ -40,7 +40,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ theme, setTheme, toggleTheme }), [theme, toggleTheme]);
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return createElement(ThemeContext.Provider, { value }, children);
 }
 
 export function useTheme(): ThemeContextValue {
@@ -49,4 +49,8 @@ export function useTheme(): ThemeContextValue {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
+}
+
+function createElement(type: any, props: any, ...children: ReactNode[]) {
+  return require("react").createElement(type, props, ...children);
 }
