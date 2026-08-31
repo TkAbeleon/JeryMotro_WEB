@@ -115,6 +115,49 @@ function Recenter({ target }: { target: { lat: number; lng: number; zoom?: numbe
   return null;
 }
 
+// Keeps the Leaflet canvas perfectly in sync with its container. The map's
+// wrapper stretches to fill whatever space is left by the app sidebar, but
+// Leaflet caches its own pixel size on init and never rechecks it on its
+// own. Without this, collapsing/expanding the sidebar (or resizing the
+// window) leaves the map visually stale — blank/grey strips or mis-aligned
+// tiles — until the user manually pans or zooms. A ResizeObserver on the
+// map's own container catches every size change, including the ones that
+// happen mid-transition while the sidebar is animating open or closed, and
+// re-syncs Leaflet on the next animation frame.
+function MapAutoResize() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    let frame: number | null = null;
+
+    const scheduleInvalidate = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        map.invalidateSize({ animate: false });
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(scheduleInvalidate);
+    resizeObserver.observe(container);
+    window.addEventListener("resize", scheduleInvalidate);
+
+    // Sidebar collapse/expand animates over ~300ms (see AppShell's
+    // transition-[margin-left] duration-300); keep re-checking size for the
+    // duration of that transition in case the ResizeObserver's own
+    // throttling causes it to miss an intermediate frame.
+    const settleTimeout = window.setTimeout(scheduleInvalidate, 350);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", scheduleInvalidate);
+      window.clearTimeout(settleTimeout);
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
+  }, [map]);
+  return null;
+}
+
 const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 export default function MapRedesignPage() {
@@ -276,9 +319,10 @@ export default function MapRedesignPage() {
     <div className="relative isolate h-[calc(100dvh-58px)] min-h-0 w-full overflow-hidden bg-background">
       <div className="absolute inset-0 z-0">
         <MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%", background: "#111827" }} zoomControl={false} attributionControl>
-          <ZoomControl position="bottomright" />
+          <ZoomControl position="bottomleft" />
           <MapViewportTracker onBoundsChange={setVisibleBounds} />
           <Recenter target={target} />
+          <MapAutoResize />
           {mapStyle === "satellite" && <TileLayer url={`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${googleMapsApiKey}`} attribution="&copy; Google Maps" maxZoom={20} />}
           {mapStyle === "roadmap" && <TileLayer url={`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${googleMapsApiKey}`} attribution="&copy; Google Maps" maxZoom={20} />}
           {mapStyle === "dark" && <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" subdomains="abcd" maxZoom={19} />}
@@ -375,7 +419,7 @@ export default function MapRedesignPage() {
         {controlsOpen && (
           <>
             <button type="button" aria-label={t("common.close")} onClick={() => setControlsOpen(false)} className="pointer-events-auto absolute inset-0 bg-black/25 backdrop-blur-[1px] lg:bg-transparent lg:backdrop-blur-none" />
-            <aside className="pointer-events-auto absolute left-3 top-16 bottom-3 flex w-[min(360px,calc(100vw-24px))] flex-col overflow-hidden rounded-3xl border border-border bg-card/98 shadow-2xl backdrop-blur-xl sm:left-4 sm:top-20 sm:bottom-4 lg:left-4 lg:top-20 lg:bottom-4">
+            <aside className="pointer-events-auto absolute right-3 top-16 bottom-3 flex w-[min(360px,calc(100vw-24px))] flex-col overflow-hidden rounded-3xl border border-border bg-card/98 shadow-2xl backdrop-blur-xl sm:right-4 sm:top-20 sm:bottom-4 lg:right-4 lg:top-20 lg:bottom-4">
               <div className="flex items-center justify-between border-b border-border px-4 py-3.5 sm:px-5">
                 <div className="min-w-0">
                   <div className="font-heading text-sm font-bold sm:text-base">{t("map.filter.title")}</div>
