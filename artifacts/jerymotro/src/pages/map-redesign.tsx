@@ -117,41 +117,58 @@ function Recenter({ target }: { target: { lat: number; lng: number; zoom?: numbe
 
 // Keeps the Leaflet canvas perfectly in sync with its container. The map's
 // wrapper stretches to fill whatever space is left by the app sidebar, but
-// Leaflet caches its own pixel size on init and never rechecks it on its
-// own. Without this, collapsing/expanding the sidebar (or resizing the
-// window) leaves the map visually stale — blank/grey strips or mis-aligned
-// tiles — until the user manually pans or zooms. A ResizeObserver on the
-// map's own container catches every size change, including the ones that
-// happen mid-transition while the sidebar is animating open or closed, and
-// re-syncs Leaflet on the next animation frame.
+// Leaflet only reads its container's size once — synchronously, at
+// construction — and never rechecks it on its own afterwards.
+//
+// Two distinct symptoms come from the same root cause:
+//   1. On mount: if the container hasn't finished settling into its final
+//      layout yet (lazy-loaded route chunk arriving mid-transition, web
+//      fonts/images still loading, a hydration correction after
+//      prerendering...), Leaflet caches the wrong size from frame one and
+//      only ever renders tiles for that smaller area, leaving a dead,
+//      untiled strip even though the surrounding DOM is already full width.
+//   2. After mount: collapsing/expanding the sidebar (or resizing the
+//      window) leaves the map showing its old, now-incorrect size until the
+//      user manually pans or zooms.
+// This re-syncs Leaflet immediately on mount, a few more times shortly
+// after (to catch any late reflow), and continuously afterwards via a
+// ResizeObserver on the map's own container.
 function MapAutoResize() {
   const map = useMap();
   useEffect(() => {
     const container = map.getContainer();
     let frame: number | null = null;
 
+    const invalidate = () => map.invalidateSize({ animate: false });
+
     const scheduleInvalidate = () => {
       if (frame !== null) cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         frame = null;
-        map.invalidateSize({ animate: false });
+        invalidate();
       });
     };
 
+    // Fix it right away...
+    invalidate();
+    scheduleInvalidate();
+
+    // ...and keep re-checking for a moment after mount, in case something
+    // outside the map (fonts, images, the sidebar's own open/close
+    // animation, a late hydration correction) reflows the layout after
+    // Leaflet's very first paint.
+    const settleTimers = [50, 200, 500, 1000].map((delay) => window.setTimeout(invalidate, delay));
+
+    // From here on, react to every future size change of the map's own
+    // container for as long as it stays mounted.
     const resizeObserver = new ResizeObserver(scheduleInvalidate);
     resizeObserver.observe(container);
     window.addEventListener("resize", scheduleInvalidate);
 
-    // Sidebar collapse/expand animates over ~300ms (see AppShell's
-    // transition-[margin-left] duration-300); keep re-checking size for the
-    // duration of that transition in case the ResizeObserver's own
-    // throttling causes it to miss an intermediate frame.
-    const settleTimeout = window.setTimeout(scheduleInvalidate, 350);
-
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", scheduleInvalidate);
-      window.clearTimeout(settleTimeout);
+      settleTimers.forEach((id) => window.clearTimeout(id));
       if (frame !== null) cancelAnimationFrame(frame);
     };
   }, [map]);
