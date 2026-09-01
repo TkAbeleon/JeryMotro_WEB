@@ -50,22 +50,14 @@
   --color-sidebar-ring: hsl(var(--sidebar-ring));
   --font-sans: "Space Grotesk", sans-serif;
   --font-heading: "Outfit", sans-serif;
-  --text-xs: 0.75rem;
-  --text-xs--line-height: calc(1 / 0.75);
-  --text-sm: 0.875rem;
-  --text-sm--line-height: calc(1.25 / 0.875);
-  --text-base: 1rem;
-  --text-base--line-height: calc(1.5 / 1);
-  --text-lg: 1.125rem;
-  --text-lg--line-height: calc(1.75 / 1.125);
-  --text-xl: 1.25rem;
-  --text-xl--line-height: calc(1.75 / 1.25);
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: calc(2 / 1.5);
-  --text-3xl: 1.875rem;
-  --text-3xl--line-height: calc(2.25 / 1.875);
-  --text-4xl: 2.25rem;
-  --text-4xl--line-height: calc(2.5 / 2.25);
+  --text-xs: 0.75rem; --text-xs--line-height: calc(1 / 0.75);
+  --text-sm: 0.875rem; --text-sm--line-height: calc(1.25 / 0.875);
+  --text-base: 1rem; --text-base--line-height: calc(1.5 / 1);
+  --text-lg: 1.125rem; --text-lg--line-height: calc(1.75 / 1.125);
+  --text-xl: 1.25rem; --text-xl--line-height: calc(1.75 / 1.25);
+  --text-2xl: 1.5rem; --text-2xl--line-height: calc(2 / 1.5);
+  --text-3xl: 1.875rem; --text-3xl--line-height: calc(2.25 / 1.875);
+  --text-4xl: 2.25rem; --text-4xl--line-height: calc(2.5 / 2.25);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -79,88 +71,36 @@
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0,.03);
   --elevate-2: rgba(0,0,0,.08);
-  --background: 0 0% 100%;
-  --foreground: 150 33% 4%;
-  --border: 150 15% 90%;
-  --input: 150 15% 90%;
-  --ring: 18 80% 50%;
-  --card: 0 0% 100%;
-  --card-foreground: 150 33% 4%;
-  --card-border: 150 15% 90%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 150 33% 4%;
-  --popover-border: 150 15% 90%;
-  --primary: 18 80% 50%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 150 10% 92%;
-  --secondary-foreground: 150 33% 4%;
-  --muted: 150 10% 96%;
-  --muted-foreground: 150 8% 40%;
-  --accent: 142 71% 45%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
-  --warning-foreground: 150 33% 4%;
-  --chart-1: 18 80% 50%;
-  --chart-2: 38 92% 50%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 217 91% 60%;
-  --chart-5: 0 84% 60%;
-  --sidebar: 150 5% 96%;
-  --sidebar-foreground: 150 33% 4%;
-  --sidebar-border: 150 15% 90%;
-  --sidebar-primary: 18 80% 50%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 150 10% 92%;
-  --sidebar-accent-foreground: 150 33% 4%;
-  --sidebar-ring: 18 80% 50%;
+  --background: 0 0% 100%; --foreground: 150 33% 4%;
+  --border: 150 15% 90%; --input: 150 15% 90%; --ring: 18 80% 50%;
+  --card: 0 0% 100%; --card-foreground: 150 33% 4%; --card-border: 150 15% 90%;
+  --popover: 0 0% 100%; --popover-foreground: 150 33% 4%; --popover-border: 150 15% 90%;
+  --primary: 18 80% 50%; --primary-foreground: 0 0% 100%;
+  --secondary: 150 10% 92%; --secondary-foreground: 150 33% 4%;
+  --muted: 150 10% 96%; --muted-foreground: 150 8% 40%;
+  --accent: 142 71% 45%; --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%; --destructive-foreground: 0 0% 100%;
+  --warning: 38 92% 50%; --warning-foreground: 150 33% 4%;
+  --chart-1: 18 80% 50%; --chart-2: 38 92% 50%; --chart-3: 142 71% 45%; --chart-4: 217 91% 60%; --chart-5: 0 84% 60%;
+  --sidebar: 150 5% 96%; --sidebar-foreground: 150 33% 4%; --sidebar-border: 150 15% 90%;
+  --sidebar-primary: 18 80% 50%; --sidebar-primary-foreground: 0 0% 100%; --sidebar-accent: 150 10% 92%;
+  --sidebar-accent-foreground: 150 33% 4%; --sidebar-ring: 18 80% 50%;
   --radius: 0.5rem;
 }
 
 .dark {
   color-scheme: dark;
-  --button-outline: rgba(255,255,255,.10);
-  --badge-outline: rgba(255,255,255,.05);
-  --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255,.04);
-  --elevate-2: rgba(255,255,255,.09);
-  --background: 150 33% 4%;
-  --foreground: 150 10% 92%;
-  --border: 150 15% 15%;
-  --input: 150 15% 15%;
-  --ring: 18 80% 50%;
-  --card: 150 20% 9%;
-  --card-foreground: 150 10% 92%;
-  --card-border: 150 15% 15%;
-  --popover: 150 20% 9%;
-  --popover-foreground: 150 10% 92%;
-  --popover-border: 150 15% 15%;
-  --primary: 18 80% 50%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 150 15% 15%;
-  --secondary-foreground: 150 10% 92%;
-  --muted: 150 15% 15%;
-  --muted-foreground: 150 8% 55%;
-  --accent: 142 71% 45%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
-  --warning-foreground: 150 33% 4%;
-  --chart-1: 18 80% 50%;
-  --chart-2: 38 92% 50%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 217 91% 60%;
-  --chart-5: 0 84% 60%;
-  --sidebar: 150 25% 7%;
-  --sidebar-foreground: 150 10% 92%;
-  --sidebar-border: 150 15% 15%;
-  --sidebar-primary: 18 80% 50%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 150 15% 15%;
-  --sidebar-accent-foreground: 150 10% 92%;
-  --sidebar-ring: 18 80% 50%;
+  --button-outline: rgba(255,255,255,.10); --badge-outline: rgba(255,255,255,.05);
+  --opaque-button-border-intensity: 9; --elevate-1: rgba(255,255,255,.04); --elevate-2: rgba(255,255,255,.09);
+  --background: 150 33% 4%; --foreground: 150 10% 92%; --border: 150 15% 15%; --input: 150 15% 15%; --ring: 18 80% 50%;
+  --card: 150 20% 9%; --card-foreground: 150 10% 92%; --card-border: 150 15% 15%;
+  --popover: 150 20% 9%; --popover-foreground: 150 10% 92%; --popover-border: 150 15% 15%;
+  --primary: 18 80% 50%; --primary-foreground: 0 0% 100%; --secondary: 150 15% 15%; --secondary-foreground: 150 10% 92%;
+  --muted: 150 15% 15%; --muted-foreground: 150 8% 55%; --accent: 142 71% 45%; --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%; --destructive-foreground: 0 0% 100%; --warning: 38 92% 50%; --warning-foreground: 150 33% 4%;
+  --chart-1: 18 80% 50%; --chart-2: 38 92% 50%; --chart-3: 142 71% 45%; --chart-4: 217 91% 60%; --chart-5: 0 84% 60%;
+  --sidebar: 150 25% 7%; --sidebar-foreground: 150 10% 92%; --sidebar-border: 150 15% 15%; --sidebar-primary: 18 80% 50%;
+  --sidebar-primary-foreground: 0 0% 100%; --sidebar-accent: 150 15% 15%; --sidebar-accent-foreground: 150 10% 92%; --sidebar-ring: 18 80% 50%;
 }
 
 @layer base {
@@ -172,6 +112,15 @@
   ::-webkit-scrollbar-thumb { background: rgba(156,163,175,.25); border-radius: 9999px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(156,163,175,.4); }
 }
+
+/* Backward-compatible aliases: older public pages use Tailwind's yellow utility.
+   Keep their visual role, but make it resolve to the shared semantic warning token. */
+.bg-yellow-500\/10 { background-color: hsl(var(--warning) / .10) !important; }
+.border-yellow-500\/30 { border-color: hsl(var(--warning) / .30) !important; }
+.text-yellow-500\/80 { color: hsl(var(--warning) / .80) !important; }
+.bg-blue-500\/10 { background-color: hsl(var(--chart-4) / .10) !important; }
+.border-blue-500\/30 { border-color: hsl(var(--chart-4) / .30) !important; }
+.text-blue-400 { color: hsl(var(--chart-4)) !important; }
 
 .leaflet-popup-content-wrapper { background: hsl(var(--popover)); color: hsl(var(--popover-foreground)); border: 1px solid hsl(var(--popover-border)); border-radius: var(--radius-lg); }
 .leaflet-popup-tip { background: hsl(var(--popover)); }
