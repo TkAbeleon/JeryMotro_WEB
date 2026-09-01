@@ -32,9 +32,11 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 
 ### P1 — Couleurs
 
-- [ ] Remplacer progressivement les couleurs hexadécimales écrites directement dans les pages par des tokens sémantiques.
-- [ ] Stabiliser les quatre états métier : `critical`, `high`, `medium`, `low`.
-- [ ] Réserver les couleurs fortes aux états importants plutôt qu'aux informations décoratives.
+- [x] Introduire et utiliser les tokens sémantiques `primary`, `accent`, `warning` et `destructive`.
+- [x] Stabiliser les quatre états métier : `critical`, `high`, `medium`, `low` au niveau de la palette partagée.
+- [x] Réserver les couleurs fortes aux états importants plutôt qu'aux informations décoratives.
+- [x] Préserver la palette des pages publiques : les anciennes utilities jaune/bleu sont maintenant mappées vers les tokens partagés.
+- [ ] Remplacer les dernières utilities legacy directement utilisées dans les composants par les tokens sémantiques.
 
 ### P2 — Typographie et spacing
 
@@ -55,10 +57,17 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 ### P3 — Responsive / finition
 
 - [ ] Vérifier chaque page en desktop large, laptop et mobile.
-- [ ] Contrôler les panneaux latéraux, tableaux et graphiques en faible largeur.
+- [x] Corriger les principaux risques responsive de Profile et Export.
+- [ ] Contrôler les panneaux latéraux, tableaux et graphiques en faible largeur sur les pages restantes.
 - [ ] Ajouter seulement des micro-interactions utiles : hover, focus, transitions courtes.
 
-> **Passe responsive — en cours :** la structure globale Sidebar/Topbar est déjà pensée pour trois contextes : sidebar fixe pleine largeur, sidebar compacte et drawer mobile. Les pages à grilles ont été ajustées pour éviter les débordements et la page Abonnement utilise désormais des espacements plus compacts sur mobile. Un contrôle écran par écran reste nécessaire.
+### P4 — Pages publiques
+
+- [x] Conserver les routes publiques sans connexion : Landing, About, CV, Legal, Privacy.
+- [x] Conserver Map et Dashboard accessibles publiquement selon le routage existant.
+- [x] Conserver Login/Register comme portes d'entrée vers les fonctionnalités authentifiées.
+- [x] Harmoniser les couleurs publiques avec les tokens globaux sans imposer l'AppShell privé.
+- [ ] Dernière vérification UX mobile des pages publiques.
 
 ## Règles visuelles proposées
 
@@ -120,10 +129,13 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Map — contrôles secondaires allégés et regroupés visuellement.
 - [ ] États loading/empty/error — core harmonisé, pages restantes à vérifier.
 - [ ] Audit responsive final de toutes les pages.
+- [x] Passe tokens/couleurs — base sémantique et compatibilité des pages publiques.
+- [ ] Passe finale typographie / spacing / rayons.
 
 ## Ordre recommandé pour la suite
 
 1. Finaliser l'harmonisation des états loading/empty/error sur les pages restantes.
-2. Audit responsive écran par écran.
-3. Nettoyage progressif des couleurs et tokens, sans refonte globale.
+2. Terminer l'audit responsive écran par écran, y compris toutes les pages publiques.
+3. Remplacer les dernières utilities de couleur legacy par les tokens.
 4. Dernier passage typographie / spacing / rayons.
+5. Vérification finale des micro-interactions et de l'accessibilité tactile.
