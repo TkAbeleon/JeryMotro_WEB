@@ -3,7 +3,7 @@
 > Audit visuel du frontend réalisé le 1er septembre 2026.
 >
 > **Périmètre :** observation et améliorations ciblées.
-> **Important :** pas de refonte globale, pas de changement d'architecture, pas de remplacement du système de composants.
+> **Important :** pas de refonte globale, pas de changement d’architecture, pas de remplacement du système de composants.
 
 ## Constat général
 
@@ -50,13 +50,15 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [ ] Uniformiser les messages d'erreur et les actions de récupération.
 - [x] Garder les métadonnées secondaires discrètes.
 
-> **Passe en cours — 1er septembre 2026 :** un composant partagé `AsyncState` a été introduit et appliqué au chargement global ainsi qu'aux pages Dashboard, Détections et Stats. Les états `loading`, `empty` et `error` utilisent désormais la même hiérarchie visuelle et les erreurs exposent une action de récupération. L'harmonisation des autres pages reste à finaliser avant de cocher les trois items ci-dessus.
+> **Passe core réalisée — 1er septembre 2026 :** composant partagé `AsyncState` introduit et appliqué au chargement global ainsi qu'aux pages Dashboard, Détections, Stats, Clusters et Predictions. Les états `loading`, `empty` et `error` partagent désormais la même hiérarchie visuelle et les erreurs exposent une récupération. Le chargement global utilise également l'identité JeryMotro (logo + accents de marque).
 
 ### P3 — Responsive / finition
 
 - [ ] Vérifier chaque page en desktop large, laptop et mobile.
 - [ ] Contrôler les panneaux latéraux, tableaux et graphiques en faible largeur.
 - [ ] Ajouter seulement des micro-interactions utiles : hover, focus, transitions courtes.
+
+> **Passe responsive — en cours :** la structure globale Sidebar/Topbar est déjà pensée pour trois contextes : sidebar fixe pleine largeur, sidebar compacte et drawer mobile. Les pages à grilles ont été ajustées pour éviter les débordements et la page Abonnement utilise désormais des espacements plus compacts sur mobile. Un contrôle écran par écran reste nécessaire.
 
 ## Règles visuelles proposées
 
@@ -116,12 +118,12 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Dashboard — KPI et surfaces simplifiés.
 - [x] Stats — graphiques, KPI et surfaces simplifiés.
 - [x] Map — contrôles secondaires allégés et regroupés visuellement.
-- [ ] États loading/empty/error — harmonisation finale (passe core réalisée, autres pages restantes).
+- [ ] États loading/empty/error — core harmonisé, pages restantes à vérifier.
 - [ ] Audit responsive final de toutes les pages.
 
 ## Ordre recommandé pour la suite
 
-1. Terminer l'harmonisation des états loading/empty/error sur les pages restantes.
-2. Audit responsive.
+1. Finaliser l'harmonisation des états loading/empty/error sur les pages restantes.
+2. Audit responsive écran par écran.
 3. Nettoyage progressif des couleurs et tokens, sans refonte globale.
 4. Dernier passage typographie / spacing / rayons.
