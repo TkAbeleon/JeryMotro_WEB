@@ -1,27 +1,12 @@
-import { Sidebar, SIDEBAR_FULL, SIDEBAR_COLLAPSED } from "./Sidebar";
-import { Topbar } from "./Topbar";
+import { Sidebar } from "./Sidebar";
 import { useAuth } from "@/hooks/use-auth";
-import { useLocation, Link } from "wouter";
+import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
+import { Link } from "wouter";
 import { Sun, Moon, Languages, LogIn } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
-
-function Shell({ children }: { children: React.ReactNode }) {
-  const { isCollapsed, isMobile } = useSidebar();
-  const marginLeft = isMobile ? 0 : isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL;
-
-  return (
-    <div className="min-h-screen bg-background text-foreground flex">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 transition-[margin-left] duration-300" style={{ marginLeft }}>
-        <Topbar />
-        <main className="flex-1 mt-[58px] overflow-auto">{children}</main>
-      </div>
-    </div>
-  );
-}
 
 function PublicShell({ children }: { children: React.ReactNode }) {
   const { t, lang, setLang } = useI18n();
@@ -80,6 +65,23 @@ function PublicShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AuthenticatedShell({ children }: { children: React.ReactNode }) {
+  const { isCollapsed, isMobile } = useSidebar();
+  const marginLeft = isMobile ? 0 : isCollapsed ? 76 : 248;
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Sidebar />
+      <main
+        className="min-h-screen min-w-0 transition-[margin-left] duration-300"
+        style={{ marginLeft }}
+      >
+        {children}
+      </main>
+    </div>
+  );
+}
+
 export function AppShell({ children, isPublic }: { children: React.ReactNode; isPublic?: boolean }) {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -89,11 +91,14 @@ export function AppShell({ children, isPublic }: { children: React.ReactNode; is
   }, [isAuthenticated, isPublic, setLocation]);
 
   if (!isAuthenticated && !isPublic) return null;
-  if (!isAuthenticated && isPublic) return <PublicShell>{children}</PublicShell>;
+
+  if (!isAuthenticated && isPublic) {
+    return <PublicShell>{children}</PublicShell>;
+  }
 
   return (
     <SidebarProvider>
-      <Shell>{children}</Shell>
+      <AuthenticatedShell>{children}</AuthenticatedShell>
     </SidebarProvider>
   );
 }
