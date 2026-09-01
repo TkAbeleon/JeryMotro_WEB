@@ -1,15 +1,15 @@
-import { Switch, Route, Router as WouterRouter, Redirect, Link } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { ThemeProvider, useTheme } from "@/hooks/use-theme";
+import { ThemeProvider } from "@/hooks/use-theme";
 import { I18nProvider, useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
-import { useState, useEffect, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 
 import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
@@ -78,77 +78,105 @@ const queryClient = new QueryClient({
 
 function AuthedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
   const { t } = useI18n();
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, [isAuthenticated]);
-  if (!isAuthenticated) return <Redirect to="/" />;
-  if (isLoading) return <LoadingPage message={t("common.loading")} />;
-  return <AppShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></AppShell>;
-}
 
-function PublicShell({ children }: { children: React.ReactNode }) {
-  const { t, lang, setLang } = useI18n();
-  const { theme, toggleTheme } = useTheme();
-  return <div className="min-h-screen bg-background text-foreground flex flex-col">
-    <header className="h-[58px] border-b border-border bg-background/80 backdrop-blur-md fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-8">
-      <div className="flex items-center gap-6"><Link href="/" className="flex items-center gap-3"><img src="/logo.png" alt="JeryMotro" className="h-8 rounded" /><span className="font-heading font-bold text-base sm:text-lg">JeryMotro</span></Link>
-        <nav className="hidden md:flex items-center gap-4"><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">{t("landing.nav.about")}</Link><Link href="/map" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.map")}</Link><Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("nav.dashboard")}</Link><Link href="/cv" className="text-sm text-muted-foreground hover:text-foreground">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link></nav>
-      </div>
-      <div className="flex items-center gap-2 sm:gap-4"><button onClick={toggleTheme} className="p-2 rounded-md hover:bg-secondary" aria-label="Toggle theme">{theme === "dark" ? "☀" : "☾"}</button><select value={lang} onChange={(e) => setLang(e.target.value as any)} className="bg-transparent text-xs outline-none"><option value="fr">FR</option><option value="mg">MG</option><option value="en">EN</option></select><Link href="/login" className="text-sm bg-primary text-primary-foreground px-3 py-2 rounded-md font-medium">{t("auth.login.title")}</Link></div>
-    </header><main className="flex-1 mt-[58px] overflow-auto">{children}</main>
-  </div>;
+  if (!isAuthenticated) return <Redirect to="/" />;
+
+  return (
+    <AppShell>
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <Component />
+      </Suspense>
+    </AppShell>
+  );
 }
 
 function PublicRoute({ component: Component }: { component: React.ComponentType }) {
   const { t } = useI18n();
-  return <PublicShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></PublicShell>;
+
+  return (
+    <AppShell isPublic>
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <Component />
+      </Suspense>
+    </AppShell>
+  );
 }
 
-// For pages that must stay publicly viewable (linked straight from the
-// landing page nav: Carte Interactive, Vue d'ensemble) but that are also
-// "real" app sections with sidebar navigation once logged in. Unlike
-// AuthedRoute, anonymous visitors are never redirected away — they just
-// get the plain PublicShell (no sidebar) instead of AppShell.
+// Map and Dashboard remain public when anonymous, while authenticated users
+// get the full application shell. The shell itself owns the public/private UI.
 function AdaptiveRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAuth();
   const { t } = useI18n();
-  // AuthProvider itself blocks rendering until the initial auth check is
-  // done, so isAuthenticated is already settled by the time this mounts —
-  // safe to use directly as the lazy initial state, no login/logout flash.
-  const [isLoading, setIsLoading] = useState(isAuthenticated);
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, [isAuthenticated]);
 
-  if (!isAuthenticated) {
-    return <PublicShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></PublicShell>;
-  }
-  if (isLoading) return <LoadingPage message={t("common.loading")} />;
-  return <AppShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></AppShell>;
+  return (
+    <AppShell isPublic={!isAuthenticated}>
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <Component />
+      </Suspense>
+    </AppShell>
+  );
 }
 
-function HomeRedirect() { const { isAuthenticated } = useAuth(); return isAuthenticated ? <Redirect to="/map" /> : <LandingPage />; }
+function HomeRedirect() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Redirect to="/map" /> : <LandingPage />;
+}
 
 function Router() {
-  return <><SeoHead /><Switch>
-    <Route path="/" component={HomeRedirect} /><Route path="/login" component={LoginPage} /><Route path="/register" component={RegisterPage} />
-    <Route path="/map">{() => <AdaptiveRoute component={MapPage} />}</Route>
-    <Route path="/dashboard">{() => <AdaptiveRoute component={DashboardPage} />}</Route>
-    <Route path="/legal">{() => <PublicRoute component={LegalPage} />}</Route><Route path="/privacy">{() => <PublicRoute component={PrivacyPage} />}</Route><Route path="/about">{() => <PublicRoute component={AboutPage} />}</Route><Route path="/cv">{() => <PublicRoute component={CvPage} />}</Route>
-    <Route path="/detections">{() => <AuthedRoute component={DetectionsPage} />}</Route><Route path="/clusters">{() => <AuthedRoute component={ClustersPage} />}</Route><Route path="/predictions">{() => <AuthedRoute component={PredictionsPage} />}</Route><Route path="/stats">{() => <AuthedRoute component={StatsPage} />}</Route><Route path="/chat">{() => <AuthedRoute component={ChatPage} />}</Route><Route path="/zones">{() => <AuthedRoute component={ZonesPage} />}</Route><Route path="/alerts">{() => <AuthedRoute component={AlertsPage} />}</Route><Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route><Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route><Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
-    <Route component={NotFound} />
-  </Switch></>;
+  return (
+    <>
+      <SeoHead />
+      <Switch>
+        <Route path="/" component={HomeRedirect} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/register" component={RegisterPage} />
+        <Route path="/map">{() => <AdaptiveRoute component={MapPage} />}</Route>
+        <Route path="/dashboard">{() => <AdaptiveRoute component={DashboardPage} />}</Route>
+        <Route path="/legal">{() => <PublicRoute component={LegalPage} />}</Route>
+        <Route path="/privacy">{() => <PublicRoute component={PrivacyPage} />}</Route>
+        <Route path="/about">{() => <PublicRoute component={AboutPage} />}</Route>
+        <Route path="/cv">{() => <PublicRoute component={CvPage} />}</Route>
+        <Route path="/detections">{() => <AuthedRoute component={DetectionsPage} />}</Route>
+        <Route path="/clusters">{() => <AuthedRoute component={ClustersPage} />}</Route>
+        <Route path="/predictions">{() => <AuthedRoute component={PredictionsPage} />}</Route>
+        <Route path="/stats">{() => <AuthedRoute component={StatsPage} />}</Route>
+        <Route path="/chat">{() => <AuthedRoute component={ChatPage} />}</Route>
+        <Route path="/zones">{() => <AuthedRoute component={ZonesPage} />}</Route>
+        <Route path="/alerts">{() => <AuthedRoute component={AlertsPage} />}</Route>
+        <Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route>
+        <Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route>
+        <Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
+        <Route component={NotFound} />
+      </Switch>
+    </>
+  );
 }
 
 function App({ initialLang }: { initialLang?: "fr" | "mg" | "en" }) {
-  const getWouterBase = () => { const base = import.meta.env.BASE_URL.replace(/\/$/, ""); const path = typeof window !== "undefined" ? window.location.pathname : "/"; const match = path.match(/^\/(fr|mg|en)\b/); return match ? `${base}/${match[1]}` : base; };
-  return <QueryClientProvider client={queryClient}><ThemeProvider><I18nProvider initialLang={initialLang}><AuthProvider><TooltipProvider><WouterRouter base={getWouterBase()}><Router /></WouterRouter><Toaster /></TooltipProvider></AuthProvider></I18nProvider></ThemeProvider></QueryClientProvider>;
+  const getWouterBase = () => {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const path = typeof window !== "undefined" ? window.location.pathname : "/";
+    const match = path.match(/^\/(fr|mg|en)\b/);
+    return match ? `${base}/${match[1]}` : base;
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <I18nProvider initialLang={initialLang}>
+          <AuthProvider>
+            <TooltipProvider>
+              <WouterRouter base={getWouterBase()}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+            </TooltipProvider>
+          </AuthProvider>
+        </I18nProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
 }
 
 export default App;
