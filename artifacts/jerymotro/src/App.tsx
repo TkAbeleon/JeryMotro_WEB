@@ -114,7 +114,7 @@ function Router() {
   return <><SeoHead /><Switch>
     <Route path="/" component={HomeRedirect} /><Route path="/login" component={LoginPage} /><Route path="/register" component={RegisterPage} />
     <Route path="/map">{() => <AuthedRoute component={MapPage} />}</Route>
-    <Route path="/dashboard">{() => <PublicRoute component={DashboardPage} />}</Route>
+    <Route path="/dashboard">{() => <AuthedRoute component={DashboardPage} />}</Route>
     <Route path="/legal">{() => <PublicRoute component={LegalPage} />}</Route><Route path="/privacy">{() => <PublicRoute component={PrivacyPage} />}</Route><Route path="/about">{() => <PublicRoute component={AboutPage} />}</Route><Route path="/cv">{() => <PublicRoute component={CvPage} />}</Route>
     <Route path="/detections">{() => <AuthedRoute component={DetectionsPage} />}</Route><Route path="/clusters">{() => <AuthedRoute component={ClustersPage} />}</Route><Route path="/predictions">{() => <AuthedRoute component={PredictionsPage} />}</Route><Route path="/stats">{() => <AuthedRoute component={StatsPage} />}</Route><Route path="/chat">{() => <AuthedRoute component={ChatPage} />}</Route><Route path="/zones">{() => <AuthedRoute component={ZonesPage} />}</Route><Route path="/alerts">{() => <AuthedRoute component={AlertsPage} />}</Route><Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route><Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route><Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
     <Route component={NotFound} />

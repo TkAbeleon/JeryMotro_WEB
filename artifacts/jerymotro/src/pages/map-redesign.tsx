@@ -377,18 +377,18 @@ export default function MapRedesignPage() {
       </div>
 
       <div className="pointer-events-none absolute inset-0 z-10">
-        <div className="pointer-events-auto absolute inset-x-3 top-3 flex items-start gap-2 sm:inset-x-4 sm:top-4">
-          <form onSubmit={(event) => { event.preventDefault(); searchLocation(); }} className="hidden h-11 w-[min(360px,40vw)] items-center gap-2 rounded-2xl border border-white/20 bg-card/95 px-3 shadow-lg backdrop-blur md:flex">
+        <div className="pointer-events-auto absolute inset-x-3 top-3 h-11 sm:inset-x-4 sm:top-4">
+          <form onSubmit={(event) => { event.preventDefault(); searchLocation(); }} className="absolute left-1/2 top-0 hidden h-11 w-[min(360px,40vw)] -translate-x-1/2 items-center gap-2 rounded-2xl border border-white/20 bg-card/95 px-3 shadow-lg backdrop-blur md:flex">
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t("map.search.placeholder")} className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60" />
             {searchQuery && <button type="button" onClick={() => setSearchQuery("")} aria-label={t("common.close")} className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"><X className="h-4 w-4" /></button>}
           </form>
 
-          <button type="button" onClick={() => setSearchOpen(true)} aria-label={t("map.search.placeholder")} className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-card/95 shadow-lg backdrop-blur transition hover:bg-secondary md:hidden">
+          <button type="button" onClick={() => setSearchOpen(true)} aria-label={t("map.search.placeholder")} className="absolute left-1/2 top-0 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-2xl border border-white/20 bg-card/95 shadow-lg backdrop-blur transition hover:bg-secondary md:hidden">
             <Search className="h-[18px] w-[18px]" />
           </button>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="absolute right-0 top-0 flex items-center gap-2">
             <button type="button" onClick={() => setControlsOpen(true)} aria-expanded={controlsOpen} className="relative flex h-11 items-center gap-2 rounded-2xl border border-white/20 bg-card/95 px-3.5 text-sm font-semibold shadow-lg backdrop-blur transition hover:bg-secondary sm:px-4">
               <SlidersHorizontal className="h-[17px] w-[17px]" />
               <span className="hidden sm:inline">{t("map.filter.title")}</span>
@@ -400,7 +400,7 @@ export default function MapRedesignPage() {
           </div>
         </div>
 
-        <div className="pointer-events-auto absolute bottom-4 left-3 right-3 flex items-end justify-between gap-3 sm:bottom-5 sm:left-4 sm:right-4">
+        <div className="pointer-events-auto absolute bottom-4 left-3 right-3 flex items-end justify-center gap-3 sm:bottom-5 sm:left-4 sm:right-4">
           <div className="rounded-2xl border border-white/20 bg-card/90 px-3.5 py-2.5 shadow-lg backdrop-blur sm:px-4">
             <div className="flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
               <span><b>{filtered.length}</b> <span className="text-muted-foreground">{t("map.stats.total")}</span></span>
