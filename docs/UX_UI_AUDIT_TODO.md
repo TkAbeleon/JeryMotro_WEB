@@ -7,9 +7,7 @@
 
 ## Constat général
 
-L'application possède une bonne base visuelle : typographie identifiable, palette cohérente autour de l'orange/vert, composants réutilisables et navigation structurée. Le principal problème est l'hétérogénéité entre les pages : certaines sont très légères (notamment le Chat), alors que d'autres restent très « dashboard/card ».
-
-Le risque principal n'est donc pas le manque de design, mais l'accumulation de petites conventions différentes selon les écrans.
+L'application possède une bonne base visuelle : typographie identifiable, palette cohérente autour de l'orange/vert, composants réutilisables et navigation structurée. Le principal problème était l'hétérogénéité entre les pages et certains contrôles natifs qui ne suivaient pas correctement le thème sombre.
 
 ## Priorités
 
@@ -19,7 +17,9 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Réduire la quantité de séparation visuelle dans la navigation.
 - [x] Rendre les actions de la Topbar plus discrètes.
 - [ ] Vérifier que la recherche de Topbar possède un comportement clairement identifiable.
-- [ ] Réduire les informations institutionnelles dans la navigation principale.
+- [x] Réduire les informations institutionnelles dans la navigation principale.
+- [x] Séparer clairement les shells public et authentifié : public = header horizontal ; authentifié = Sidebar + Topbar.
+- [x] Garder langue/thème dans le header public et dans la Topbar authentifiée, jamais dans la Sidebar.
 
 ### P1 — Pages métier
 
@@ -36,7 +36,9 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Stabiliser les quatre états métier : `critical`, `high`, `medium`, `low` au niveau de la palette partagée.
 - [x] Réserver les couleurs fortes aux états importants plutôt qu'aux informations décoratives.
 - [x] Préserver la palette des pages publiques : les anciennes utilities jaune/bleu sont maintenant mappées vers les tokens partagés.
-- [ ] Remplacer les dernières utilities legacy directement utilisées dans les composants par les tokens sémantiques.
+- [x] Remplacer les principales utilities legacy de couleur détectées dans Dashboard, Stats et Predictions par les tokens sémantiques.
+- [x] Rendre les contrôles natifs (`select` / `option`) compatibles avec les thèmes clair et sombre via `color-scheme` et les tokens `popover`.
+- [x] Harmoniser les tooltips/grilles des graphiques authentifiés avec les tokens du thème.
 
 ### P2 — Typographie et spacing
 
@@ -60,6 +62,7 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Corriger les principaux risques responsive de Profile et Export.
 - [ ] Contrôler les panneaux latéraux, tableaux et graphiques en faible largeur sur les pages restantes.
 - [ ] Ajouter seulement des micro-interactions utiles : hover, focus, transitions courtes.
+- [ ] Vérifier le contraste et la navigation clavier sur toutes les pages.
 
 ### P4 — Pages publiques
 
@@ -68,56 +71,6 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Conserver Login/Register comme portes d'entrée vers les fonctionnalités authentifiées.
 - [x] Harmoniser les couleurs publiques avec les tokens globaux sans imposer l'AppShell privé.
 - [ ] Dernière vérification UX mobile des pages publiques.
-
-## Règles visuelles proposées
-
-### Hiérarchie
-
-```text
-Contenu principal
-    ↓
-Titres / métriques importantes
-    ↓
-Actions
-    ↓
-Métadonnées
-```
-
-### Surfaces
-
-Favoriser :
-
-```text
-background
-surface légère
-surface interactive
-```
-
-Éviter d'empiler plusieurs cartes et bordures lorsqu'une simple séparation ou un espacement suffit.
-
-### Couleur
-
-```text
-orange = action / marque
-rouge = critique / erreur
-ambre = attention
-vert = état sain / faible risque
-neutre = information
-```
-
-### Principe directeur
-
-> **Le contenu doit être plus visible que l'interface qui l'entoure.**
-
-Le Chat sert actuellement de référence pour cette direction : contenu centré, actions discrètes, compositeur compact, métadonnées secondaires.
-
-## Hors périmètre pour cette itération
-
-- Pas de réécriture complète du design system.
-- Pas de modification de l'API ou des modèles de données.
-- Pas de nouvelle librairie UI.
-- Pas de refonte fonctionnelle des pages.
-- Pas de modification du comportement métier.
 
 ## Progression
 
@@ -129,13 +82,14 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Map — contrôles secondaires allégés et regroupés visuellement.
 - [ ] États loading/empty/error — core harmonisé, pages restantes à vérifier.
 - [ ] Audit responsive final de toutes les pages.
-- [x] Passe tokens/couleurs — base sémantique et compatibilité des pages publiques.
+- [x] Passe tokens/couleurs — base sémantique, contrôles natifs et pages publiques compatibles thème.
 - [ ] Passe finale typographie / spacing / rayons.
+- [x] Audit shell public/authentifié — séparation et contrôles langue/thème cohérents.
 
 ## Ordre recommandé pour la suite
 
 1. Finaliser l'harmonisation des états loading/empty/error sur les pages restantes.
 2. Terminer l'audit responsive écran par écran, y compris toutes les pages publiques.
-3. Remplacer les dernières utilities de couleur legacy par les tokens.
-4. Dernier passage typographie / spacing / rayons.
-5. Vérification finale des micro-interactions et de l'accessibilité tactile.
+3. Dernier passage typographie / spacing / rayons.
+4. Vérification finale des micro-interactions et de l'accessibilité tactile/clavier.
+5. Vérification finale du build et des routes public/authentifié.
