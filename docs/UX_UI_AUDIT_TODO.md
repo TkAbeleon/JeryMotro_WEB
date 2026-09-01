@@ -48,7 +48,9 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [ ] Uniformiser les `loading states`.
 - [ ] Uniformiser les `empty states`.
 - [ ] Uniformiser les messages d'erreur et les actions de récupération.
-- [ ] Garder les métadonnées secondaires discrètes.
+- [x] Garder les métadonnées secondaires discrètes.
+
+> **Passe en cours — 1er septembre 2026 :** un composant partagé `AsyncState` a été introduit et appliqué au chargement global ainsi qu'aux pages Dashboard, Détections et Stats. Les états `loading`, `empty` et `error` utilisent désormais la même hiérarchie visuelle et les erreurs exposent une action de récupération. L'harmonisation des autres pages reste à finaliser avant de cocher les trois items ci-dessus.
 
 ### P3 — Responsive / finition
 
@@ -114,12 +116,12 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Dashboard — KPI et surfaces simplifiés.
 - [x] Stats — graphiques, KPI et surfaces simplifiés.
 - [x] Map — contrôles secondaires allégés et regroupés visuellement.
-- [ ] États loading/empty/error — harmonisation finale.
+- [ ] États loading/empty/error — harmonisation finale (passe core réalisée, autres pages restantes).
 - [ ] Audit responsive final de toutes les pages.
 
 ## Ordre recommandé pour la suite
 
-1. Harmonisation finale des états loading/empty/error.
+1. Terminer l'harmonisation des états loading/empty/error sur les pages restantes.
 2. Audit responsive.
 3. Nettoyage progressif des couleurs et tokens, sans refonte globale.
 4. Dernier passage typographie / spacing / rayons.
