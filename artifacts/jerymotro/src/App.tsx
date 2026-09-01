@@ -108,13 +108,38 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
   return <PublicShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></PublicShell>;
 }
 
+// For pages that must stay publicly viewable (linked straight from the
+// landing page nav: Carte Interactive, Vue d'ensemble) but that are also
+// "real" app sections with sidebar navigation once logged in. Unlike
+// AuthedRoute, anonymous visitors are never redirected away — they just
+// get the plain PublicShell (no sidebar) instead of AppShell.
+function AdaptiveRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
+  // AuthProvider itself blocks rendering until the initial auth check is
+  // done, so isAuthenticated is already settled by the time this mounts —
+  // safe to use directly as the lazy initial state, no login/logout flash.
+  const [isLoading, setIsLoading] = useState(isAuthenticated);
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return <PublicShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></PublicShell>;
+  }
+  if (isLoading) return <LoadingPage message={t("common.loading")} />;
+  return <AppShell><Suspense fallback={<LoadingPage message={t("common.loading")} />}><Component /></Suspense></AppShell>;
+}
+
 function HomeRedirect() { const { isAuthenticated } = useAuth(); return isAuthenticated ? <Redirect to="/map" /> : <LandingPage />; }
 
 function Router() {
   return <><SeoHead /><Switch>
     <Route path="/" component={HomeRedirect} /><Route path="/login" component={LoginPage} /><Route path="/register" component={RegisterPage} />
-    <Route path="/map">{() => <AuthedRoute component={MapPage} />}</Route>
-    <Route path="/dashboard">{() => <AuthedRoute component={DashboardPage} />}</Route>
+    <Route path="/map">{() => <AdaptiveRoute component={MapPage} />}</Route>
+    <Route path="/dashboard">{() => <AdaptiveRoute component={DashboardPage} />}</Route>
     <Route path="/legal">{() => <PublicRoute component={LegalPage} />}</Route><Route path="/privacy">{() => <PublicRoute component={PrivacyPage} />}</Route><Route path="/about">{() => <PublicRoute component={AboutPage} />}</Route><Route path="/cv">{() => <PublicRoute component={CvPage} />}</Route>
     <Route path="/detections">{() => <AuthedRoute component={DetectionsPage} />}</Route><Route path="/clusters">{() => <AuthedRoute component={ClustersPage} />}</Route><Route path="/predictions">{() => <AuthedRoute component={PredictionsPage} />}</Route><Route path="/stats">{() => <AuthedRoute component={StatsPage} />}</Route><Route path="/chat">{() => <AuthedRoute component={ChatPage} />}</Route><Route path="/zones">{() => <AuthedRoute component={ZonesPage} />}</Route><Route path="/alerts">{() => <AuthedRoute component={AlertsPage} />}</Route><Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route><Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route><Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
     <Route component={NotFound} />
