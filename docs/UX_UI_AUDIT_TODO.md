@@ -23,10 +23,10 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 
 ### P1 — Pages métier
 
-- [ ] Réduire l'effet « boîte dans boîte » du Dashboard.
-- [ ] Alléger les KPI : moins d'icônes, moins de bordures, meilleure hiérarchie des chiffres.
-- [ ] Détections : transformer le panneau de détail en drawer latéral léger.
-- [ ] Détections : rendre la toolbar de filtres moins lourde visuellement.
+- [x] Réduire l'effet « boîte dans boîte » du Dashboard.
+- [x] Alléger les KPI : moins d'icônes, moins de bordures, meilleure hiérarchie des chiffres.
+- [x] Détections : transformer le panneau de détail en drawer/panneau latéral léger, notamment sur mobile.
+- [x] Détections : rendre la toolbar de filtres moins lourde visuellement.
 - [ ] Stats : réduire la dominance des bordures et de la grille des graphiques.
 - [ ] Map : conserver les contrôles avancés dans un panneau/drawer plutôt que les afficher simultanément.
 
@@ -106,10 +106,21 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - Pas de refonte fonctionnelle des pages.
 - Pas de modification du comportement métier.
 
+## Progression
+
+- [x] Chat — interface épurée et rendu Mermaid stabilisé.
+- [x] Navigation — Sidebar/Topbar allégées.
+- [x] Détections — filtres et panneau détail allégés.
+- [x] Dashboard — KPI et surfaces simplifiés.
+- [ ] Stats — graphiques plus sobres.
+- [ ] Map — contrôles secondaires regroupés.
+- [ ] États loading/empty/error — harmonisation finale.
+- [ ] Audit responsive final de toutes les pages.
+
 ## Ordre recommandé pour la suite
 
-1. Détections — toolbar + drawer de détail.
-2. Dashboard — KPI et surfaces plus légères.
-3. Stats — graphiques plus sobres.
-4. Map — contrôles secondaires regroupés.
-5. Harmonisation finale des états loading/empty/error.
+1. Stats — graphiques plus sobres.
+2. Map — contrôles secondaires regroupés.
+3. Harmonisation finale des états loading/empty/error.
+4. Audit responsive final.
+5. Nettoyage progressif des couleurs et tokens, sans refonte globale.
