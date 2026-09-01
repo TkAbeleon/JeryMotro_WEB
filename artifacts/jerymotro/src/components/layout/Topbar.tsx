@@ -17,42 +17,42 @@ export function Topbar() {
 
   return (
     <header
-      className="h-[58px] fixed top-0 right-0 border-b border-border bg-background/85 backdrop-blur-md z-10 flex items-center justify-between px-3 sm:px-4 transition-[left] duration-300"
+      className="h-[58px] fixed top-0 right-0 border-b border-border/60 bg-background/90 backdrop-blur-xl z-10 flex items-center justify-between px-3 sm:px-5 transition-[left] duration-300"
       style={{ left: leftOffset }}
     >
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           onClick={toggle}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label="Toggle sidebar"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-[18px] w-[18px]" />
         </button>
-        <span className="hidden truncate text-sm font-semibold text-muted-foreground sm:block">{t("topbar.platform")}</span>
+        <span className="hidden truncate text-xs font-medium text-muted-foreground/75 sm:block">{t("topbar.platform")}</span>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
         <div className="relative hidden md:block">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/65" />
           <input
             type="search"
             placeholder={t("topbar.searchPlaceholder")}
-            className="h-9 w-48 lg:w-60 bg-secondary border-none rounded-full pl-9 pr-4 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+            className="h-8 w-44 rounded-lg border border-transparent bg-muted/65 pl-8 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground/55 hover:bg-muted focus:border-primary/20 focus:bg-background focus:ring-2 focus:ring-primary/10 lg:w-56"
             aria-label={t("topbar.searchPlaceholder")}
           />
         </div>
 
-        <div className="flex items-center gap-0.5 bg-secondary rounded-full px-1.5 py-1" aria-label="Language">
-          <Globe className="w-3.5 h-3.5 text-muted-foreground ml-1 mr-0.5 hidden sm:block" />
+        <div className="flex h-8 items-center gap-0.5 rounded-lg px-1" aria-label="Language">
+          <Globe className="ml-1 mr-0.5 hidden h-3.5 w-3.5 text-muted-foreground/60 sm:block" />
           {LANGS.map((l) => (
             <button
               key={l}
               onClick={() => setLang(l)}
               title={LANG_LABELS[l]}
               aria-pressed={lang === l}
-              className={`min-h-7 min-w-8 rounded-full px-1.5 text-[10px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${lang === l
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
+              className={`min-h-7 min-w-7 rounded-md px-1.5 text-[9px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${lang === l
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground/55 hover:bg-muted/70 hover:text-foreground"
                 }`}
             >
               {l}
@@ -62,26 +62,26 @@ export function Topbar() {
 
         <button
           onClick={toggleTheme}
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label={t("topbar.themeToggle" as any) || "Toggle theme"}
         >
-          {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
         <button
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label={t("nav.alerts")}
         >
-          <Bell className="w-4 h-4" />
-          <span aria-hidden className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+          <Bell className="h-4 w-4" />
+          <span aria-hidden className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive ring-2 ring-background" />
         </button>
 
-        <div className="flex items-center gap-2 border-l border-border pl-2 sm:pl-3">
+        <div className="ml-1 flex items-center gap-2 border-l border-border/60 pl-2 sm:ml-2 sm:pl-3">
           <div className="hidden flex-col text-right sm:flex">
-            <span className="max-w-36 truncate text-sm font-semibold leading-none">{user?.full_name || "User"}</span>
-            <span className="text-xs text-muted-foreground capitalize">{user?.role || "analyst"}</span>
+            <span className="max-w-36 truncate text-xs font-semibold leading-4">{user?.full_name || "User"}</span>
+            <span className="text-[10px] leading-4 text-muted-foreground">{user?.role || "analyst"}</span>
           </div>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary ring-1 ring-primary/10">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary ring-1 ring-primary/10">
             {user?.full_name?.charAt(0) || "U"}
           </div>
         </div>
