@@ -251,6 +251,52 @@
   opacity: 1;
 }
 
+/* Keep Leaflet's built-in controls visually quiet so application overlays stay primary. */
+.leaflet-control-zoom,
+.leaflet-control-layers {
+  border: 0 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14) !important;
+  overflow: hidden;
+  border-radius: 12px !important;
+}
+
+.leaflet-control-zoom a,
+.leaflet-control-layers-toggle {
+  width: 34px !important;
+  height: 34px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 0 !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--popover) / 0.94) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  font-weight: 500;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-bottom: 0 !important;
+}
+
+.leaflet-control-zoom a:hover,
+.leaflet-control-layers-toggle:hover {
+  background: hsl(var(--secondary)) !important;
+}
+
+.leaflet-control-attribution {
+  margin: 0 8px 8px 0 !important;
+  border-radius: 8px !important;
+  padding: 2px 6px !important;
+  background: hsl(var(--background) / 0.78) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  font-size: 9px !important;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-control-attribution a {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
 /*
  * NOTE: an older "map workspace architecture" rule used to live here. It
  * forced the map page's *first* child div to a hardcoded 280px width via
