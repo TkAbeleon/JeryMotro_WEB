@@ -252,52 +252,15 @@
 }
 
 /*
- * Map workspace architecture:
- * the global JeryMotro sidebar owns application navigation;
- * the Map panel is contextual and overlays the map instead of becoming
- * a second layout column. This keeps the map canvas spatially stable.
+ * NOTE: an older "map workspace architecture" rule used to live here. It
+ * forced the map page's *first* child div to a hardcoded 280px width via
+ * structural selectors (main:has(.leaflet-container) > div:has(...) >
+ * div:first-child), from back when that first child was a real sidebar
+ * panel. The current map-redesign.tsx layout puts the map's own wrapper
+ * there instead (filters/search are now a floating overlay, not a layout
+ * column), so the old rule was silently force-pinning the *map itself* to
+ * 280px — regardless of viewport or the app sidebar's state — and forcing
+ * the overlay controls to 100% width, leaving a dead black strip and
+ * floating controls disconnected from the visible tiles. Removed as dead
+ * weight; map-redesign.tsx now sizes and positions everything itself.
  */
-main:has(.leaflet-container) > div:has(.leaflet-container) {
-  position: relative;
-}
-
-main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
-  position: absolute;
-  inset: 0 auto 0 0;
-  z-index: 998;
-  width: 280px !important;
-  max-width: calc(100vw - 24px);
-  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.08);
-}
-
-main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child.w-0 {
-  width: 0 !important;
-  max-width: 0;
-  box-shadow: none;
-}
-
-main:has(.leaflet-container) > div:has(.leaflet-container) > div:nth-child(2) {
-  position: absolute;
-  inset: 0;
-  width: 100% !important;
-}
-
-@media (max-width: 1023px) {
-  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
-    width: min(88vw, 340px) !important;
-    max-width: calc(100vw - 16px);
-    border-right-width: 1px;
-    box-shadow: 18px 0 40px rgba(0, 0, 0, 0.18);
-  }
-
-  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child.w-0 {
-    width: 0 !important;
-  }
-}
-
-@media (max-width: 639px) {
-  main:has(.leaflet-container) > div:has(.leaflet-container) > div:first-child {
-    width: min(92vw, 340px) !important;
-    max-width: calc(100vw - 12px);
-  }
-}
