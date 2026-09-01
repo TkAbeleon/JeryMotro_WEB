@@ -27,7 +27,7 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Alléger les KPI : moins d'icônes, moins de bordures, meilleure hiérarchie des chiffres.
 - [x] Détections : transformer le panneau de détail en drawer/panneau latéral léger, notamment sur mobile.
 - [x] Détections : rendre la toolbar de filtres moins lourde visuellement.
-- [ ] Stats : réduire la dominance des bordures et de la grille des graphiques.
+- [x] Stats : réduire la dominance des bordures et de la grille des graphiques.
 - [ ] Map : conserver les contrôles avancés dans un panneau/drawer plutôt que les afficher simultanément.
 
 ### P1 — Couleurs
@@ -112,15 +112,14 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Navigation — Sidebar/Topbar allégées.
 - [x] Détections — filtres et panneau détail allégés.
 - [x] Dashboard — KPI et surfaces simplifiés.
-- [ ] Stats — graphiques plus sobres.
+- [x] Stats — graphiques, KPI et surfaces simplifiés.
 - [ ] Map — contrôles secondaires regroupés.
 - [ ] États loading/empty/error — harmonisation finale.
 - [ ] Audit responsive final de toutes les pages.
 
 ## Ordre recommandé pour la suite
 
-1. Stats — graphiques plus sobres.
-2. Map — contrôles secondaires regroupés.
-3. Harmonisation finale des états loading/empty/error.
-4. Audit responsive final.
-5. Nettoyage progressif des couleurs et tokens, sans refonte globale.
+1. Map — contrôles secondaires regroupés.
+2. Harmonisation finale des états loading/empty/error.
+3. Audit responsive final.
+4. Nettoyage progressif des couleurs et tokens, sans refonte globale.
