@@ -28,7 +28,7 @@ Le risque principal n'est donc pas le manque de design, mais l'accumulation de p
 - [x] Détections : transformer le panneau de détail en drawer/panneau latéral léger, notamment sur mobile.
 - [x] Détections : rendre la toolbar de filtres moins lourde visuellement.
 - [x] Stats : réduire la dominance des bordures et de la grille des graphiques.
-- [ ] Map : conserver les contrôles avancés dans un panneau/drawer plutôt que les afficher simultanément.
+- [x] Map : alléger les contrôles Leaflet et garder les contrôles avancés dans l'overlay existant.
 
 ### P1 — Couleurs
 
@@ -113,13 +113,13 @@ Le Chat sert actuellement de référence pour cette direction : contenu centré,
 - [x] Détections — filtres et panneau détail allégés.
 - [x] Dashboard — KPI et surfaces simplifiés.
 - [x] Stats — graphiques, KPI et surfaces simplifiés.
-- [ ] Map — contrôles secondaires regroupés.
+- [x] Map — contrôles secondaires allégés et regroupés visuellement.
 - [ ] États loading/empty/error — harmonisation finale.
 - [ ] Audit responsive final de toutes les pages.
 
 ## Ordre recommandé pour la suite
 
-1. Map — contrôles secondaires regroupés.
-2. Harmonisation finale des états loading/empty/error.
-3. Audit responsive final.
-4. Nettoyage progressif des couleurs et tokens, sans refonte globale.
+1. Harmonisation finale des états loading/empty/error.
+2. Audit responsive.
+3. Nettoyage progressif des couleurs et tokens, sans refonte globale.
+4. Dernier passage typographie / spacing / rayons.
