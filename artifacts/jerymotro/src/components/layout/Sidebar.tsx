@@ -1,20 +1,16 @@
 import { Link, useLocation } from "wouter";
-import { Activity, LayoutDashboard, Flame, BarChart3, Bot, MapPin, Bell, CreditCard, User, LogOut, ChevronLeft, ChevronRight, X, Map, BookOpen, FileText, Shield, Download, Sparkles, Languages, Sun, Moon } from "lucide-react";
+import { Activity, LayoutDashboard, Flame, BarChart3, Bot, MapPin, Bell, CreditCard, User, LogOut, ChevronLeft, ChevronRight, X, Map, BookOpen, FileText, Shield, Download, Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
+import { useI18n } from "@/hooks/use-i18n";
 import { useSidebar } from "@/hooks/use-sidebar";
-import { useTheme } from "@/hooks/use-theme";
 import type { TranslationKey } from "@/lib/i18n";
 
 interface NavItem { labelKey: TranslationKey; href: string; icon: React.ComponentType<{ className?: string }>; badge?: string; locked?: boolean; }
 interface NavGroup { sectionKey: TranslationKey; items: NavItem[]; authOnly?: boolean; }
 
 const navGroups: NavGroup[] = [
-  {
-    sectionKey: "nav.section.map",
-    items: [{ labelKey: "nav.map", href: "/map", icon: Map }],
-  },
+  { sectionKey: "nav.section.map", items: [{ labelKey: "nav.map", href: "/map", icon: Map }] },
   {
     sectionKey: "nav.section.surveillance",
     authOnly: true,
@@ -68,8 +64,7 @@ export { SIDEBAR_FULL, SIDEBAR_COLLAPSED };
 export function Sidebar() {
   const [location] = useLocation();
   const { logout, isAuthenticated } = useAuth();
-  const { t, lang, setLang } = useI18n();
-  const { theme, toggleTheme } = useTheme();
+  const { t } = useI18n();
   const { isCollapsed, isOpen, isMobile, toggle, close } = useSidebar();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const collapsed = !isMobile && isCollapsed;
@@ -85,7 +80,6 @@ export function Sidebar() {
   }, [isMobile, isOpen, close]);
 
   const isActive = (href: string) => location === href;
-
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-3 sm:h-[68px]">
@@ -130,13 +124,9 @@ export function Sidebar() {
       </nav>
 
       <div className={`shrink-0 border-t border-sidebar-border ${collapsed ? "px-2 py-2" : "p-3"}`} style={{ paddingBottom: collapsed ? "max(0.5rem, env(safe-area-inset-bottom))" : "max(0.75rem, env(safe-area-inset-bottom))" }}>
-        {!collapsed && <div className="mb-2 flex items-center gap-1 rounded-xl bg-sidebar-accent/60 p-1">
-          <Languages className="ml-2 h-4 w-4 shrink-0 text-sidebar-foreground/50" aria-hidden="true" />
-          <select value={lang} onChange={(e) => setLang(e.target.value as any)} aria-label="Langue" className="h-9 min-w-0 flex-1 cursor-pointer bg-transparent px-1 text-xs font-semibold text-sidebar-foreground outline-none"><option value="fr">{LANG_LABELS.fr}</option><option value="mg">{LANG_LABELS.mg}</option><option value="en">{LANG_LABELS.en}</option></select>
-          <button type="button" onClick={toggleTheme} aria-label="Changer de thème" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sidebar-foreground/55 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary">{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>
-        </div>}
         {isAuthenticated && <button type="button" onClick={logout} title={collapsed ? t("common.logout") : undefined} className={`flex min-h-11 items-center rounded-xl text-[13px] font-semibold text-sidebar-foreground/70 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${collapsed ? "mx-auto w-11 justify-center" : "w-full gap-3 px-3"}`}><LogOut className="h-[18px] w-[18px] shrink-0" />{!collapsed && <span>{t("common.logout")}</span>}</button>}
       </div>
+
       {!isMobile && <button type="button" onClick={toggle} aria-label={isCollapsed ? t("common.open") : t("common.close")} className="absolute -right-3 top-[77px] z-20 flex h-7 w-7 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/55 shadow-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary">{isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}</button>}
     </div>
   );
