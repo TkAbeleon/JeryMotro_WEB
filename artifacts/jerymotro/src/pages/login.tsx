@@ -139,10 +139,12 @@ export default function LoginPage() {
         markNoAccount(message);
         return;
       }
-      setError(message);
-      if ((err as { status?: number })?.status === 422 && otpVia !== "email") {
-        otpForm.setError("identifier", { type: "server", message: phoneValidationMessage() });
+      if ((err as { status?: number })?.status === 422) {
+        otpForm.setError("identifier", { type: "server", message: otpVia === "email" ? "Email invalide." : phoneValidationMessage() });
+        setError("");
+        return;
       }
+      setError(message);
     }
   };
 
@@ -164,28 +166,44 @@ export default function LoginPage() {
     }
   };
 
+  const handleOtpChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 6);
+    setOtpCode(digitsOnly);
+    if (error) setError("");
+  };
+
   const verifyOtp = async () => {
-    if (otpCode.length !== 6) {
-      setError("Veuillez saisir les 6 chiffres du code.");
+    const code = otpCode.replace(/\D/g, "");
+    if (!/^\d{6}$/.test(code)) {
+      setError("Le code OTP doit contenir exactement 6 chiffres.");
       return;
     }
     setError("");
     try {
-      const result = await verifyOtpMutation.mutateAsync({ data: { ...buildOtpPayload(otpIdentifier), code: otpCode } });
+      const result = await verifyOtpMutation.mutateAsync({ data: { ...buildOtpPayload(otpIdentifier), code } });
       login(result);
       setLocation("/dashboard");
     } catch (err) {
+      const status = (err as { status?: number })?.status;
       const message = apiError(err, "Code OTP invalide ou expiré.");
-      if ((err as { status?: number })?.status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) {
+      if (status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) {
         markNoAccount(message);
         setOtpStep("request");
         return;
       }
-      if ((err as { status?: number })?.status === 400) {
-        setError("Code OTP invalide ou expiré. Vérifiez les 6 chiffres puis réessayez.");
-      } else {
-        setError(message);
+      if (status === 422) {
+        setError("Le code OTP doit contenir exactement 6 chiffres.");
+        return;
       }
+      if (status === 400) {
+        setError("Code OTP incorrect ou expiré. Vérifiez les 6 chiffres reçus puis réessayez.");
+        return;
+      }
+      if (status === 401) {
+        setError("Code OTP invalide. Vérifiez le code reçu puis réessayez.");
+        return;
+      }
+      setError(message);
     }
   };
 
@@ -210,6 +228,7 @@ export default function LoginPage() {
   const ChannelIcon = meta.icon;
   const otpIdentifierValue = otpForm.watch("identifier") || "";
   const otpIdentifierValid = validateIdentifier(otpIdentifierValue);
+  const otpCodeValid = /^\d{6}$/.test(otpCode);
   const sendDisabled = requestOtpMutation.isPending || !otpIdentifierValid || showRegisterPrompt;
 
   return <div className="min-h-screen bg-background flex">
@@ -232,9 +251,10 @@ export default function LoginPage() {
           <Form {...otpForm}><form onSubmit={e => { e.preventDefault(); otpForm.handleSubmit(requestOtp)(e); }} className="space-y-4"><FormField control={otpForm.control} name="identifier" render={({ field }) => <FormItem><FormLabel>{meta.label}</FormLabel><FormControl><input {...field} value={otpVia === "email" ? field.value : formatPhone(field.value)} onChange={e => { const next = otpVia === "email" ? e.target.value : formatPhone(e.target.value); field.onChange(next); setError(""); setShowRegisterPrompt(false); otpForm.clearErrors("identifier"); }} type={meta.type} inputMode={otpVia === "email" ? "email" : "tel"} data-testid="input-otp-identifier" placeholder={meta.placeholder} autoComplete={otpVia === "email" ? "email" : "tel"} className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none" /></FormControl><p className="text-xs text-muted-foreground">{meta.hint}</p><FormMessage /></FormItem>} /><button type="submit" disabled={sendDisabled} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{requestOtpMutation.isPending ? "Envoi..." : showRegisterPrompt ? "Créer un compte pour continuer" : "Envoyer le code"}</button></form></Form>
         </> : <>
           <div className="text-center rounded-xl border border-border bg-card/40 p-5"><div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3"><ChannelIcon className="w-4 h-4 text-primary" /></div><p className="text-sm font-medium">Code de connexion</p><p className="text-xs text-muted-foreground break-all">{otpIdentifier}</p><p className="text-xs text-muted-foreground mt-1">Envoyé via {meta.label}</p></div>
-          <div className="flex justify-center"><InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} aria-label="Code OTP" inputMode="numeric"><InputOTPGroup>{Array.from({ length: 6 }, (_, i) => <InputOTPSlot key={i} index={i} />)}</InputOTPGroup></InputOTP></div>
+          <div className="flex justify-center"><InputOTP maxLength={6} value={otpCode} onChange={handleOtpChange} aria-label="Code OTP" inputMode="numeric"><InputOTPGroup>{Array.from({ length: 6 }, (_, i) => <InputOTPSlot key={i} index={i} />)}</InputOTPGroup></InputOTP></div>
+          <p className="text-center text-xs text-muted-foreground">Le code doit contenir exactement 6 chiffres.</p>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
-          <button type="button" onClick={verifyOtp} disabled={verifyOtpMutation.isPending || otpCode.length !== 6} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{verifyOtpMutation.isPending ? "Vérification..." : "Se connecter"}</button>
+          <button type="button" onClick={verifyOtp} disabled={verifyOtpMutation.isPending || !otpCodeValid} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{verifyOtpMutation.isPending ? "Vérification..." : "Se connecter"}</button>
           <div className="flex items-center justify-between text-xs"><button type="button" onClick={() => { setOtpStep("request"); setError(""); setShowRegisterPrompt(false); }} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><ArrowLeft className="w-3.5 h-3.5" />Changer de {otpVia === "email" ? "e-mail" : "numéro"}</button><button type="button" onClick={resendOtp} disabled={cooldown > 0 || requestOtpMutation.isPending || showRegisterPrompt} className="text-primary hover:underline disabled:text-muted-foreground">{cooldown ? `Renvoyer dans ${cooldown}s` : "Renvoyer le code"}</button></div>
         </>}
       </div>}
