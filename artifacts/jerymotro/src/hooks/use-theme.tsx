@@ -11,8 +11,13 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem("jerymotro_theme");
-    return (stored as Theme) || "dark";
+    if (typeof window === "undefined") return "dark";
+    try {
+      const stored = localStorage.getItem("jerymotro_theme");
+      return (stored as Theme) || "dark";
+    } catch {
+      return "dark";
+    }
   });
 
   useEffect(() => {
@@ -24,7 +29,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove("dark");
       root.classList.add("light");
     }
-    localStorage.setItem("jerymotro_theme", theme);
+    try {
+      localStorage.setItem("jerymotro_theme", theme);
+    } catch {}
   }, [theme]);
 
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
