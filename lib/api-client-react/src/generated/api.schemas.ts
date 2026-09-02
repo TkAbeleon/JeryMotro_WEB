@@ -7,520 +7,63 @@
  */
 export interface HealthStatus {
   status: string;
-  /** @nullable */
   version?: string | null;
-  /** @nullable */
   uptime_seconds?: number | null;
 }
 
-export interface UserRegistration {
-  email: string;
-  password: string;
-  /** @nullable */
-  full_name?: string | null;
-  /** @nullable */
-  organization?: string | null;
-}
-
-export interface UserLogin {
-  email: string;
-  password: string;
-}
-
-export interface UserProfile {
-  id: number;
-  email: string;
-  /** @nullable */
-  full_name?: string | null;
-  /** @nullable */
-  organization?: string | null;
-  role: string;
-  is_active: boolean;
-  /** @nullable */
-  phone_number?: string | null;
-  /** @nullable */
-  whatsapp_number?: string | null;
-}
-
-export interface AuthToken {
-  access_token: string;
-  token_type: string;
-  user: UserProfile;
-}
-
-export interface ProfileUpdate {
-  /** @nullable */
-  full_name?: string | null;
-  /** @nullable */
-  organization?: string | null;
-}
-
-export interface ContactUpdate {
-  /** @nullable */
-  phone_number?: string | null;
-  /** @nullable */
-  whatsapp_number?: string | null;
-}
+export interface UserRegistration { email: string; password: string; full_name?: string | null; organization?: string | null; }
+export interface UserLogin { email: string; password: string; }
+export interface UserProfile { id: number; email: string; full_name?: string | null; organization?: string | null; role: string; is_active: boolean; phone_number?: string | null; whatsapp_number?: string | null; }
+export interface AuthToken { access_token: string; token_type: string; user: UserProfile; }
+export interface ProfileUpdate { full_name?: string | null; organization?: string | null; }
+export interface ContactUpdate { phone_number?: string | null; whatsapp_number?: string | null; }
 
 export interface OtpRequest {
-  email: string;
-  /** @nullable */
-  via?: string | null;
+  via?: "email" | "sms" | "whatsapp" | null;
+  email?: string | null;
+  phone_number?: string | null;
+  whatsapp_number?: string | null;
 }
 
 export interface OtpVerify {
-  email: string;
+  via?: "email" | "sms" | "whatsapp" | null;
+  email?: string | null;
+  phone_number?: string | null;
+  whatsapp_number?: string | null;
   code: string;
 }
 
-export interface Detection {
-  id: number;
-  latitude: number;
-  longitude: number;
-  /** @nullable */
-  brightness?: number | null;
-  /** @nullable */
-  frp?: number | null;
-  /** @nullable */
-  frp_log?: number | null;
-  /** @nullable */
-  confidence?: string | null;
-  /** @nullable */
-  confidence_num?: number | null;
-  acq_date: string;
-  /** @nullable */
-  acq_time?: string | null;
-  /** @nullable */
-  local_hour?: number | null;
-  /** @nullable */
-  satellite?: string | null;
-  /** @nullable */
-  instrument?: string | null;
-  /** @nullable */
-  daynight?: string | null;
-  source: string;
-  /** @nullable */
-  risk_score?: number | null;
-  /** @nullable */
-  fire_label?: number | null;
-  /** @nullable */
-  cluster_id?: number | null;
-  /** @nullable */
-  cluster_size?: number | null;
-  /** @nullable */
-  cluster_frp_total?: number | null;
-  /** @nullable */
-  cluster_frp_max?: number | null;
-  /** @nullable */
-  is_noise?: number | null;
-  /** @nullable */
-  is_dry_season?: boolean | null;
-  /** @nullable */
-  temperature_2m?: number | null;
-  /** @nullable */
-  relative_humidity?: number | null;
-  /** @nullable */
-  wind_speed?: number | null;
-  /** @nullable */
-  landcover?: string | null;
-  /** @nullable */
-  ndvi_10m?: number | null;
-  /** @nullable */
-  region?: string | null;
-  /** @nullable */
-  inserted_at?: string | null;
-}
-
+export interface Detection { id: number; latitude: number; longitude: number; brightness?: number | null; frp?: number | null; frp_log?: number | null; confidence?: string | null; confidence_num?: number | null; acq_date: string; acq_time?: string | null; local_hour?: number | null; satellite?: string | null; instrument?: string | null; daynight?: string | null; source: string; risk_score?: number | null; fire_label?: number | null; cluster_id?: number | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; is_noise?: number | null; is_dry_season?: boolean | null; temperature_2m?: number | null; relative_humidity?: number | null; wind_speed?: number | null; landcover?: string | null; ndvi_10m?: number | null; region?: string | null; inserted_at?: string | null; }
 export type DetectionListFiltersApplied = { [key: string]: unknown };
-
-export interface DetectionList {
-  detections: Detection[];
-  count: number;
-  total: number;
-  limit: number;
-  offset: number;
-  filters_applied?: DetectionListFiltersApplied;
-}
-
-export interface DailyStats {
-  date: string;
-  total_detections: number;
-  high_risk_count: number;
-  /** @nullable */
-  avg_frp?: number | null;
-  /** @nullable */
-  max_frp?: number | null;
-  active_clusters: number;
-  regions_affected: string[];
-}
-
-export interface DailyStatsResponse {
-  stats: DailyStats[];
-}
-
-export interface Cluster {
-  id: number;
-  /** @nullable */
-  fire_id?: string | null;
-  center_latitude: number;
-  center_longitude: number;
-  /** @nullable */
-  radius_km?: number | null;
-  /** @nullable */
-  region?: string | null;
-  /** @nullable */
-  cluster_size?: number | null;
-  /** @nullable */
-  cluster_frp_total?: number | null;
-  /** @nullable */
-  cluster_frp_max?: number | null;
-  /** @nullable */
-  risk_score_max?: number | null;
-  /** @nullable */
-  risk_level?: string | null;
-  first_seen: string;
-  last_seen: string;
-  /** @nullable */
-  duration_hours?: number | null;
-  /** @nullable */
-  hours_since_last_seen?: number | null;
-  cluster_status: string;
-  /** @nullable */
-  status_reason?: string | null;
-  reactivation_count?: number;
-}
-
-export interface ClusterList {
-  clusters: Cluster[];
-  count: number;
-  total: number;
-}
-
-export interface ClusterDetections {
-  cluster_id: number;
-  detections: Detection[];
-  count: number;
-}
-
-export interface Prediction {
-  id: number;
-  prediction_date: string;
-  latitude: number;
-  longitude: number;
-  /** @nullable */
-  grid_cell_id?: string | null;
-  risk_score_j1: number;
-  /** @nullable */
-  confidence?: number | null;
-  /** @nullable */
-  model_version?: string | null;
-  /** @nullable */
-  input_window_days?: number | null;
-  /** @nullable */
-  region?: string | null;
-  created_at: string;
-}
-
-/**
- * @nullable
- */
+export interface DetectionList { detections: Detection[]; count: number; total: number; limit: number; offset: number; filters_applied?: DetectionListFiltersApplied; }
+export interface DailyStats { date: string; total_detections: number; high_risk_count: number; avg_frp?: number | null; max_frp?: number | null; active_clusters: number; regions_affected: string[]; }
+export interface DailyStatsResponse { stats: DailyStats[]; }
+export interface Cluster { id: number; fire_id?: string | null; center_latitude: number; center_longitude: number; radius_km?: number | null; region?: string | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; risk_score_max?: number | null; risk_level?: string | null; first_seen: string; last_seen: string; duration_hours?: number | null; hours_since_last_seen?: number | null; cluster_status: string; status_reason?: string | null; reactivation_count?: number; }
+export interface ClusterList { clusters: Cluster[]; count: number; total: number; }
+export interface ClusterDetections { cluster_id: number; detections: Detection[]; count: number; }
+export interface Prediction { id: number; prediction_date: string; latitude: number; longitude: number; grid_cell_id?: string | null; risk_score_j1: number; confidence?: number | null; model_version?: string | null; input_window_days?: number | null; region?: string | null; created_at: string; }
 export type PredictionListModelInfo = { [key: string]: unknown } | null;
-
-export interface PredictionList {
-  predictions: Prediction[];
-  count: number;
-  /** @nullable */
-  prediction_date?: string | null;
-  /** @nullable */
-  model_info?: PredictionListModelInfo;
-}
-
-export interface RiskMapFeatureProps {
-  /** @nullable */
-  risk_score_j1?: number | null;
-  /** @nullable */
-  grid_cell_id?: string | null;
-  /** @nullable */
-  region?: string | null;
-  /** @nullable */
-  prediction_date?: string | null;
-}
-
-export interface RiskMapMetadata {
-  prediction_date: string;
-  total_cells: number;
-  high_risk_cells: number;
-  /** @nullable */
-  model_version?: string | null;
-}
-
+export interface PredictionList { predictions: Prediction[]; count: number; prediction_date?: string | null; model_info?: PredictionListModelInfo; }
+export interface RiskMapFeatureProps { risk_score_j1?: number | null; grid_cell_id?: string | null; region?: string | null; prediction_date?: string | null; }
+export interface RiskMapMetadata { prediction_date: string; total_cells: number; high_risk_cells: number; model_version?: string | null; }
 export type RiskMapResponseFeaturesItem = { [key: string]: unknown };
-
-export interface RiskMapResponse {
-  type: string;
-  features: RiskMapResponseFeaturesItem[];
-  metadata: RiskMapMetadata;
-}
-
-export interface Alert {
-  id: number;
-  alert_level: string;
-  /** @nullable */
-  region?: string | null;
-  /** @nullable */
-  latitude?: number | null;
-  /** @nullable */
-  longitude?: number | null;
-  /** @nullable */
-  risk_score?: number | null;
-  /** @nullable */
-  frp?: number | null;
-  /** @nullable */
-  message?: string | null;
-  /** @nullable */
-  images?: string[] | null;
-  channel: string;
-  /** @nullable */
-  destination?: string | null;
-  status: string;
-  /** @nullable */
-  sent_at?: string | null;
-  created_at: string;
-}
-
-export interface AlertList {
-  alerts: Alert[];
-  count: number;
-  total: number;
-}
-
-export interface AlertSubscription {
-  channel: string;
-  destination: string;
-  /** @nullable */
-  min_risk?: number | null;
-  /** @nullable */
-  min_frp?: number | null;
-}
-
-export interface Subscription {
-  id: number;
-  channel: string;
-  destination: string;
-  enabled: boolean;
-  is_verified: boolean;
-  min_risk?: number;
-  min_frp?: number;
-}
-
-export interface MyAlerts {
-  subscriptions: Subscription[];
-  alerts_history: Alert[];
-}
-
-export interface AlertTrigger {
-  /** @nullable */
-  fire_event_id?: number | null;
-  risk_score: number;
-  frp: number;
-  region: string;
-  latitude: number;
-  longitude: number;
-  force_send?: boolean;
-}
-
-export interface Zone {
-  id: number;
-  user_id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  radius_km: number;
-  /** @nullable */
-  min_risk?: number | null;
-  /** @nullable */
-  min_frp?: number | null;
-  /** @nullable */
-  custom_ai_prompt?: string | null;
-  created_at: string;
-}
-
-export interface ZoneInput {
-  name: string;
-  latitude: number;
-  longitude: number;
-  radius_km: number;
-  /** @nullable */
-  min_risk?: number | null;
-  /** @nullable */
-  min_frp?: number | null;
-  /** @nullable */
-  custom_ai_prompt?: string | null;
-}
-
-export interface ChatMessage {
-  message: string;
-  /** @nullable */
-  conversation_id?: string | null;
-  /** @nullable */
-  temperature?: number | null;
-  /** @nullable */
-  zone_id?: number | null;
-}
-
-/**
- * @nullable
- */
+export interface RiskMapResponse { type: string; features: RiskMapResponseFeaturesItem[]; metadata: RiskMapMetadata; }
+export interface Alert { id: number; alert_level: string; region?: string | null; latitude?: number | null; longitude?: number | null; risk_score?: number | null; frp?: number | null; message?: string | null; images?: string[] | null; channel: string; destination?: string | null; status: string; sent_at?: string | null; created_at: string; }
+export interface AlertList { alerts: Alert[]; count: number; total: number; }
+export interface AlertSubscription { channel: string; destination: string; min_risk?: number | null; min_frp?: number | null; }
+export interface Subscription { id: number; channel: string; destination: string; enabled: boolean; is_verified: boolean; min_risk?: number; min_frp?: number; }
+export interface MyAlerts { subscriptions: Subscription[]; alerts_history: Alert[]; }
+export interface AlertTrigger { fire_event_id?: number | null; risk_score: number; frp: number; region: string; latitude: number; longitude: number; force_send?: boolean; }
+export interface Zone { id: number; user_id: number; name: string; latitude: number; longitude: number; radius_km: number; min_risk?: number | null; min_frp?: number | null; custom_ai_prompt?: string | null; created_at: string; }
+export interface ZoneInput { name: string; latitude: number; longitude: number; radius_km: number; min_risk?: number | null; min_frp?: number | null; custom_ai_prompt?: string | null; }
+export interface ChatMessage { message: string; conversation_id?: string | null; temperature?: number | null; zone_id?: number | null; }
 export type ChatResponseDataContext = { [key: string]: unknown } | null;
-
-export interface ChatResponse {
-  response: string;
-  sources: string[];
-  /** @nullable */
-  data_context?: ChatResponseDataContext;
-  /** @nullable */
-  model_used?: string | null;
-  /** @nullable */
-  tokens_used?: number | null;
-  /** @nullable */
-  response_time_ms?: number | null;
-}
-
-export interface DashboardSummary {
-  total_detections_today: number;
-  active_clusters: number;
-  critical_alerts: number;
-  ai_response_time_ms: number;
-  /** @nullable */
-  xgboost_accuracy?: number | null;
-  regions_affected_today?: string[];
-  pipeline_status?: string;
-}
-
-export type ListDetectionsParams = {
-/**
- * @nullable
- */
-date_from?: string | null;
-/**
- * @nullable
- */
-date_to?: string | null;
-/**
- * @nullable
- */
-min_frp?: number | null;
-/**
- * @nullable
- */
-max_frp?: number | null;
-/**
- * @nullable
- */
-min_risk?: number | null;
-/**
- * @nullable
- */
-max_risk?: number | null;
-/**
- * @nullable
- */
-source?: string | null;
-/**
- * @nullable
- */
-region?: string | null;
-/**
- * @nullable
- */
-exclude_noise?: boolean | null;
-/**
- * @nullable
- */
-limit?: number | null;
-/**
- * @nullable
- */
-offset?: number | null;
-};
-
-export type GetDailyStatsParams = {
-/**
- * @nullable
- */
-date_from?: string | null;
-/**
- * @nullable
- */
-date_to?: string | null;
-};
-
-export type ListClustersParams = {
-/**
- * @nullable
- */
-status?: string | null;
-/**
- * @nullable
- */
-region?: string | null;
-/**
- * @nullable
- */
-active_only?: boolean | null;
-/**
- * @nullable
- */
-limit?: number | null;
-};
-
-export type ListPredictionsParams = {
-/**
- * @nullable
- */
-date?: string | null;
-/**
- * @nullable
- */
-region?: string | null;
-/**
- * @nullable
- */
-min_risk?: number | null;
-/**
- * @nullable
- */
-limit?: number | null;
-};
-
-export type GetRiskMapParams = {
-date: string;
-/**
- * @nullable
- */
-min_risk?: number | null;
-};
-
-export type ListAlertsParams = {
-/**
- * @nullable
- */
-level?: string | null;
-/**
- * @nullable
- */
-status?: string | null;
-/**
- * @nullable
- */
-channel?: string | null;
-/**
- * @nullable
- */
-limit?: number | null;
-};
-
-export type VerifySubscriptionBody = {
-  code: string;
-};
-
+export interface ChatResponse { response: string; sources: string[]; data_context?: ChatResponseDataContext; model_used?: string | null; tokens_used?: number | null; response_time_ms?: number | null; }
+export interface DashboardSummary { total_detections_today: number; active_clusters: number; critical_alerts: number; ai_response_time_ms: number; xgboost_accuracy?: number | null; regions_affected_today?: string[]; pipeline_status?: string; }
+export type ListDetectionsParams = { date_from?: string | null; date_to?: string | null; min_frp?: number | null; max_frp?: number | null; min_risk?: number | null; max_risk?: number | null; source?: string | null; region?: string | null; exclude_noise?: boolean | null; limit?: number | null; offset?: number | null; };
+export type GetDailyStatsParams = { date_from?: string | null; date_to?: string | null; };
+export type ListClustersParams = { status?: string | null; region?: string | null; active_only?: boolean | null; limit?: number | null; };
+export type ListPredictionsParams = { date?: string | null; region?: string | null; min_risk?: number | null; limit?: number | null; };
+export type GetRiskMapParams = { date: string; min_risk?: number | null; };
+export type ListAlertsParams = { level?: string | null; status?: string | null; channel?: string | null; limit?: number | null; };
+export type VerifySubscriptionBody = { code: string; };
