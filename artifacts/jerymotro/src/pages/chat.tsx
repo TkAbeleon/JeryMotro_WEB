@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, useCallback, useId, type KeyboardEvent } from "react";
 import { useChatWithAI } from "@workspace/api-client-react";
 import { ArrowDown, AlertTriangle, Bot, BookOpen, Check, Copy, Loader2, Plus, RotateCcw, Send, Sparkles, User, Zap } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
@@ -37,57 +37,58 @@ interface Message {
 }
 
 function normalizeMermaid(source: string) {
-  return source.replace(/^\s*```(?:mermaid)?\s*/i, "").replace(/\s*```\s*$/i, "").replace(/\r\n?/g, "\n").trim();
+  return source
+    .replace(/^\s*```(?:mermaid)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .trim();
 }
 
 function Mermaid({ chart }: { chart: string }) {
   const [svg, setSvg] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const elementId = useRef(`mermaid-${Math.random().toString(36).slice(2, 11)}`);
+  const [ready, setReady] = useState(false);
+  const renderId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const elementId = `mermaid-chat-${renderId}`;
   const source = normalizeMermaid(chart);
 
   useEffect(() => {
     let active = true;
     setSvg("");
-    setError(null);
+    setReady(false);
 
     const render = async () => {
       if (!source) {
-        setError("Diagramme Mermaid vide.");
+        if (active) setReady(true);
         return;
       }
+
       try {
-        await mermaid.parse(source, { suppressErrors: false });
-        const result = await mermaid.render(elementId.current, source);
-        if (active) setSvg(result.svg);
-        document.getElementById(elementId.current)?.remove();
-      } catch (err) {
-        console.error("Mermaid render error:", err);
-        if (active) setError("Impossible de prévisualiser ce diagramme Mermaid.");
-        document.getElementById(elementId.current)?.remove();
+        const result = await mermaid.render(elementId, source);
+        if (!active) return;
+        setSvg(result.svg);
+        setReady(true);
+        document.getElementById(elementId)?.remove();
+      } catch (error) {
+        document.getElementById(elementId)?.remove();
+        if (!active) return;
+        // Mermaid can reject malformed AI-generated syntax. Keep the chat stable
+        // and expose the original source instead of propagating the render error.
+        console.warn("Mermaid diagram could not be rendered:", error);
+        setReady(true);
       }
     };
 
     void render();
+
     return () => {
       active = false;
-      document.getElementById(elementId.current)?.remove();
+      document.getElementById(elementId)?.remove();
     };
-  }, [source]);
+  }, [elementId, source]);
 
-  if (error) {
-    return (
-      <details className="my-4 overflow-hidden rounded-xl border border-destructive/15 bg-destructive/5">
-        <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-destructive">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          {error}
-        </summary>
-        <pre className="max-h-64 overflow-auto border-t border-destructive/10 px-3 py-3 text-[10px] leading-5 text-muted-foreground">{source}</pre>
-      </details>
-    );
-  }
-
-  if (!svg) {
+  if (!ready) {
     return (
       <div className="my-4 flex min-h-24 items-center justify-center rounded-xl border border-border/60 bg-muted/25 text-xs text-muted-foreground">
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -96,8 +97,23 @@ function Mermaid({ chart }: { chart: string }) {
     );
   }
 
+  if (!svg) {
+    return (
+      <details className="my-4 overflow-hidden rounded-xl border border-border/60 bg-muted/20">
+        <summary className="flex cursor-pointer items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          Diagramme Mermaid indisponible — afficher le code source
+        </summary>
+        <pre className="max-h-64 overflow-auto border-t border-border/50 px-3 py-3 text-[10px] leading-5 text-muted-foreground">{source || "Diagramme vide."}</pre>
+      </details>
+    );
+  }
+
   return (
-    <div className="mermaid-chart my-4 overflow-x-auto rounded-xl border border-border/60 bg-background/70 px-3 py-4 sm:px-5 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full" dangerouslySetInnerHTML={{ __html: svg }} />
+    <div
+      className="mermaid-chart my-4 overflow-x-auto rounded-xl border border-border/60 bg-background/70 px-3 py-4 sm:px-5 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
   );
 }
 
@@ -272,7 +288,7 @@ export default function ChatPage() {
                               const codeString = String(children).replace(/\n$/, "");
                               const isBlock = !!className || codeString.includes("\n");
                               if (!isBlock) return <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.84em]" {...props}>{children}</code>;
-                              if (language === "mermaid") return <Mermaid chart={codeString} />;
+                              if (language.toLowerCase() === "mermaid") return <Mermaid chart={codeString} />;
                               return <div className="group/code relative my-4 overflow-hidden rounded-xl border border-border/60 bg-slate-950 text-slate-100 dark:bg-black"><pre className="overflow-x-auto p-4 text-xs leading-6"><code className={className} {...props}>{children}</code></pre><div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover/code:opacity-100 focus-within:opacity-100"><CopyButton text={codeString} label="Copier" copiedLabel="Copié" /></div></div>;
                             },
                             p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
