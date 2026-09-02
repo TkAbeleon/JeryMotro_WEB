@@ -7,7 +7,7 @@ import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useI18n } from "@/hooks/use-i18n";
 import { useToast } from "@/hooks/use-toast";
-import { format, startOfDay, startOfYear, subDays, subMonths } from "date-fns";
+import { format, startOfDay, subDays, subMonths, endOfDay } from "date-fns";
 import { useListDetections } from "@workspace/api-client-react";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -27,6 +27,7 @@ interface FirePoint {
 }
 
 const REGIONS = ["Antananarivo", "Fianarantsoa", "Toamasina", "Mahajanga", "Toliara", "Antsiranana"];
+const MAP_DETECTION_LIMIT = 3000;
 const REGION_BOUNDARIES: Record<string, { minLat: number; maxLat: number; minLng: number; maxLng: number }> = {
   Antananarivo: { minLat: -19.5, maxLat: -15.8, minLng: 46.5, maxLng: 49.5 },
   Fianarantsoa: { minLat: -22.5, maxLat: -19, minLng: 46, maxLng: 48.5 },
@@ -63,25 +64,28 @@ function parseDetectionDate(detection: any): Date | null {
 }
 
 function getPeriodRange(period: Exclude<Period, "custom">, now = new Date()) {
-  const end = now;
   switch (period) {
     case "today":
-      return { from: startOfDay(now), to: end };
+      return { from: startOfDay(now), to: endOfDay(now) };
     case "7d":
-      return { from: startOfDay(subDays(now, 6)), to: end };
+      return { from: startOfDay(subDays(now, 6)), to: endOfDay(now) };
     case "30d":
-      return { from: startOfDay(subDays(now, 29)), to: end };
+      return { from: startOfDay(subDays(now, 29)), to: endOfDay(now) };
     case "90d":
-      return { from: startOfDay(subMonths(now, 3)), to: end };
+      return { from: startOfDay(subDays(now, 89)), to: endOfDay(now) };
     case "1y":
-      return { from: startOfDay(subMonths(now, 12)), to: end };
+      return { from: startOfDay(subMonths(now, 12)), to: endOfDay(now) };
   }
+}
+
+function toApiDate(value: Date) {
+  return format(value, "yyyy-MM-dd");
 }
 
 function isWithinDateRange(value: Date | null, from: Date, to: Date) {
   if (!value) return false;
   const timestamp = value.getTime();
-  return timestamp >= startOfDay(from).getTime() && timestamp <= to.getTime();
+  return timestamp >= startOfDay(from).getTime() && timestamp <= endOfDay(to).getTime();
 }
 
 function MapAttributionFix() {
@@ -123,6 +127,7 @@ export default function MapPage() {
   const [selectedSource, setSelectedSource] = useState("all");
   const [filterOpen, setFilterOpen] = useState(true);
   const [dateRange, setDateRange] = useState(() => getPeriodRange("30d"));
+  const [appliedDateRange, setAppliedDateRange] = useState(() => getPeriodRange("30d"));
   const [showCalendar, setShowCalendar] = useState(false);
   const [hoveredFireId, setHoveredFireId] = useState<number | null>(null);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
@@ -134,9 +139,11 @@ export default function MapPage() {
   const [searching, setSearching] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
-  // Load the dataset once. Every display filter below is deliberately client-side:
-  // risk, region, source and period changes never trigger a data reload.
-  const detectionsQuery = useListDetections({ limit: 10000 });
+  const detectionsQuery = useListDetections({
+    limit: MAP_DETECTION_LIMIT,
+    date_from: toApiDate(appliedDateRange.from),
+    date_to: toApiDate(appliedDateRange.to),
+  });
 
   const fires = useMemo<FirePoint[]>(() => {
     const detections = detectionsQuery.data?.detections ?? [];
@@ -155,20 +162,15 @@ export default function MapPage() {
       .filter((fire) => Number.isFinite(fire.lat) && Number.isFinite(fire.lng));
   }, [detectionsQuery.data]);
 
-  const activeDateRange = useMemo(() => {
-    if (period === "custom") return dateRange;
-    return getPeriodRange(period);
-  }, [period, dateRange]);
-
   const filtered = useMemo(() => {
     return fires.filter((point) => {
       if (!selectedRisks.has(getRiskLevel(point.risk))) return false;
       if (selectedRegion !== "all" && !isInRegion(point.lat, point.lng, selectedRegion)) return false;
       if (selectedSource !== "all" && point.source !== selectedSource) return false;
-      if (!isWithinDateRange(point.detectedAt, activeDateRange.from, activeDateRange.to)) return false;
+      if (!isWithinDateRange(point.detectedAt, appliedDateRange.from, appliedDateRange.to)) return false;
       return true;
     });
-  }, [fires, selectedRisks, selectedRegion, selectedSource, activeDateRange]);
+  }, [fires, selectedRisks, selectedRegion, selectedSource, appliedDateRange]);
 
   const visibleFires = useMemo(() => {
     if (!visibleBounds) return filtered;
@@ -176,14 +178,22 @@ export default function MapPage() {
   }, [filtered, visibleBounds]);
 
   const handlePeriodChange = (next: Exclude<Period, "custom">) => {
+    const nextRange = getPeriodRange(next);
     setPeriod(next);
-    setDateRange(getPeriodRange(next));
+    setDateRange(nextRange);
+    setAppliedDateRange(nextRange);
   };
 
   const handleCustomRangeChange = (range: { from?: Date; to?: Date } | undefined) => {
     if (!range?.from) return;
     setDateRange({ from: range.from, to: range.to ?? range.from });
     setPeriod("custom");
+  };
+
+  const applyCustomRange = () => {
+    setAppliedDateRange({ from: dateRange.from, to: dateRange.to });
+    setPeriod("custom");
+    setShowCalendar(false);
   };
 
   const toggleRisk = (risk: RiskLevel) => {
@@ -196,11 +206,14 @@ export default function MapPage() {
   };
 
   const resetFilters = () => {
+    const nextRange = getPeriodRange("30d");
     setSelectedRisks(new Set(["critical", "high", "medium", "low"]));
     setSelectedRegion("all");
     setSelectedSource("all");
     setPeriod("30d");
-    setDateRange(getPeriodRange("30d"));
+    setDateRange(nextRange);
+    setAppliedDateRange(nextRange);
+    setShowCalendar(false);
   };
 
   const handleLocateMe = () => {
@@ -254,8 +267,7 @@ export default function MapPage() {
         toast({ title: t("common.error" as any), description: data.status === "ZERO_RESULTS" ? t("map.search.noResults" as any) : t("map.search.error" as any), variant: "destructive" });
         setSearchResults([]);
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast({ title: t("common.error" as any), description: t("map.search.error" as any), variant: "destructive" });
     } finally {
       setSearching(false);
@@ -338,7 +350,7 @@ export default function MapPage() {
                 ))}
               </div>
 
-              <button type="button" onClick={() => { setPeriod("custom"); setShowCalendar((value) => !value); }} className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium ${period === "custom" ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-accent"}`}>
+              <button type="button" onClick={() => setShowCalendar((value) => !value)} className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium ${period === "custom" ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-accent"}`}>
                 <span className="flex items-center gap-2"><CalendarIcon className="h-4 w-4" />{format(dateRange.from, "dd/MM/yyyy")} → {format(dateRange.to, "dd/MM/yyyy")}</span>
                 <ChevronDown className={`h-4 w-4 transition-transform ${showCalendar ? "rotate-180" : ""}`} />
               </button>
@@ -346,7 +358,7 @@ export default function MapPage() {
               {showCalendar && (
                 <div className="rounded-lg border border-border bg-background p-2">
                   <Calendar mode="range" selected={{ from: dateRange.from, to: dateRange.to }} onSelect={handleCustomRangeChange as any} numberOfMonths={1} />
-                  <div className="mt-2 flex justify-end"><button type="button" onClick={() => setShowCalendar(false)} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Appliquer</button></div>
+                  <div className="mt-2 flex justify-end"><button type="button" onClick={applyCustomRange} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Appliquer</button></div>
                 </div>
               )}
 
