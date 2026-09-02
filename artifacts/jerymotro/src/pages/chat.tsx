@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useId, type KeyboardEvent } from "react";
+import { memo, useState, useRef, useEffect, useCallback, useId, type KeyboardEvent } from "react";
 import { useChatWithAI } from "@workspace/api-client-react";
 import { ArrowDown, AlertTriangle, Bot, BookOpen, Check, Copy, Loader2, Plus, RotateCcw, Send, Sparkles, User, Zap } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
@@ -46,7 +46,7 @@ function normalizeMermaid(source: string) {
     .trim();
 }
 
-function Mermaid({ chart }: { chart: string }) {
+const Mermaid = memo(function Mermaid({ chart }: { chart: string }) {
   const [svg, setSvg] = useState("");
   const [ready, setReady] = useState(false);
   const renderId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
@@ -73,8 +73,6 @@ function Mermaid({ chart }: { chart: string }) {
       } catch (error) {
         document.getElementById(elementId)?.remove();
         if (!active) return;
-        // Mermaid can reject malformed AI-generated syntax. Keep the chat stable
-        // and expose the original source instead of propagating the render error.
         console.warn("Mermaid diagram could not be rendered:", error);
         setReady(true);
       }
@@ -115,7 +113,7 @@ function Mermaid({ chart }: { chart: string }) {
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
-}
+});
 
 function CopyButton({ text, label, copiedLabel }: { text: string; label: string; copiedLabel: string }) {
   const [copied, setCopied] = useState(false);
@@ -148,6 +146,30 @@ function formatTime(ts?: number) {
   if (!ts) return "";
   try { return new Date(ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }); } catch { return ""; }
 }
+
+const markdownComponents = {
+  code({ className, children, ...props }: any) {
+    const match = /language-(\w+)/.exec(className || "");
+    const language = match ? match[1] : "";
+    const codeString = String(children).replace(/\n$/, "");
+    const isBlock = !!className || codeString.includes("\n");
+    if (!isBlock) return <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.84em]" {...props}>{children}</code>;
+    if (language.toLowerCase() === "mermaid") return <Mermaid chart={codeString} />;
+    return <div className="group/code relative my-4 overflow-hidden rounded-xl border border-border/60 bg-slate-950 text-slate-100 dark:bg-black"><pre className="overflow-x-auto p-4 text-xs leading-6"><code className={className} {...props}>{children}</code></pre><div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover/code:opacity-100 focus-within:opacity-100"><CopyButton text={codeString} label="Copier" copiedLabel="Copié" /></div></div>;
+  },
+  p: ({ children }: any) => <p className="mb-3 last:mb-0">{children}</p>,
+  h1: ({ children }: any) => <h1 className="mb-3 mt-7 text-xl font-bold tracking-tight first:mt-0">{children}</h1>,
+  h2: ({ children }: any) => <h2 className="mb-2 mt-6 text-lg font-semibold tracking-tight first:mt-0">{children}</h2>,
+  h3: ({ children }: any) => <h3 className="mb-2 mt-5 text-base font-semibold first:mt-0">{children}</h3>,
+  ul: ({ children }: any) => <ul className="mb-3 list-disc space-y-1.5 pl-6">{children}</ul>,
+  ol: ({ children }: any) => <ol className="mb-3 list-decimal space-y-1.5 pl-6">{children}</ol>,
+  blockquote: ({ children }: any) => <blockquote className="my-4 border-l-2 border-primary/35 pl-4 text-muted-foreground">{children}</blockquote>,
+  a: ({ children, href }: any) => <a href={href} target="_blank" rel="noreferrer" className="font-medium text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary">{children}</a>,
+  table: ({ children }: any) => <div className="my-4 overflow-x-auto rounded-xl border border-border/60"><table className="w-full text-left text-xs">{children}</table></div>,
+  th: ({ children }: any) => <th className="border-b border-border/60 bg-muted/70 px-3 py-2 font-semibold">{children}</th>,
+  td: ({ children }: any) => <td className="border-b border-border/45 px-3 py-2 align-top last:border-b-0">{children}</td>,
+  hr: () => <hr className="my-6 border-border/55" />,
+};
 
 export default function ChatPage() {
   const { t } = useI18n();
@@ -247,21 +269,10 @@ export default function ChatPage() {
         <div className="mx-auto w-full max-w-3xl px-4 pb-40 pt-7 sm:px-6 sm:pt-10">
           {isWelcomeOnly ? (
             <div className="flex min-h-[calc(100dvh-230px)] flex-col items-center justify-center text-center">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/9 text-primary ring-1 ring-primary/10">
-                <Bot className="h-6 w-6" />
-              </div>
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/9 text-primary ring-1 ring-primary/10"><Bot className="h-6 w-6" /></div>
               <h2 className="max-w-xl text-2xl font-semibold tracking-tight sm:text-[2rem]">{t("chat.emptyTitle")}</h2>
-              <div className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-                {messages[0]?.content.split("\n").map((line, index) => <p key={index}>{line}</p>)}
-              </div>
-              <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">
-                {suggestions.map((suggestion) => (
-                  <button key={suggestion} type="button" onClick={() => void sendMessage(suggestion)} className="group min-h-16 rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-left text-sm text-muted-foreground transition-all hover:border-primary/20 hover:bg-card hover:text-foreground hover:shadow-sm">
-                    <span className="leading-5">{suggestion}</span>
-                    <span className="mt-1 block text-[9px] font-medium uppercase tracking-wider text-muted-foreground/45 transition-colors group-hover:text-primary/65">{t("chat.you")}</span>
-                  </button>
-                ))}
-              </div>
+              <div className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">{messages[0]?.content.split("\n").map((line, index) => <p key={index}>{line}</p>)}</div>
+              <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">{suggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => void sendMessage(suggestion)} className="group min-h-16 rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-left text-sm text-muted-foreground transition-all hover:border-primary/20 hover:bg-card hover:text-foreground hover:shadow-sm"><span className="leading-5">{suggestion}</span><span className="mt-1 block text-[9px] font-medium uppercase tracking-wider text-muted-foreground/45 transition-colors group-hover:text-primary/65">{t("chat.you")}</span></button>)}</div>
             </div>
           ) : (
             <div className="space-y-10">
@@ -269,44 +280,12 @@ export default function ChatPage() {
                 const isUser = message.role === "user";
                 return (
                   <article key={message.id} className={`group flex gap-3 sm:gap-4 ${isUser ? "justify-end" : "justify-start"}`}>
-                    {!isUser && (
-                      <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary ring-1 ring-primary/8">
-                        {message.isError ? <AlertTriangle className="h-3.5 w-3.5 text-destructive" /> : <Bot className="h-3.5 w-3.5" />}
-                      </div>
-                    )}
-
+                    {!isUser && <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary ring-1 ring-primary/8">{message.isError ? <AlertTriangle className="h-3.5 w-3.5 text-destructive" /> : <Bot className="h-3.5 w-3.5" />}</div>}
                     <div className={isUser ? "max-w-[88%] sm:max-w-[72%]" : "min-w-0 max-w-[calc(100%-2.5rem)] flex-1 sm:max-w-[88%]"}>
                       <div className={isUser ? "rounded-[22px] rounded-br-md bg-primary px-4 py-2.5 text-sm leading-6 text-primary-foreground shadow-sm" : message.isError ? "rounded-xl border border-destructive/15 bg-destructive/5 px-3 py-2.5 text-sm leading-6" : "text-sm leading-7 text-foreground"}>
                         {message.isError && <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-destructive"><AlertTriangle className="h-3.5 w-3.5" />{t("common.error")}</div>}
-                        {isUser ? (
-                          <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                        ) : (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                            code({ className, children, ...props }) {
-                              const match = /language-(\w+)/.exec(className || "");
-                              const language = match ? match[1] : "";
-                              const codeString = String(children).replace(/\n$/, "");
-                              const isBlock = !!className || codeString.includes("\n");
-                              if (!isBlock) return <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.84em]" {...props}>{children}</code>;
-                              if (language.toLowerCase() === "mermaid") return <Mermaid chart={codeString} />;
-                              return <div className="group/code relative my-4 overflow-hidden rounded-xl border border-border/60 bg-slate-950 text-slate-100 dark:bg-black"><pre className="overflow-x-auto p-4 text-xs leading-6"><code className={className} {...props}>{children}</code></pre><div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover/code:opacity-100 focus-within:opacity-100"><CopyButton text={codeString} label="Copier" copiedLabel="Copié" /></div></div>;
-                            },
-                            p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
-                            h1: ({ children }) => <h1 className="mb-3 mt-7 text-xl font-bold tracking-tight first:mt-0">{children}</h1>,
-                            h2: ({ children }) => <h2 className="mb-2 mt-6 text-lg font-semibold tracking-tight first:mt-0">{children}</h2>,
-                            h3: ({ children }) => <h3 className="mb-2 mt-5 text-base font-semibold first:mt-0">{children}</h3>,
-                            ul: ({ children }) => <ul className="mb-3 list-disc space-y-1.5 pl-6">{children}</ul>,
-                            ol: ({ children }) => <ol className="mb-3 list-decimal space-y-1.5 pl-6">{children}</ol>,
-                            blockquote: ({ children }) => <blockquote className="my-4 border-l-2 border-primary/35 pl-4 text-muted-foreground">{children}</blockquote>,
-                            a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer" className="font-medium text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary">{children}</a>,
-                            table: ({ children }) => <div className="my-4 overflow-x-auto rounded-xl border border-border/60"><table className="w-full text-left text-xs">{children}</table></div>,
-                            th: ({ children }) => <th className="border-b border-border/60 bg-muted/70 px-3 py-2 font-semibold">{children}</th>,
-                            td: ({ children }) => <td className="border-b border-border/45 px-3 py-2 align-top last:border-b-0">{children}</td>,
-                            hr: () => <hr className="my-6 border-border/55" />,
-                          }}>{message.content}</ReactMarkdown>
-                        )}
+                        {isUser ? <p className="whitespace-pre-wrap break-words">{message.content}</p> : <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{message.content}</ReactMarkdown>}
                       </div>
-
                       <div className={`mt-1.5 flex items-center gap-1 text-[9px] text-muted-foreground/45 ${isUser ? "justify-end" : "justify-start"}`}>
                         {!isUser && <span>{t("chat.assistant")}</span>}
                         {message.createdAt && <span>· {formatTime(message.createdAt)}</span>}
@@ -314,40 +293,18 @@ export default function ChatPage() {
                         {!isUser && !message.isError && <span className="opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100"><CopyButton text={message.content} label="Copier" copiedLabel="Copié" /></span>}
                         {message.isError && message.retryText && <button type="button" onClick={() => void sendMessage(message.retryText || "")} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"><RotateCcw className="h-3 w-3" />Réessayer</button>}
                       </div>
-
-                      {!isUser && message.sources?.length ? (
-                        <details className="mt-2 group/sources">
-                          <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md px-1.5 py-1 text-[9px] font-medium text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground">
-                            <BookOpen className="h-3 w-3" />
-                            {message.sources.length} source{message.sources.length > 1 ? "s" : ""}
-                          </summary>
-                          <div className="mt-1.5 flex flex-wrap gap-1.5 pl-1">{message.sources.map((source) => <span key={source} className="inline-flex max-w-full items-center gap-1 rounded-md border border-border/55 bg-muted/35 px-2 py-1 text-[9px] text-muted-foreground"><BookOpen className="h-2.5 w-2.5 shrink-0" /><span className="truncate">{source}</span></span>)}</div>
-                        </details>
-                      ) : null}
+                      {!isUser && message.sources?.length ? <details className="mt-2 group/sources"><summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md px-1.5 py-1 text-[9px] font-medium text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"><BookOpen className="h-3 w-3" />{message.sources.length} source{message.sources.length > 1 ? "s" : ""}</summary><div className="mt-1.5 flex flex-wrap gap-1.5 pl-1">{message.sources.map((source) => <span key={source} className="inline-flex max-w-full items-center gap-1 rounded-md border border-border/55 bg-muted/35 px-2 py-1 text-[9px] text-muted-foreground"><BookOpen className="h-2.5 w-2.5 shrink-0" /><span className="truncate">{source}</span></span>)}</div></details> : null}
                     </div>
-
                     {isUser && <div className="mt-1 hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground sm:flex"><User className="h-3.5 w-3.5" /></div>}
                   </article>
                 );
               })}
-
-              {chatMutation.isPending && (
-                <article className="flex gap-3 sm:gap-4">
-                  <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary ring-1 ring-primary/8"><Bot className="h-3.5 w-3.5" /></div>
-                  <div className="flex items-center gap-1.5 pt-2"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/70" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/45 [animation-delay:150ms]" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/25 [animation-delay:300ms]" /></div>
-                </article>
-              )}
-
+              {chatMutation.isPending && <article className="flex gap-3 sm:gap-4"><div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary ring-1 ring-primary/8"><Bot className="h-3.5 w-3.5" /></div><div className="flex items-center gap-1.5 pt-2"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/70" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/45 [animation-delay:150ms]" /><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary/25 [animation-delay:300ms]" /></div></article>}
               <div ref={messagesEndRef} />
             </div>
           )}
         </div>
-
-        {!isAtBottom && messages.length > 1 && (
-          <button type="button" onClick={() => scrollToBottom()} className="fixed bottom-28 left-1/2 z-20 -translate-x-1/2 rounded-full border border-border/60 bg-background/95 px-3 py-2 text-xs font-medium shadow-lg backdrop-blur-xl">
-            <span className="inline-flex items-center gap-2"><ArrowDown className="h-3.5 w-3.5" />{unreadCount > 0 ? `${unreadCount} nouveaux messages` : "Revenir en bas"}</span>
-          </button>
-        )}
+        {!isAtBottom && messages.length > 1 && <button type="button" onClick={() => scrollToBottom()} className="fixed bottom-28 left-1/2 z-20 -translate-x-1/2 rounded-full border border-border/60 bg-background/95 px-3 py-2 text-xs font-medium shadow-lg backdrop-blur-xl"><span className="inline-flex items-center gap-2"><ArrowDown className="h-3.5 w-3.5" />{unreadCount > 0 ? `${unreadCount} nouveaux messages` : "Revenir en bas"}</span></button>}
       </div>
 
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-background via-background/92 to-transparent pb-4 pt-12 sm:pb-5">
@@ -357,11 +314,7 @@ export default function ChatPage() {
               <textarea ref={textareaRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={handleKeyDown} onCompositionStart={() => { isComposingRef.current = true; }} onCompositionEnd={() => { isComposingRef.current = false; }} rows={1} maxLength={MAX_MESSAGE_LENGTH} placeholder={t("chat.inputPlaceholder")} aria-label={t("chat.inputPlaceholder")} className="max-h-44 min-h-11 flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-sm leading-6 outline-none placeholder:text-muted-foreground/55 focus:ring-0" />
               <button type="submit" disabled={!input.trim() || chatMutation.isPending || remaining < 0} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-all hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Envoyer le message">{chatMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}</button>
             </div>
-            <div className="flex items-center justify-between px-3 pb-0.5 pt-0.5 text-[9px] text-muted-foreground/45">
-              <span className="hidden sm:inline">Entrée pour envoyer · Shift + Entrée pour une nouvelle ligne</span>
-              <span className="sm:hidden">Entrée pour envoyer</span>
-              <span className={remaining < 100 ? "text-primary" : undefined}>{remaining} caractères</span>
-            </div>
+            <div className="flex items-center justify-between px-3 pb-0.5 pt-0.5 text-[9px] text-muted-foreground/45"><span className="hidden sm:inline">Entrée pour envoyer · Shift + Entrée pour une nouvelle ligne</span><span className="sm:hidden">Entrée pour envoyer</span><span className={remaining < 100 ? "text-primary" : undefined}>{remaining} caractères</span></div>
           </form>
         </div>
       </div>
