@@ -55,6 +55,29 @@ jobs:
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a ../artifacts/jerymotro/dist/public/. .
 
+          cat > vercel.json <<'EOF'
+          {
+            "rewrites": [
+              {
+                "source": "/(.*)",
+                "destination": "/index.html"
+              }
+            ]
+          }
+          EOF
+
+          cat > wrangler.jsonc <<'EOF'
+          {
+            "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+            "name": "jerymotro",
+            "compatibility_date": "2026-09-03",
+            "assets": {
+              "directory": ".",
+              "not_found_handling": "single-page-application"
+            }
+          }
+          EOF
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
