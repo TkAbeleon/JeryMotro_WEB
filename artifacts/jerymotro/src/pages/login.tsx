@@ -29,8 +29,32 @@ function apiError(err: unknown, fallback: string) {
 
 function channelMeta(via: OtpVia) {
   if (via === "email") return { label: "Email", type: "email", placeholder: "vous@exemple.mg", icon: Mail, hint: "Utilisez l’adresse e-mail déjà associée à votre compte." };
-  if (via === "sms") return { label: "SMS", type: "tel", placeholder: "+261 32 00 000 00", icon: Smartphone, hint: "Utilisez le numéro SMS déjà enregistré sur votre compte." };
-  return { label: "WhatsApp", type: "tel", placeholder: "+261 32 00 000 00", icon: MessageCircle, hint: "Utilisez le numéro WhatsApp déjà enregistré sur votre compte." };
+  if (via === "sms") return { label: "SMS", type: "tel", placeholder: "+261 38 82 229 47", icon: Smartphone, hint: "Utilisez le numéro SMS déjà enregistré sur votre compte." };
+  return { label: "WhatsApp", type: "tel", placeholder: "+261 38 82 229 47", icon: MessageCircle, hint: "Utilisez le numéro WhatsApp déjà enregistré sur votre compte." };
+}
+
+function normalizePhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 0) return "";
+  if (digits.length === 12 && digits.startsWith("261")) return `+${digits}`;
+  return "";
+}
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  const international = digits.startsWith("261") ? digits : `261${digits}`;
+  const local = international.slice(3, 12);
+  const groups: string[] = [];
+  if (local.length > 0) groups.push(local.slice(0, 2));
+  if (local.length > 2) groups.push(local.slice(2, 4));
+  if (local.length > 4) groups.push(local.slice(4, 7));
+  if (local.length > 7) groups.push(local.slice(7, 9));
+  return groups.length ? `+261 ${groups.join(" ")}` : "+261";
+}
+
+function phoneValidationMessage() {
+  return "Numéro invalide. Utilisez un numéro malgache au format +261 38 82 229 47.";
 }
 
 export default function LoginPage() {
@@ -59,58 +83,134 @@ export default function LoginPage() {
     return () => window.clearInterval(timer);
   }, [cooldown]);
 
-  const switchMode = (next: LoginMode) => { setMode(next); setError(""); setShowRegisterPrompt(false); setOtpStep("request"); setOtpCode(""); setCooldown(0); };
+  const switchMode = (next: LoginMode) => {
+    setMode(next);
+    setError("");
+    setShowRegisterPrompt(false);
+    setOtpStep("request");
+    setOtpCode("");
+    setOtpIdentifier("");
+    setCooldown(0);
+    otpForm.reset({ identifier: "" });
+  };
 
   const buildOtpPayload = (identifier: string) => {
     const normalized = identifier.trim();
     if (otpVia === "email") return { via: otpVia, email: normalized };
-    if (otpVia === "sms") return { via: otpVia, phone_number: normalized };
-    return { via: otpVia, whatsapp_number: normalized };
+    const phone = normalizePhone(normalized);
+    if (otpVia === "sms") return { via: otpVia, phone_number: phone };
+    return { via: otpVia, whatsapp_number: phone };
   };
 
   const validateIdentifier = (identifier: string) => {
     if (otpVia === "email") return z.string().email("Email invalide").safeParse(identifier.trim()).success;
-    return /^\+?\d{7,15}$/.test(identifier.replace(/[\s()-]/g, ""));
+    return Boolean(normalizePhone(identifier));
+  };
+
+  const markNoAccount = (message: string) => {
+    setError(message);
+    setShowRegisterPrompt(true);
+    otpForm.setError("identifier", { type: "server", message: "Aucun compte JeryMotro n’est associé à ce numéro." });
   };
 
   const requestOtp = async ({ identifier }: OtpFormData) => {
-    setError(""); setShowRegisterPrompt(false);
-    if (!validateIdentifier(identifier)) { setError(otpVia === "email" ? "Email invalide." : "Numéro invalide. Utilisez un numéro au format international, par exemple +261320000000."); return; }
+    setError("");
+    setShowRegisterPrompt(false);
+    otpForm.clearErrors("identifier");
+
+    if (!validateIdentifier(identifier)) {
+      const message = otpVia === "email" ? "Email invalide." : phoneValidationMessage();
+      otpForm.setError("identifier", { type: "manual", message });
+      return;
+    }
+
+    const displayIdentifier = otpVia === "email" ? identifier.trim() : formatPhone(identifier);
+    const payload = buildOtpPayload(displayIdentifier);
+
     try {
-      await requestOtpMutation.mutateAsync({ data: buildOtpPayload(identifier) });
-      setOtpIdentifier(identifier.trim()); setOtpCode(""); setOtpStep("verify"); setCooldown(60);
+      await requestOtpMutation.mutateAsync({ data: payload });
+      setOtpIdentifier(displayIdentifier);
+      setOtpCode("");
+      setOtpStep("verify");
+      setCooldown(60);
     } catch (err) {
       const message = apiError(err, "Impossible d'envoyer le code OTP.");
+      if ((err as { status?: number })?.status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) {
+        markNoAccount(message);
+        return;
+      }
       setError(message);
-      if ((err as { status?: number })?.status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) setShowRegisterPrompt(true);
+      if ((err as { status?: number })?.status === 422 && otpVia !== "email") {
+        otpForm.setError("identifier", { type: "server", message: phoneValidationMessage() });
+      }
     }
   };
 
   const resendOtp = async () => {
-    if (!otpIdentifier || cooldown || requestOtpMutation.isPending) return;
+    if (!otpIdentifier || cooldown || requestOtpMutation.isPending || showRegisterPrompt) return;
     setError("");
-    try { await requestOtpMutation.mutateAsync({ data: buildOtpPayload(otpIdentifier) }); setOtpCode(""); setCooldown(60); }
-    catch (err) { setError(apiError(err, "Impossible d'envoyer le code OTP.")); }
+    try {
+      await requestOtpMutation.mutateAsync({ data: buildOtpPayload(otpIdentifier) });
+      setOtpCode("");
+      setCooldown(60);
+    } catch (err) {
+      const message = apiError(err, "Impossible d'envoyer le code OTP.");
+      if ((err as { status?: number })?.status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) {
+        markNoAccount(message);
+        setOtpStep("request");
+        return;
+      }
+      setError(message);
+    }
   };
 
   const verifyOtp = async () => {
-    if (otpCode.length !== 6) { setError("Veuillez saisir les 6 chiffres du code."); return; }
+    if (otpCode.length !== 6) {
+      setError("Veuillez saisir les 6 chiffres du code.");
+      return;
+    }
     setError("");
     try {
       const result = await verifyOtpMutation.mutateAsync({ data: { ...buildOtpPayload(otpIdentifier), code: otpCode } });
-      login(result); setLocation("/dashboard");
-    } catch (err) { setError(apiError(err, "Code OTP invalide ou expiré.")); }
+      login(result);
+      setLocation("/dashboard");
+    } catch (err) {
+      const message = apiError(err, "Code OTP invalide ou expiré.");
+      if ((err as { status?: number })?.status === 404 || /aucun compte|créer un compte|assoc[ií]é/i.test(message)) {
+        markNoAccount(message);
+        setOtpStep("request");
+        return;
+      }
+      if ((err as { status?: number })?.status === 400) {
+        setError("Code OTP invalide ou expiré. Vérifiez les 6 chiffres puis réessayez.");
+      } else {
+        setError(message);
+      }
+    }
   };
 
   const onSubmit = async (data: FormData, event?: React.BaseSyntheticEvent) => {
-    event?.preventDefault(); setError("");
-    if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) { login(DEMO_TOKEN_DATA); setLocation("/dashboard"); return; }
-    try { const result = await loginMutation.mutateAsync({ data }); login(result); setLocation("/dashboard"); }
-    catch (err) { setError(apiError(err, t("auth.login.error"))); }
+    event?.preventDefault();
+    setError("");
+    if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) {
+      login(DEMO_TOKEN_DATA);
+      setLocation("/dashboard");
+      return;
+    }
+    try {
+      const result = await loginMutation.mutateAsync({ data });
+      login(result);
+      setLocation("/dashboard");
+    } catch (err) {
+      setError(apiError(err, t("auth.login.error")));
+    }
   };
 
   const meta = channelMeta(otpVia);
   const ChannelIcon = meta.icon;
+  const otpIdentifierValue = otpForm.watch("identifier") || "";
+  const otpIdentifierValid = validateIdentifier(otpIdentifierValue);
+  const sendDisabled = requestOtpMutation.isPending || !otpIdentifierValid || showRegisterPrompt;
 
   return <div className="min-h-screen bg-background flex">
     <div className="hidden lg:flex flex-col w-[480px] bg-sidebar border-r border-border p-10 justify-between">
@@ -128,13 +228,14 @@ export default function LoginPage() {
         {showRegisterPrompt && <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-sm"><p className="font-medium">Aucun compte trouvé</p><p className="mt-1 text-muted-foreground">Cet identifiant n’est associé à aucun compte JeryMotro. Créez un compte pour continuer.</p><Link href="/register" className="inline-flex mt-3 h-9 px-3 items-center rounded-md bg-primary text-primary-foreground text-sm font-semibold">Créer un compte</Link></div>}
         {otpStep === "request" ? <>
           <div className="rounded-xl border border-border bg-card/40 p-4"><div className="flex items-start gap-3"><div className="w-9 h-9 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center"><ShieldCheck className="w-4 h-4 text-primary" /></div><div><p className="text-sm font-medium">Connexion par code</p><p className="text-xs text-muted-foreground mt-1">Choisissez votre canal puis utilisez l’identifiant déjà enregistré sur votre compte.</p></div></div></div>
-          <div className="space-y-2"><label className="text-sm font-medium leading-none">Recevoir le code via</label><div className="grid grid-cols-3 gap-2">{(["email", "sms", "whatsapp"] as OtpVia[]).map(via => { const m = channelMeta(via); const Icon = m.icon; return <button key={via} type="button" onClick={() => { setOtpVia(via); setError(""); setShowRegisterPrompt(false); otpForm.setValue("identifier", ""); }} className={`h-11 rounded-md border text-sm flex items-center justify-center gap-2 ${otpVia === via ? "border-primary bg-primary/10 text-foreground" : "border-input bg-secondary text-muted-foreground"}`}><Icon className="w-4 h-4" />{m.label}</button>; })}</div></div>
-          <Form {...otpForm}><form onSubmit={e => { e.preventDefault(); otpForm.handleSubmit(requestOtp)(e); }} className="space-y-4"><FormField control={otpForm.control} name="identifier" render={({ field }) => <FormItem><FormLabel>{meta.label}</FormLabel><FormControl><input {...field} type={meta.type} data-testid="input-otp-identifier" placeholder={meta.placeholder} className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none" /></FormControl><p className="text-xs text-muted-foreground">{meta.hint}</p><FormMessage /></FormItem>} /><button type="submit" disabled={requestOtpMutation.isPending} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{requestOtpMutation.isPending ? "Envoi..." : "Envoyer le code"}</button></form></Form>
+          <div className="space-y-2"><label className="text-sm font-medium leading-none">Recevoir le code via</label><div className="grid grid-cols-3 gap-2">{(["email", "sms", "whatsapp"] as OtpVia[]).map(via => { const m = channelMeta(via); const Icon = m.icon; return <button key={via} type="button" onClick={() => { setOtpVia(via); setError(""); setShowRegisterPrompt(false); otpForm.reset({ identifier: "" }); otpForm.clearErrors(); }} className={`h-11 rounded-md border text-sm flex items-center justify-center gap-2 ${otpVia === via ? "border-primary bg-primary/10 text-foreground" : "border-input bg-secondary text-muted-foreground"}`}><Icon className="w-4 h-4" />{m.label}</button>; })}</div></div>
+          <Form {...otpForm}><form onSubmit={e => { e.preventDefault(); otpForm.handleSubmit(requestOtp)(e); }} className="space-y-4"><FormField control={otpForm.control} name="identifier" render={({ field }) => <FormItem><FormLabel>{meta.label}</FormLabel><FormControl><input {...field} value={otpVia === "email" ? field.value : formatPhone(field.value)} onChange={e => { const next = otpVia === "email" ? e.target.value : formatPhone(e.target.value); field.onChange(next); setError(""); setShowRegisterPrompt(false); otpForm.clearErrors("identifier"); }} type={meta.type} inputMode={otpVia === "email" ? "email" : "tel"} data-testid="input-otp-identifier" placeholder={meta.placeholder} autoComplete={otpVia === "email" ? "email" : "tel"} className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none" /></FormControl><p className="text-xs text-muted-foreground">{meta.hint}</p><FormMessage /></FormItem>} /><button type="submit" disabled={sendDisabled} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{requestOtpMutation.isPending ? "Envoi..." : showRegisterPrompt ? "Créer un compte pour continuer" : "Envoyer le code"}</button></form></Form>
         </> : <>
-          <div className="text-center rounded-xl border border-border bg-card/40 p-5"><div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3"><ChannelIcon className="w-4 h-4 text-primary" /></div><p className="text-sm font-medium">Code de connexion</p><p className="text-xs text-muted-foreground mt-1 break-all">{otpIdentifier}</p><p className="text-xs text-muted-foreground mt-1">Envoyé via {meta.label}</p></div>
+          <div className="text-center rounded-xl border border-border bg-card/40 p-5"><div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3"><ChannelIcon className="w-4 h-4 text-primary" /></div><p className="text-sm font-medium">Code de connexion</p><p className="text-xs text-muted-foreground break-all">{otpIdentifier}</p><p className="text-xs text-muted-foreground mt-1">Envoyé via {meta.label}</p></div>
           <div className="flex justify-center"><InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} aria-label="Code OTP" inputMode="numeric"><InputOTPGroup>{Array.from({ length: 6 }, (_, i) => <InputOTPSlot key={i} index={i} />)}</InputOTPGroup></InputOTP></div>
+          {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <button type="button" onClick={verifyOtp} disabled={verifyOtpMutation.isPending || otpCode.length !== 6} className="w-full h-10 bg-primary text-primary-foreground rounded-md font-semibold text-sm hover:opacity-90 disabled:opacity-50">{verifyOtpMutation.isPending ? "Vérification..." : "Se connecter"}</button>
-          <div className="flex items-center justify-between text-xs"><button type="button" onClick={() => { setOtpStep("request"); setError(""); setShowRegisterPrompt(false); }} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><ArrowLeft className="w-3.5 h-3.5" />Changer de {otpVia === "email" ? "e-mail" : "numéro"}</button><button type="button" onClick={resendOtp} disabled={cooldown > 0 || requestOtpMutation.isPending} className="text-primary hover:underline disabled:text-muted-foreground">{cooldown ? `Renvoyer dans ${cooldown}s` : "Renvoyer le code"}</button></div>
+          <div className="flex items-center justify-between text-xs"><button type="button" onClick={() => { setOtpStep("request"); setError(""); setShowRegisterPrompt(false); }} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><ArrowLeft className="w-3.5 h-3.5" />Changer de {otpVia === "email" ? "e-mail" : "numéro"}</button><button type="button" onClick={resendOtp} disabled={cooldown > 0 || requestOtpMutation.isPending || showRegisterPrompt} className="text-primary hover:underline disabled:text-muted-foreground">{cooldown ? `Renvoyer dans ${cooldown}s` : "Renvoyer le code"}</button></div>
         </>}
       </div>}
     </div></div>
