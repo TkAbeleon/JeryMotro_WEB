@@ -27,7 +27,8 @@ interface FirePoint {
 }
 
 const REGIONS = ["Antananarivo", "Fianarantsoa", "Toamasina", "Mahajanga", "Toliara", "Antsiranana"];
-const MAP_DETECTION_LIMIT = 3000;
+const DEFAULT_MAP_LIMIT = 3000;
+const UNLIMITED_MAP_LIMIT = 10000;
 const REGION_BOUNDARIES: Record<string, { minLat: number; maxLat: number; minLng: number; maxLng: number }> = {
   Antananarivo: { minLat: -19.5, maxLat: -15.8, minLng: 46.5, maxLng: 49.5 },
   Fianarantsoa: { minLat: -22.5, maxLat: -19, minLng: 46, maxLng: 48.5 },
@@ -65,16 +66,11 @@ function parseDetectionDate(detection: any): Date | null {
 
 function getPeriodRange(period: Exclude<Period, "custom">, now = new Date()) {
   switch (period) {
-    case "today":
-      return { from: startOfDay(now), to: endOfDay(now) };
-    case "7d":
-      return { from: startOfDay(subDays(now, 6)), to: endOfDay(now) };
-    case "30d":
-      return { from: startOfDay(subDays(now, 29)), to: endOfDay(now) };
-    case "90d":
-      return { from: startOfDay(subDays(now, 89)), to: endOfDay(now) };
-    case "1y":
-      return { from: startOfDay(subMonths(now, 12)), to: endOfDay(now) };
+    case "today": return { from: startOfDay(now), to: endOfDay(now) };
+    case "7d": return { from: startOfDay(subDays(now, 6)), to: endOfDay(now) };
+    case "30d": return { from: startOfDay(subDays(now, 29)), to: endOfDay(now) };
+    case "90d": return { from: startOfDay(subDays(now, 89)), to: endOfDay(now) };
+    case "1y": return { from: startOfDay(subMonths(now, 12)), to: endOfDay(now) };
   }
 }
 
@@ -90,9 +86,7 @@ function isWithinDateRange(value: Date | null, from: Date, to: Date) {
 
 function MapAttributionFix() {
   const map = useMap();
-  useEffect(() => {
-    map.zoomControl?.remove();
-  }, [map]);
+  useEffect(() => { map.zoomControl?.remove(); }, [map]);
   return null;
 }
 
@@ -120,14 +114,15 @@ const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 export default function MapPage() {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [mapStyle, setMapStyle] = useState<"satellite" | "roadmap" | "dark">("satellite");
-  const [period, setPeriod] = useState<Period>("30d");
+  const [mapStyle] = useState<"satellite" | "roadmap" | "dark">("satellite");
+  const [period, setPeriod] = useState<Period>("7d");
   const [selectedRisks, setSelectedRisks] = useState<Set<RiskLevel>>(new Set(["critical", "high", "medium", "low"]));
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedSource, setSelectedSource] = useState("all");
   const [filterOpen, setFilterOpen] = useState(true);
-  const [dateRange, setDateRange] = useState(() => getPeriodRange("30d"));
-  const [appliedDateRange, setAppliedDateRange] = useState(() => getPeriodRange("30d"));
+  const [limitEnabled, setLimitEnabled] = useState(true);
+  const [dateRange, setDateRange] = useState(() => getPeriodRange("7d"));
+  const [appliedDateRange, setAppliedDateRange] = useState(() => getPeriodRange("7d"));
   const [showCalendar, setShowCalendar] = useState(false);
   const [hoveredFireId, setHoveredFireId] = useState<number | null>(null);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
@@ -140,37 +135,33 @@ export default function MapPage() {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   const detectionsQuery = useListDetections({
-    limit: MAP_DETECTION_LIMIT,
+    limit: limitEnabled ? DEFAULT_MAP_LIMIT : UNLIMITED_MAP_LIMIT,
     date_from: toApiDate(appliedDateRange.from),
     date_to: toApiDate(appliedDateRange.to),
   });
 
   const fires = useMemo<FirePoint[]>(() => {
     const detections = detectionsQuery.data?.detections ?? [];
-    return detections
-      .map((d) => ({
-        id: d.id,
-        lat: d.latitude,
-        lng: d.longitude,
-        risk: d.risk_score ?? 0,
-        confidence: d.confidence_num ?? (d.confidence ? Number.parseInt(d.confidence, 10) : 0),
-        brightness: d.brightness ?? 0,
-        source: String(d.source ?? "").toLowerCase().includes("viirs") ? "VIIRS" : "MODIS",
-        region: d.region || "Inconnue",
-        detectedAt: parseDetectionDate(d),
-      }))
-      .filter((fire) => Number.isFinite(fire.lat) && Number.isFinite(fire.lng));
+    return detections.map((d) => ({
+      id: d.id,
+      lat: d.latitude,
+      lng: d.longitude,
+      risk: d.risk_score ?? 0,
+      confidence: d.confidence_num ?? (d.confidence ? Number.parseInt(d.confidence, 10) : 0),
+      brightness: d.brightness ?? 0,
+      source: String(d.source ?? "").toLowerCase().includes("viirs") ? "VIIRS" : "MODIS",
+      region: d.region || "Inconnue",
+      detectedAt: parseDetectionDate(d),
+    })).filter((fire) => Number.isFinite(fire.lat) && Number.isFinite(fire.lng));
   }, [detectionsQuery.data]);
 
-  const filtered = useMemo(() => {
-    return fires.filter((point) => {
-      if (!selectedRisks.has(getRiskLevel(point.risk))) return false;
-      if (selectedRegion !== "all" && !isInRegion(point.lat, point.lng, selectedRegion)) return false;
-      if (selectedSource !== "all" && point.source !== selectedSource) return false;
-      if (!isWithinDateRange(point.detectedAt, appliedDateRange.from, appliedDateRange.to)) return false;
-      return true;
-    });
-  }, [fires, selectedRisks, selectedRegion, selectedSource, appliedDateRange]);
+  const filtered = useMemo(() => fires.filter((point) => {
+    if (!selectedRisks.has(getRiskLevel(point.risk))) return false;
+    if (selectedRegion !== "all" && !isInRegion(point.lat, point.lng, selectedRegion)) return false;
+    if (selectedSource !== "all" && point.source !== selectedSource) return false;
+    if (!isWithinDateRange(point.detectedAt, appliedDateRange.from, appliedDateRange.to)) return false;
+    return true;
+  }), [fires, selectedRisks, selectedRegion, selectedSource, appliedDateRange]);
 
   const visibleFires = useMemo(() => {
     if (!visibleBounds) return filtered;
@@ -199,20 +190,20 @@ export default function MapPage() {
   const toggleRisk = (risk: RiskLevel) => {
     setSelectedRisks((previous) => {
       const next = new Set(previous);
-      if (next.has(risk)) next.delete(risk);
-      else next.add(risk);
+      if (next.has(risk)) next.delete(risk); else next.add(risk);
       return next;
     });
   };
 
   const resetFilters = () => {
-    const nextRange = getPeriodRange("30d");
+    const nextRange = getPeriodRange("7d");
     setSelectedRisks(new Set(["critical", "high", "medium", "low"]));
     setSelectedRegion("all");
     setSelectedSource("all");
-    setPeriod("30d");
+    setPeriod("7d");
     setDateRange(nextRange);
     setAppliedDateRange(nextRange);
+    setLimitEnabled(true);
     setShowCalendar(false);
   };
 
@@ -276,6 +267,7 @@ export default function MapPage() {
 
   const onBoundsChange = useCallback((bounds: L.LatLngBounds) => setVisibleBounds(bounds), []);
   const isLoading = detectionsQuery.isLoading;
+  const isRefreshing = detectionsQuery.isFetching && !detectionsQuery.isLoading;
 
   return (
     <div className="relative h-[calc(100vh-4rem)] min-h-[620px] overflow-hidden bg-background">
@@ -327,6 +319,7 @@ export default function MapPage() {
             <button type="button" onClick={handleLocateMe} className="rounded-xl border border-card-border bg-card/95 p-3 shadow-lg backdrop-blur hover:bg-accent" aria-label="Me localiser">{locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Compass className="h-4 w-4" />}</button>
           </div>
         </div>
+        {isRefreshing && <div className="pointer-events-none mt-2 text-right text-[11px] text-white/80">Mise à jour des données…</div>}
       </div>
 
       {isLoading && (
@@ -376,8 +369,16 @@ export default function MapPage() {
                 <label className="space-y-1 text-xs"><span className="text-muted-foreground">Source</span><select value={selectedSource} onChange={(e) => setSelectedSource(e.target.value)} className="h-9 w-full rounded-lg border border-border bg-background px-2 text-xs"><option value="all">Toutes</option><option value="MODIS">MODIS</option><option value="VIIRS">VIIRS</option></select></label>
               </div>
 
+              <label className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs">
+                <span>
+                  <span className="block font-medium">Limiter les résultats</span>
+                  <span className="text-[10px] text-muted-foreground">{limitEnabled ? `${DEFAULT_MAP_LIMIT.toLocaleString("fr-FR")} détections max` : "Jusqu’à 10 000 détections"}</span>
+                </span>
+                <input type="checkbox" checked={limitEnabled} onChange={(e) => setLimitEnabled(e.target.checked)} className="h-4 w-4 accent-primary" />
+              </label>
+
               <div className="flex items-center justify-between border-t border-border pt-2 text-[11px] text-muted-foreground">
-                <span>{filtered.length} résultat(s)</span>
+                <span>{filtered.length} résultat(s){limitEnabled && detectionsQuery.data && detectionsQuery.data.total > DEFAULT_MAP_LIMIT ? " • affichage plafonné" : ""}</span>
                 <button type="button" onClick={resetFilters} className="hover:text-foreground">Réinitialiser les filtres</button>
               </div>
             </div>
@@ -386,9 +387,7 @@ export default function MapPage() {
       </div>
 
       {userLocation && (
-        <div className="pointer-events-none absolute right-4 bottom-4 z-[500] rounded-full border border-card-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow backdrop-blur">
-          Position : {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
-        </div>
+        <div className="pointer-events-none absolute right-4 bottom-4 z-[500] rounded-full border border-card-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow backdrop-blur">Position : {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</div>
       )}
 
       {showSearchModal && (
