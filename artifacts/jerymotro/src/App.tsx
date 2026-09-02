@@ -19,7 +19,6 @@ import LegalPage from "@/pages/legal";
 import PrivacyPage from "@/pages/privacy";
 import AboutPage from "@/pages/about";
 import CvPage from "@/pages/cv";
-// Leaflet is kept lazy so the SSR server never evaluates browser-only map modules.
 const MapPage = lazy(() => import("@/pages/map-redesign"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const DetectionsPage = lazy(() => import("@/pages/detections"));
@@ -103,8 +102,6 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
   );
 }
 
-// Map and Dashboard remain public when anonymous, while authenticated users
-// get the full application shell. The shell itself owns the public/private UI.
 function AdaptiveRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAuth();
   const { t } = useI18n();
@@ -153,10 +150,10 @@ function Router() {
   );
 }
 
-function App({ initialLang }: { initialLang?: "fr" | "mg" | "en" }) {
+function App({ initialLang, initialUrl }: { initialLang?: "fr" | "mg" | "en"; initialUrl?: string }) {
   const getWouterBase = () => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-    const path = typeof window !== "undefined" ? window.location.pathname : "/";
+    const path = initialUrl ?? (typeof window !== "undefined" ? window.location.pathname : "/");
     const match = path.match(/^\/(fr|mg|en)\b/);
     return match ? `${base}/${match[1]}` : base;
   };
@@ -167,7 +164,10 @@ function App({ initialLang }: { initialLang?: "fr" | "mg" | "en" }) {
         <I18nProvider initialLang={initialLang}>
           <AuthProvider>
             <TooltipProvider>
-              <WouterRouter base={getWouterBase()}>
+              <WouterRouter
+                base={getWouterBase()}
+                ssrPath={typeof window === "undefined" ? initialUrl : undefined}
+              >
                 <Router />
               </WouterRouter>
               <Toaster />
