@@ -37,6 +37,7 @@ jobs:
         env:
           PRERENDER_BASE_URL: https://jerymotro.duckdns.org
           VITE_SITE_URL: https://jerymotro.duckdns.org
+          VITE_API_URL: https://api.jerymotro.duckdns.org/
 
       - name: Checkout redirect-jeridmotro
         uses: actions/checkout@v4
