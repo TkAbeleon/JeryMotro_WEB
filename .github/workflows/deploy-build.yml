@@ -1,0 +1,70 @@
+name: Build and publish static site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout JeryMotro_WEB
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend and SSG
+        working-directory: artifacts/jerymotro
+        run: pnpm run build
+        env:
+          PRERENDER_BASE_URL: https://jerymotro.duckdns.org
+          VITE_SITE_URL: https://jerymotro.duckdns.org
+
+      - name: Publish dist/public to redirect-jeridmotro
+        env:
+          TARGET_TOKEN: ${{ secrets.REDIRECT_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TARGET_TOKEN}" ]; then
+            echo "Missing REDIRECT_REPO_TOKEN repository secret."
+            exit 1
+          fi
+
+          git clone --depth 1 \
+            "https://x-access-token:${TARGET_TOKEN}@github.com/TkAbeleon/redirect-jeridmotro.git" \
+            target
+
+          find target -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          cp -a artifacts/jerymotro/dist/public/. target/
+
+          cd target
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes to publish."
+            exit 0
+          fi
+
+          git commit -m "chore: publish JeryMotro production build"
+          git push origin main
