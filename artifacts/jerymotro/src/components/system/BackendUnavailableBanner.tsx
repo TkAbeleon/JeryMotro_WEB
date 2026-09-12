@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { ServerOff } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 
@@ -19,9 +20,77 @@ const messages = {
   },
 } as const;
 
+const HEALTH_CHECK_INTERVAL_MS = 30_000;
+const HEALTH_CHECK_TIMEOUT_MS = 8_000;
+
+type BackendStatus = "checking" | "online" | "offline";
+
+function getHealthUrl(): string | null {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  if (!apiUrl) return null;
+
+  return `${apiUrl.replace(/\/+$/, "")}/health`;
+}
+
+async function checkBackendHealth(signal: AbortSignal): Promise<boolean> {
+  const healthUrl = getHealthUrl();
+
+  if (!healthUrl) return false;
+
+  try {
+    const response = await fetch(healthUrl, {
+      method: "GET",
+      cache: "no-store",
+      signal,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) return false;
+
+    const data = (await response.json()) as { status?: unknown };
+    return data?.status === "ok";
+  } catch {
+    return false;
+  }
+}
+
 export function BackendUnavailableBanner() {
   const { lang } = useI18n();
+  const [status, setStatus] = useState<BackendStatus>("checking");
   const message = messages[lang];
+
+  useEffect(() => {
+    let disposed = false;
+    let timeoutId: number | undefined;
+
+    const runCheck = async () => {
+      const controller = new AbortController();
+      const abortTimeoutId = window.setTimeout(
+        () => controller.abort(),
+        HEALTH_CHECK_TIMEOUT_MS,
+      );
+
+      const online = await checkBackendHealth(controller.signal);
+      window.clearTimeout(abortTimeoutId);
+
+      if (disposed) return;
+
+      setStatus(online ? "online" : "offline");
+      timeoutId = window.setTimeout(runCheck, HEALTH_CHECK_INTERVAL_MS);
+    };
+
+    runCheck();
+
+    return () => {
+      disposed = true;
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (status !== "offline") return null;
 
   return (
     <aside
