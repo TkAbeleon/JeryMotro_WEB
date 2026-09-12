@@ -1,6 +1,5 @@
 import { Sidebar, SIDEBAR_FULL, SIDEBAR_COLLAPSED } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { BackendUnavailableBanner } from "../system/BackendUnavailableBanner";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
@@ -17,7 +16,6 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col" style={{ marginLeft }}>
         <Topbar />
-        <div className="mt-[58px]"><BackendUnavailableBanner /></div>
         <main className="min-h-screen flex-1 overflow-auto">{children}</main>
       </div>
     </div>
@@ -50,7 +48,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
               <button key={l} type="button" onClick={() => setLang(l)} title={LANG_LABELS[l]} aria-pressed={lang === l} className={`min-h-7 min-w-7 rounded-md px-1.5 text-[9px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${lang === l ? "bg-muted text-foreground" : "text-muted-foreground/55 hover:bg-muted/70 hover:text-foreground"}`}>{l}</button>
             ))}
           </div>
-          <button type="button" onClick={toggleTheme} aria-label="Changer de thème" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <button type="button" onClick={toggleTheme} aria-label="Changer de thème" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <Link href="/login" className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
@@ -58,7 +56,6 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <div className="mt-[58px]"><BackendUnavailableBanner /></div>
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
