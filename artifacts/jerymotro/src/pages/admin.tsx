@@ -63,7 +63,8 @@ async function runAdminAction(endpoint: string): Promise<ActionResult> {
   const token = localStorage.getItem("jerymotro_token");
   if (!token) throw new Error("Session administrateur absente.");
 
-  const response = await fetch(`${getApiUrl().replace(/\\/+$/, "")}${endpoint}`, {
+  const baseUrl = getApiUrl().replace(/\/+$/, "");
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     method: "POST",
     headers: {
       Accept: "application/json",
