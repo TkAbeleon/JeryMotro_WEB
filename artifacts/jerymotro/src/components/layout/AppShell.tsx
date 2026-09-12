@@ -1,5 +1,6 @@
 import { Sidebar, SIDEBAR_FULL, SIDEBAR_COLLAPSED } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { BackendUnavailableBanner } from "../system/BackendUnavailableBanner";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
@@ -16,7 +17,8 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col" style={{ marginLeft }}>
         <Topbar />
-        <main className="mt-[58px] min-h-screen flex-1 overflow-auto">{children}</main>
+        <div className="mt-[58px]"><BackendUnavailableBanner /></div>
+        <main className="min-h-screen flex-1 overflow-auto">{children}</main>
       </div>
     </div>
   );
@@ -56,7 +58,8 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <main className="mt-[58px] flex-1 overflow-auto">{children}</main>
+      <div className="mt-[58px]"><BackendUnavailableBanner /></div>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }
