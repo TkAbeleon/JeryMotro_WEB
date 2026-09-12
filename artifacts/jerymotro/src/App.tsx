@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { I18nProvider, useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
+import { BackendUnavailableBanner } from "@/components/system/BackendUnavailableBanner";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
 import { lazy, Suspense } from "react";
@@ -164,6 +165,7 @@ function App({ initialLang, initialUrl }: { initialLang?: "fr" | "mg" | "en"; in
         <I18nProvider initialLang={initialLang}>
           <AuthProvider>
             <TooltipProvider>
+              <BackendUnavailableBanner />
               <WouterRouter
                 base={getWouterBase()}
                 ssrPath={typeof window === "undefined" ? initialUrl : undefined}
