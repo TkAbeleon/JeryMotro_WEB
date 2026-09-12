@@ -102,7 +102,7 @@ export function BackendUnavailableBanner() {
     <aside
       role="status"
       aria-live="polite"
-      className="border-b border-primary/20 bg-primary/5 px-4 py-3 sm:px-6 lg:px-8"
+      className="fixed left-0 right-0 top-[58px] z-[40] border-b border-primary/20 bg-background/95 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6 lg:px-8"
     >
       <div className="mx-auto flex max-w-7xl items-start gap-3 text-sm">
         <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
