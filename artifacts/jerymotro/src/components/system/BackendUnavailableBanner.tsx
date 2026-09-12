@@ -23,6 +23,10 @@ const messages = {
 const HEALTH_CHECK_INTERVAL_MS = 30_000;
 const HEALTH_CHECK_TIMEOUT_MS = 8_000;
 
+// This is only the initial/fallback state. A successful /health response always wins.
+const DEFAULT_BACKEND_OFFLINE =
+  String(import.meta.env.VITE_BACKEND_DEFAULT_OFFLINE ?? "true").toLowerCase() !== "false";
+
 type BackendStatus = "checking" | "online" | "offline";
 
 function getHealthUrl(): string | null {
@@ -59,7 +63,9 @@ async function checkBackendHealth(signal: AbortSignal): Promise<boolean> {
 
 export function BackendUnavailableBanner() {
   const { lang } = useI18n();
-  const [status, setStatus] = useState<BackendStatus>("checking");
+  const [status, setStatus] = useState<BackendStatus>(
+    DEFAULT_BACKEND_OFFLINE ? "offline" : "checking",
+  );
   const message = messages[lang];
 
   useEffect(() => {
