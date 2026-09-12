@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { RefreshCw, ServerOff } from "lucide-react";
+import { CircleAlert, RefreshCw, ServerOff } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 
 const messages = {
   fr: {
+    badge: "ERREUR SERVEUR",
     title: "JeryMotro est actuellement indisponible",
     description:
       "Le serveur n’est actuellement pas disponible. Les services de la plateforme, y compris la connexion, ne sont pas accessibles pour le moment.",
@@ -11,6 +12,7 @@ const messages = {
     checking: "Vérification…",
   },
   mg: {
+    badge: "OLANA AMIN’NY SERVEUR",
     title: "Tsy azo ampiasaina amin’izao fotoana izao i JeryMotro",
     description:
       "Tsy mandeha amin’izao fotoana izao ny serveur. Noho izany dia tsy azo ampiasaina ny serivisy rehetra amin’ny sehatra, anisan’izany ny fidirana.",
@@ -18,6 +20,7 @@ const messages = {
     checking: "Manamarina…",
   },
   en: {
+    badge: "SERVER ERROR",
     title: "JeryMotro is currently unavailable",
     description:
       "The server is currently unavailable. As a result, the platform services, including sign-in, are not accessible at the moment.",
@@ -29,7 +32,6 @@ const messages = {
 const HEALTH_CHECK_INTERVAL_MS = 30_000;
 const HEALTH_CHECK_TIMEOUT_MS = 8_000;
 
-// Used only for the first render. A successful /health response always changes the state to online.
 const DEFAULT_BACKEND_OFFLINE =
   String(import.meta.env.VITE_BACKEND_DEFAULT_OFFLINE ?? "true").toLowerCase() !== "false";
 
@@ -138,23 +140,33 @@ export function BackendUnavailableBanner() {
 
   return (
     <aside
-      role="status"
-      aria-live="polite"
-      className="fixed left-0 right-0 top-[58px] z-[100] border-b border-primary/20 bg-background/95 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6 lg:px-8"
+      role="alert"
+      aria-live="assertive"
+      className="fixed left-0 right-0 top-[58px] z-[100] border-b-2 border-red-500 bg-red-50 px-4 py-3 text-red-950 shadow-lg shadow-red-900/10 dark:border-red-500/80 dark:bg-red-950/95 dark:text-red-50 sm:px-6 lg:px-8"
     >
-      <div className="mx-auto flex max-w-7xl items-start gap-3 text-sm">
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <ServerOff className="h-4 w-4" aria-hidden="true" />
+      <div className="mx-auto flex max-w-7xl items-start gap-3 sm:gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm shadow-red-600/30 dark:bg-red-500">
+          <ServerOff className="h-5 w-5" aria-hidden="true" />
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold text-foreground">{message.title}</p>
-          <p className="mt-0.5 leading-relaxed text-muted-foreground">{message.description}</p>
+
+        <div className="min-w-0 flex-1 pt-0.5">
+          <div className="mb-1 flex items-center gap-2">
+            <CircleAlert className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true" />
+            <span className="text-[11px] font-extrabold tracking-[0.08em] text-red-700 dark:text-red-300">
+              {message.badge}
+            </span>
+          </div>
+          <p className="font-bold leading-tight text-red-950 dark:text-red-50">{message.title}</p>
+          <p className="mt-1 max-w-4xl text-sm leading-relaxed text-red-800 dark:text-red-100/85">
+            {message.description}
+          </p>
         </div>
+
         <button
           type="button"
           onClick={() => void runCheck()}
           disabled={isRetrying}
-          className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3.5 text-xs font-bold text-red-700 shadow-sm transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-700 dark:bg-red-900/60 dark:text-red-50 dark:hover:bg-red-900"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isRetrying ? "animate-spin" : ""}`} aria-hidden="true" />
           <span>{isRetrying ? message.checking : message.retry}</span>
