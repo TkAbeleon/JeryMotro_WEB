@@ -32,6 +32,7 @@ const AlertsPage = lazy(() => import("@/pages/alerts"));
 const SubscriptionsPage = lazy(() => import("@/pages/subscriptions"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const ExportPage = lazy(() => import("@/pages/export"));
+const AdminPage = lazy(() => import("@/pages/admin"));
 
 const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
@@ -91,6 +92,22 @@ function AuthedRoute({ component: Component }: { component: React.ComponentType 
   );
 }
 
+function AdminRoute() {
+  const { isAuthenticated, isAdmin } = useAuth();
+  const { t } = useI18n();
+
+  if (!isAuthenticated) return <Redirect to="/" />;
+  if (!isAdmin) return <Redirect to="/dashboard" />;
+
+  return (
+    <AppShell>
+      <Suspense fallback={<LoadingPage message={t("common.loading")} />}>
+        <AdminPage />
+      </Suspense>
+    </AppShell>
+  );
+}
+
 function PublicRoute({ component: Component }: { component: React.ComponentType }) {
   const { t } = useI18n();
 
@@ -145,6 +162,7 @@ function Router() {
         <Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route>
         <Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route>
         <Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
+        <Route path="/admin" component={AdminRoute} />
         <Route component={NotFound} />
       </Switch>
     </>
