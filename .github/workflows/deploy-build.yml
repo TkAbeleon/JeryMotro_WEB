@@ -37,7 +37,7 @@ jobs:
         env:
           PRERENDER_BASE_URL: https://jerymotro.duckdns.org
           VITE_SITE_URL: https://jerymotro.duckdns.org
-          VITE_API_URL: https://rtsikynyantsa-jerymotro-pipeline.hf.space
+          VITE_API_URL: https://rtsikynyantsa-n8n-tk.hf.space
 
       - name: Checkout redirect-jeridmotro
         uses: actions/checkout@v4
@@ -53,6 +53,7 @@ jobs:
           set -euo pipefail
 
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+
           cp -a ../artifacts/jerymotro/dist/public/. .
 
           cat > vercel.json <<'EOF'
