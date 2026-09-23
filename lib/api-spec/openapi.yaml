@@ -817,6 +817,14 @@ components:
           type: ["number", "null"]
         landcover:
           type: ["string", "null"]
+        fire_context_type:
+          type: ["string", "null"]
+          description: Classe WorldCover dominante autour de la détection, issue de l'enrichissement asynchrone Google Earth Engine.
+        context_percentages:
+          type: ["object", "null"]
+          additionalProperties:
+            type: number
+          description: Répartition en pourcentage des classes WorldCover autour de la détection.
         ndvi_10m:
           type: ["number", "null"]
         region:
