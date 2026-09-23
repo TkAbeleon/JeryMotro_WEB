@@ -107,16 +107,25 @@ export default function StatsPage() {
   const summary = advanced?.summary;
   const daily = advanced?.daily_evolution ?? [];
   const numeric = advanced?.numeric_statistics ?? [];
+  const hourly = advanced?.hourly_distribution ?? [];
 
-  const getNumeric = (field: string) => numeric.find(item => item.field === field);
-  const frp = getNumeric("frp");
-  const brightness = getNumeric("brightness");
-  const risk = getNumeric("risk_score");
-  const temperature = getNumeric("temperature_2m");
-  const humidity = getNumeric("relative_humidity");
-  const wind = getNumeric("wind_speed");
-  const precipitation = getNumeric("precipitation");
-  const ndvi = getNumeric("ndvi_10m");
+  const numericUnits: Record<string, string> = {
+    frp: "MW",
+    brightness: "K",
+    bright_t31: "K",
+    diff_brightness: "K",
+    risk_score: "score",
+    confidence_num: "score",
+    temperature_2m: "°C",
+    relative_humidity: "%",
+    wind_speed: "m/s",
+    precipitation: "mm",
+    slope_deg: "°",
+    ndvi_10m: "indice",
+    scan: "km",
+    track: "km",
+    scan_track_ratio: "ratio",
+  };
 
   const correlations = useMemo(
     () => (advanced?.correlations ?? [])
@@ -152,12 +161,6 @@ export default function StatsPage() {
     { label: "Satellites", value: summary?.total_satellites, icon: Database },
     { label: "Runs de collecte", value: summary?.total_collection_runs, icon: Database },
   ];
-
-  const numericRows = [
-    ["FRP", frp], ["Brightness", brightness], ["Risque", risk],
-    ["Température 2 m", temperature], ["Humidité relative", humidity],
-    ["Vent", wind], ["Précipitations", precipitation], ["NDVI 10 m", ndvi],
-  ] as const;
 
   return (
     <div className="space-y-7 p-4 sm:p-6">
@@ -227,7 +230,39 @@ export default function StatsPage() {
         <DistributionTable title="Saison sèche" rows={advanced.season_distribution} />
         <DistributionTable title="Perte récente" rows={advanced.recent_loss_distribution} />
         <DistributionTable title="Landcover" rows={advanced.landcover_distribution} />
+        <DistributionTable title="Fire label" rows={advanced.fire_label_distribution} />
+        <DistributionTable title="Bruit" rows={advanced.noise_distribution} />
       </div>
+
+      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-heading text-sm font-semibold">Répartition horaire locale</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Les heures manquantes restent séparées et ne sont pas transformées en une heure artificielle.</p>
+          </div>
+          <span className="text-[10px] text-muted-foreground">{hourly.length} modalités</span>
+        </div>
+        {hourly.length === 0 ? (
+          <div className="py-10 text-center text-xs text-muted-foreground">Aucune donnée horaire disponible.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-xs">
+              <thead><tr className="border-b border-border/50 text-left text-muted-foreground">
+                <th className="pb-2">Heure</th><th className="pb-2 text-right">Détections</th><th className="pb-2 text-right">Part</th><th className="pb-2 text-right">FRP moyen</th><th className="pb-2 text-right">Risque moyen</th>
+              </tr></thead>
+              <tbody>{hourly.map((row, index) => (
+                <tr key={`${row.local_hour ?? "null"}-${row.is_null}-${index}`} className="border-b border-border/30 last:border-0">
+                  <td className="py-2.5 font-medium">{row.is_null ? "Non renseigné" : `${String(row.local_hour).padStart(2, "0")}h`}</td>
+                  <td className="text-right">{row.detections.toLocaleString()}</td>
+                  <td className="text-right">{formatPercent(row.percentage)}</td>
+                  <td className="text-right">{formatNumber(row.average_frp)}</td>
+                  <td className="text-right">{formatNumber(row.average_risk, 3)}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
         <div className="mb-4">
@@ -239,19 +274,20 @@ export default function StatsPage() {
             <thead><tr className="border-b border-border/50 text-left text-muted-foreground">
               <th className="pb-2">Variable</th><th className="text-right">N valide</th><th className="text-right">NULL</th><th className="text-right">Moyenne</th><th className="text-right">Médiane</th><th className="text-right">Variance</th><th className="text-right">Écart-type</th><th className="text-right">Q1</th><th className="text-right">Q3</th><th className="text-right">IQR</th><th className="text-right">Outliers</th>
             </tr></thead>
-            <tbody>{numericRows.map(([name, row]) => (
-              <tr key={name} className="border-b border-border/30 last:border-0">
-                <td className="py-2.5 font-medium">{name}</td>
-                <td className="text-right">{row?.valid_count.toLocaleString() ?? "—"}</td>
-                <td className="text-right">{row ? `${row.missing_count.toLocaleString()} (${formatPercent(row.missing_percentage)})` : "—"}</td>
-                <td className="text-right">{formatNumber(row?.mean)}</td>
-                <td className="text-right">{formatNumber(row?.median)}</td>
-                <td className="text-right">{formatNumber(row?.variance)}</td>
-                <td className="text-right">{formatNumber(row?.std_dev)}</td>
-                <td className="text-right">{formatNumber(row?.q1)}</td>
-                <td className="text-right">{formatNumber(row?.q3)}</td>
-                <td className="text-right">{formatNumber(row?.iqr)}</td>
-                <td className="text-right">{row?.outlier_count.toLocaleString() ?? "—"}</td>
+            <tbody>{numeric.map(row => (
+              <tr key={row.field} className="border-b border-border/30 last:border-0">
+                <td className="py-2.5 font-medium">{row.field}</td>
+                <td className="text-muted-foreground">{numericUnits[row.field] ?? "—"}</td>
+                <td className="text-right">{row.valid_count.toLocaleString()}</td>
+                <td className="text-right">{row.missing_count.toLocaleString()} ({formatPercent(row.missing_percentage)})</td>
+                <td className="text-right">{formatNumber(row.mean)}</td>
+                <td className="text-right">{formatNumber(row.median)}</td>
+                <td className="text-right">{formatNumber(row.variance)}</td>
+                <td className="text-right">{formatNumber(row.std_dev)}</td>
+                <td className="text-right">{formatNumber(row.q1)}</td>
+                <td className="text-right">{formatNumber(row.q3)}</td>
+                <td className="text-right">{formatNumber(row.iqr)}</td>
+                <td className="text-right">{formatNumber(row.outlier_count, 0)} ({formatPercent(row.outlier_percentage)})</td>
               </tr>
             ))}</tbody>
           </table>
