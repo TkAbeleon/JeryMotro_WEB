@@ -128,14 +128,14 @@ export function Sidebar() {
   const isActive = (href: string) => location === href;
 
   const sidebarContent = (
-    <div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-3 sm:h-[68px]">
+    <div className="flex h-full min-h-0 flex-col bg-sidebar/95 text-sidebar-foreground">
+      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border/80 px-3 sm:h-[68px]">
         {collapsed ? (
           <button
             type="button"
             onClick={toggle}
             aria-label={t("common.open")}
-            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-primary"
+            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-transparent outline-none transition-colors hover:border-sidebar-border/70 hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-primary"
           >
             <img
               src="/logo.png"
@@ -197,7 +197,7 @@ export function Sidebar() {
                 }
               >
                 {!collapsed ? (
-                  <h2 className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-sidebar-foreground/40">
+                  <h2 className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.16em] text-sidebar-foreground/40">
                     {t(group.sectionKey)}
                   </h2>
                 ) : (
@@ -223,8 +223,8 @@ export function Sidebar() {
                         className={[
                           "group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none transition-[background-color,color,transform] duration-150 hover:translate-x-px focus-visible:ring-2 focus-visible:ring-primary",
                           active
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                            : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-black/10"
+                             : "text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
                           collapsed
                             ? "mx-auto w-11 justify-center"
                             : "w-full gap-3 px-3",
@@ -313,7 +313,7 @@ export function Sidebar() {
       </nav>
 
       <div
-        className={`shrink-0 border-t border-sidebar-border ${
+        className={`shrink-0 border-t border-sidebar-border/80 bg-sidebar/60 ${
           collapsed ? "px-2 py-2" : "p-3"
         }`}
         style={{
@@ -323,19 +323,44 @@ export function Sidebar() {
         }}
       >
         {isAuthenticated && (
-          <button
-            type="button"
-            onClick={logout}
-            title={collapsed ? t("common.logout") : undefined}
-            className={`flex min-h-11 items-center rounded-xl text-[13px] font-semibold text-sidebar-foreground/70 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${
-              collapsed
-                ? "mx-auto w-11 justify-center"
-                : "w-full gap-3 px-3"
-            }`}
-          >
-            <LogOut className="h-[18px] w-[18px] shrink-0" />
-            {!collapsed && <span>{t("common.logout")}</span>}
-          </button>
+          <div className={collapsed ? "space-y-2" : "space-y-2.5"}>
+            <div
+              className={`flex items-center rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 ${
+                collapsed ? "mx-auto h-11 w-11 justify-center" : "gap-3 px-2.5 py-2"
+              }`}
+              title={collapsed ? (user?.full_name || user?.email || "Utilisateur") : undefined}
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 font-heading text-xs font-bold text-primary">
+                {(user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
+              </div>
+              {!collapsed && (
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-semibold text-sidebar-foreground">
+                    {user?.full_name || "Utilisateur"}
+                  </div>
+                  <div className="truncate text-[10px] text-sidebar-foreground/45">
+                    {user?.email || ""}
+                  </div>
+                  <span className="mt-1 inline-flex rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
+                    {user?.role || "standard"}
+                  </span>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              title={collapsed ? t("common.logout") : undefined}
+              className={`flex min-h-10 items-center rounded-xl text-[12px] font-semibold text-sidebar-foreground/65 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${
+                collapsed
+                  ? "mx-auto w-11 justify-center"
+                  : "w-full gap-3 px-3"
+              }`}
+            >
+              <LogOut className="h-[17px] w-[17px] shrink-0" />
+              {!collapsed && <span>{t("common.logout")}</span>}
+            </button>
+          </div>
         )}
       </div>
 
