@@ -654,7 +654,7 @@ export const translations = {
     "map.popup.brightness": "Fahazavana",
     "map.popup.source": "Loharano",
     "map.popup.detected": "Hita",
-    "map.popup.coords": "Mpandrindra",
+    "map.popup.coords": "Mandrindra",
     "map.popup.context": "Toe-javatra ara-tontolo iainana",
     "map.stats.total": "Teboka hita",
     "map.stats.critical": "Teboka mahafaty",
