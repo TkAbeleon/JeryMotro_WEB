@@ -471,13 +471,20 @@ export default function StatsPage() {
             <h2 className="font-heading text-sm font-semibold">{c.filters}</h2>
           </div>
           <div className="flex items-center gap-2">
-            type="button"
-            onClick={resetFilters}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            {c.reset}
-          </button>
-        </div>
+            <span className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] ${advancedQ.isFetching ? "border-primary/30 bg-primary/5 text-primary" : "border-accent/25 bg-accent/5 text-accent"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${advancedQ.isFetching ? "animate-pulse bg-primary" : "bg-accent"}`} />
+              {advancedQ.isFetching
+                ? (lang === "fr" ? "ACTUALISATION" : lang === "mg" ? "MANAVAO" : "UPDATING")
+                : (lang === "fr" ? "DONNÉES À JOUR" : lang === "mg" ? "ANGONA VAOVAO" : "DATA UP TO DATE")}
+            </span>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              {c.reset}
+            </button>
+          </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr_1.15fr_auto]">
           <label className="space-y-1.5 text-xs">
