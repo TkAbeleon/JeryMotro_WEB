@@ -485,6 +485,7 @@ export default function StatsPage() {
               {c.reset}
             </button>
           </div>
+        </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr_1.15fr_auto]">
           <label className="space-y-1.5 text-xs">
