@@ -113,10 +113,10 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="space-y-7 p-4 sm:p-6">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="min-h-full bg-background px-4 py-5 sm:px-6 sm:py-7 lg:px-8"><div className="mx-auto max-w-[1600px] space-y-7">
+      <header className="flex flex-col gap-4 border-b border-border/60 pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 shadow-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
             <ShieldCheck className="h-3 w-3" /> Administration
           </div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">Centre d’administration</h1>
@@ -124,7 +124,7 @@ export default function AdminPage() {
             Supervision des opérations backend réservées aux administrateurs JeryMotro.
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-border/60 bg-card/50 px-3 py-2 text-xs sm:self-auto">
+        <div className="inline-flex items-center gap-2 self-start rounded-xl border border-border/70 bg-card/60 shadow-sm px-3 py-2 text-xs sm:self-auto">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <ShieldCheck className="h-3.5 w-3.5" />
           </div>
@@ -141,7 +141,7 @@ export default function AdminPage() {
           const result = results[action.key];
           const active = running === action.key;
           return (
-            <article key={action.key} className="group flex min-h-[220px] flex-col rounded-2xl border border-border/55 bg-card/45 p-4 transition-colors hover:bg-card/70 sm:p-5">
+            <article key={action.key} className="group flex min-h-[220px] flex-col rounded-xl border border-border/70 bg-card/60 p-4 shadow-sm transition-colors hover:bg-card sm:p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${action.tone}`}>
                   <Icon className="h-5 w-5" />
@@ -161,13 +161,13 @@ export default function AdminPage() {
       </section>
 
       {error && (
-        <div role="alert" className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        <div role="alert" className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive shadow-sm">
           <Activity className="mt-0.5 h-4 w-4 shrink-0" />
           <div><div className="font-semibold">Échec de l’opération</div><div className="mt-0.5 text-xs text-destructive/80">{error}</div></div>
         </div>
       )}
 
-      <section className="rounded-2xl border border-border/55 bg-card/35 p-4 sm:p-5">
+      <section className="rounded-xl border border-border/70 bg-card/45 p-4 shadow-sm sm:p-5">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground"><Database className="h-4 w-4" /></div>
           <div>
