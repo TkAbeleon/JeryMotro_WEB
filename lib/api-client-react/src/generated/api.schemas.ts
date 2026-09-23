@@ -40,6 +40,64 @@ export interface DailyStats { date: string; total_detections: number; high_risk_
 export interface DailyStatsResponse { stats: DailyStats[]; }
 export interface EnvironmentalContextDistributionItem { context: string; detections: number; percentage: number; }
 export interface EnvironmentalContextStatsResponse { date: string; total_detections: number; enriched_detections: number; pending_detections: number; last_enriched_at?: string | null; distribution: EnvironmentalContextDistributionItem[]; }
+export type EnvironmentalStatsFilters = {
+  date_from: string;
+  date_to: string;
+  environment?: string | null;
+  region?: string | null;
+  exclude_noise: boolean;
+};
+export interface EnvironmentalStatsSummary {
+  total_detections: number; enriched_detections: number; pending_detections: number; environmental_coverage_percent: number;
+  total_regions: number; total_sources: number; total_satellites: number; total_instruments: number; total_clusters: number; total_fire_events: number; total_collection_runs: number;
+  total_frp: number; total_frp_valid_detections: number; average_frp?: number | null; median_frp?: number | null; average_risk?: number | null; median_risk?: number | null;
+  critical_detections: number; high_risk_detections: number; medium_risk_detections: number; low_risk_detections: number; unknown_risk_detections: number;
+  daytime_detections: number; nighttime_detections: number; dry_season_detections: number; recent_loss_detections: number;
+}
+export interface EnvironmentalStatsNumeric {
+  field: string; valid_count: number; missing_count: number; missing_percentage: number; total?: number | null; mean?: number | null; median?: number | null;
+  variance?: number | null; std_dev?: number | null; min?: number | null; p05?: number | null; q1?: number | null; q3?: number | null; p95?: number | null;
+  iqr?: number | null; max?: number | null; coefficient_of_variation_percent?: number | null; skewness?: number | null; kurtosis?: number | null;
+  outlier_count: number; outlier_percentage: number;
+}
+export interface EnvironmentalStatsNullRow { field: string; total_count: number; non_null_count: number; null_count: number; null_percentage: number; }
+export interface EnvironmentalStatsDistributionRow {
+  dimension: string; value?: string | null; is_null: boolean; detections: number; percentage: number; enriched_detections: number; enriched_percentage: number;
+  total_frp: number; average_frp?: number | null; average_risk?: number | null; average_brightness?: number | null; average_confidence?: number | null;
+}
+export interface EnvironmentalStatsDailyRow {
+  date: string; detections: number; enriched_detections: number; pending_detections: number; total_frp: number;
+  average_frp?: number | null; average_brightness?: number | null; average_confidence?: number | null; average_risk?: number | null;
+  critical_detections: number; high_risk_detections: number; clusters: number; regions: number;
+}
+export interface EnvironmentalStatsHourlyRow { local_hour?: number | null; is_null: boolean; detections: number; percentage: number; average_frp?: number | null; average_risk?: number | null; }
+export interface EnvironmentalStatsContextCompositionRow {
+  context: string; detections_with_context: number; mean_percentage?: number | null; median_percentage?: number | null; variance?: number | null; std_dev?: number | null;
+  min_percentage?: number | null; q1?: number | null; q3?: number | null; max_percentage?: number | null;
+}
+export interface EnvironmentalStatsCorrelationRow { variable_x: string; variable_y: string; pair_count: number; pearson_correlation?: number | null; covariance?: number | null; }
+export interface EnvironmentalStatsClusterRow {
+  cluster_id: number; detections: number; region?: string | null; dominant_environment?: string | null; total_frp?: number | null; max_frp?: number | null; average_risk?: number | null; cluster_size?: number | null;
+}
+export interface EnvironmentalStatsClusterSummary {
+  total_clusters: number; clustered_detections: number; unclustered_detections: number; average_cluster_size?: number | null; median_cluster_size?: number | null;
+  maximum_cluster_size?: number | null; total_cluster_frp: number; average_cluster_frp?: number | null; maximum_cluster_frp?: number | null;
+}
+export interface EnvironmentalStatsEventRow { fire_event_id: number; detections: number; region?: string | null; total_frp?: number | null; max_frp?: number | null; average_risk?: number | null; }
+export interface EnvironmentalStatsGeospatialSummary {
+  min_latitude?: number | null; max_latitude?: number | null; min_longitude?: number | null; max_longitude?: number | null;
+  centroid_latitude?: number | null; centroid_longitude?: number | null; latitude_std_dev?: number | null; longitude_std_dev?: number | null;
+}
+export interface EnvironmentalAdvancedStatsResponse {
+  filters: EnvironmentalStatsFilters; summary: EnvironmentalStatsSummary; geospatial_summary: EnvironmentalStatsGeospatialSummary;
+  numeric_statistics: EnvironmentalStatsNumeric[]; null_analysis: EnvironmentalStatsNullRow[]; environment_distribution: EnvironmentalStatsDistributionRow[];
+  context_composition: EnvironmentalStatsContextCompositionRow[]; region_distribution: EnvironmentalStatsDistributionRow[]; source_distribution: EnvironmentalStatsDistributionRow[];
+  satellite_distribution: EnvironmentalStatsDistributionRow[]; instrument_distribution: EnvironmentalStatsDistributionRow[]; confidence_distribution: EnvironmentalStatsDistributionRow[];
+  daynight_distribution: EnvironmentalStatsDistributionRow[]; season_distribution: EnvironmentalStatsDistributionRow[]; recent_loss_distribution: EnvironmentalStatsDistributionRow[];
+  fire_label_distribution: EnvironmentalStatsDistributionRow[]; noise_distribution: EnvironmentalStatsDistributionRow[]; landcover_distribution: EnvironmentalStatsDistributionRow[];
+  daily_evolution: EnvironmentalStatsDailyRow[]; hourly_distribution: EnvironmentalStatsHourlyRow[]; risk_distribution: EnvironmentalStatsDistributionRow[];
+  correlations: EnvironmentalStatsCorrelationRow[]; cluster_summary: EnvironmentalStatsClusterSummary; top_clusters: EnvironmentalStatsClusterRow[]; top_fire_events: EnvironmentalStatsEventRow[];
+}
 export interface Cluster { id: number; fire_id?: string | null; center_latitude: number; center_longitude: number; radius_km?: number | null; region?: string | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; risk_score_max?: number | null; risk_level?: string | null; first_seen: string; last_seen: string; duration_hours?: number | null; hours_since_last_seen?: number | null; cluster_status: string; status_reason?: string | null; reactivation_count?: number; }
 export interface ClusterList { clusters: Cluster[]; count: number; total: number; }
 export interface ClusterDetections { cluster_id: number; detections: Detection[]; count: number; }
