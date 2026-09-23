@@ -32,6 +32,7 @@ import type {
   DailyStatsResponse,
   DashboardSummary,
   Detection,
+  EnvironmentalAdvancedStatsResponse,
   DetectionList,
   GetDailyStatsParams,
   GetRiskMapParams,
