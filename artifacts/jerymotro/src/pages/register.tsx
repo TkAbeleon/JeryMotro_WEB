@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <div className="hidden lg:flex flex-col w-[480px] bg-sidebar border-r border-border p-10 justify-between">
+      <div className="hidden lg:flex flex-col w-[480px] bg-sidebar/75 border-r border-border/70 p-10 justify-between">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="JeryMotro" className="h-9 rounded" />
           <span className="font-heading font-bold text-xl">JeryMotro</span>
@@ -135,8 +135,8 @@ export default function RegisterPage() {
         <p className="text-xs text-muted-foreground">{t("common.copyright")}</p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-5 py-7 sm:p-8">
+        <div className="w-full max-w-[420px]">
           <div className="flex items-center justify-between mb-8 lg:hidden">
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
@@ -179,14 +179,14 @@ export default function RegisterPage() {
 
           {step === "register" ? (
             <>
-              <h1 className="font-heading text-2xl font-bold mb-2">{t("auth.register.title")}</h1>
+              <h1 className="font-heading text-2xl font-semibold tracking-tight mb-2">{t("auth.register.title")}</h1>
               <p className="text-muted-foreground text-sm mb-8">
                 {t("auth.register.hasAccount")}{" "}
                 <Link href="/login" className="text-primary hover:underline">{t("auth.register.login")}</Link>
               </p>
 
               {error && (
-                <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">{error}</div>
+                <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive shadow-sm">{error}</div>
               )}
 
               <Form {...registerForm}>
@@ -195,7 +195,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("profile.info.fullName")}</FormLabel>
                       <FormControl>
-                        <input {...field} data-testid="input-name" placeholder="Rakoto Andriamahefa" className="w-full h-10 px-3 rounded-md bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                        <input {...field} data-testid="input-name" placeholder="Rakoto Andriamahefa" className="w-full h-10 rounded-lg border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/50" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
