@@ -887,6 +887,42 @@ export const getGetEnvironmentalContextStatsUrl = (params?: { date?: string | nu
   return stringifiedParams.length > 0 ? `/detections/stats/environment?${stringifiedParams}` : `/detections/stats/environment`;
 }
 
+export const getEnvironmentalAdvancedStatsUrl = (params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null }) => {
+  const normalizedParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) normalizedParams.append(key, value === null ? 'null' : value.toString());
+  });
+  const query = normalizedParams.toString();
+  return query.length > 0 ? `/detections/stats/environment/advanced?${query}` : `/detections/stats/environment/advanced`;
+};
+
+export const getEnvironmentalAdvancedStats = async (
+  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
+  options?: RequestInit
+): Promise<EnvironmentalAdvancedStatsResponse> => customFetch<EnvironmentalAdvancedStatsResponse>(getEnvironmentalAdvancedStatsUrl(params), { ...options, method: 'GET' });
+
+export const getGetEnvironmentalAdvancedStatsQueryKey = (params?: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null }) =>
+  [`/detections/stats/environment/advanced`, ...(params ? [params] : [])] as const;
+
+export const getGetEnvironmentalAdvancedStatsQueryOptions = <TData = Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError = ErrorType<unknown>>(
+  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
+  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetEnvironmentalAdvancedStatsQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>> = ({ signal }) => getEnvironmentalAdvancedStats(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData> & { queryKey: QueryKey };
+};
+
+export function useGetEnvironmentalAdvancedStats<TData = Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError = ErrorType<unknown>>(
+  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
+  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetEnvironmentalAdvancedStatsQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
 export const getEnvironmentalContextStats = async (
   params?: { date?: string | null; exclude_noise?: boolean | null },
   options?: RequestInit
