@@ -236,6 +236,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/DetectionList"
 
+  /detections/stats/environment/advanced:
+    get:
+      operationId: getAdvancedEnvironmentalStats
+      tags: [detections]
+      summary: Advanced environmental statistics
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: environment
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: exclude_noise
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Advanced environmental statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentalAdvancedStatsResponse"
+        "422":
+          description: Invalid date range
+
   /detections/stats/environment:
     get:
       operationId: getEnvironmentalContextStats
@@ -914,6 +953,102 @@ components:
           type: integer
         percentage:
           type: number
+
+    EnvironmentalStatsFilters:
+      type: object
+      required: [date_from, date_to, exclude_noise]
+      properties:
+        date_from: {type: string, format: date}
+        date_to: {type: string, format: date}
+        environment: {type: ["string", "null"]}
+        region: {type: ["string", "null"]}
+        exclude_noise: {type: boolean}
+
+    EnvironmentalStatsSummary:
+      type: object
+      properties:
+        total_detections: {type: integer}
+        enriched_detections: {type: integer}
+        pending_detections: {type: integer}
+        environmental_coverage_percent: {type: number}
+        total_regions: {type: integer}
+        total_clusters: {type: integer}
+        total_frp: {type: number}
+        average_frp: {type: ["number", "null"]}
+        maximum_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+        critical_detections: {type: integer}
+        high_risk_detections: {type: integer}
+
+    EnvironmentalStatsEnvironmentRow:
+      type: object
+      properties:
+        context: {type: string}
+        detections: {type: integer}
+        percentage: {type: number}
+        average_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+
+    EnvironmentalStatsRegionRow:
+      type: object
+      properties:
+        region: {type: string}
+        detections: {type: integer}
+        percentage: {type: number}
+        enriched_detections: {type: integer}
+        dominant_environment: {type: ["string", "null"]}
+
+    EnvironmentalStatsDailyRow:
+      type: object
+      properties:
+        date: {type: string, format: date}
+        detections: {type: integer}
+        enriched_detections: {type: integer}
+        pending_detections: {type: integer}
+        average_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+
+    EnvironmentalStatsRiskRow:
+      type: object
+      properties:
+        risk_level: {type: string}
+        detections: {type: integer}
+        percentage: {type: number}
+
+    EnvironmentalStatsSourceRow:
+      type: object
+      properties:
+        source: {type: string}
+        detections: {type: integer}
+        percentage: {type: number}
+
+    EnvironmentalAdvancedStatsResponse:
+      type: object
+      properties:
+        filters:
+          $ref: "#/components/schemas/EnvironmentalStatsFilters"
+        summary:
+          $ref: "#/components/schemas/EnvironmentalStatsSummary"
+        environment_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsEnvironmentRow"
+        region_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsRegionRow"
+        daily_evolution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDailyRow"
+        risk_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsRiskRow"
+        source_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsSourceRow"
 
     EnvironmentalContextStatsResponse:
       type: object
