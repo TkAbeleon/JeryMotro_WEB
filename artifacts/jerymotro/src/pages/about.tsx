@@ -263,9 +263,9 @@ export default function AboutPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-12">
+      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-10 border-b border-border/60 pb-7">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
@@ -276,7 +276,7 @@ export default function AboutPage() {
 
             {/* NASA FIRMS badge */}
             <div className="flex flex-wrap gap-2 mb-6">
-              <span className="inline-flex items-center gap-1.5 text-xs bg-blue-500/10 border border-blue-500/30 text-blue-400 px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-xs bg-muted/40 border border-border/60 text-muted-foreground px-2.5 py-1 rounded-full">
                 🛰️ Données NASA FIRMS
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs bg-primary/10 border border-primary/30 text-primary px-2.5 py-1 rounded-full">
@@ -299,7 +299,7 @@ export default function AboutPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border/60 rounded-xl p-6 shadow-md backdrop-blur-md transition-all hover:border-primary/20"
+                  className="bg-card/65 border border-border/70 rounded-xl p-5 shadow-sm backdrop-blur-[2px] transition-colors hover:bg-card sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
@@ -315,7 +315,7 @@ export default function AboutPage() {
             })}
 
             {/* Developer profile section */}
-            <div className="bg-card border border-primary/20 rounded-xl p-6 shadow-lg backdrop-blur-md relative overflow-hidden">
+            <div className="bg-card/65 border border-primary/20 rounded-xl p-5 shadow-sm backdrop-blur-[2px] relative overflow-hidden sm:p-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
               <h2 className="font-heading text-xl font-bold text-foreground mb-6 pb-2 border-b border-border/60">
                 {lang === "mg" ? "Mpamorona ny Tetikasa" : lang === "en" ? "About the Developer" : "À propos du développeur"}
