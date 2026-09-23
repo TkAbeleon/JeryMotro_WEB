@@ -163,10 +163,10 @@ export default function LegalPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="mx-auto max-w-4xl">
           {/* Header */}
-          <div className="mb-12">
+          <div className="mb-10 border-b border-border/60 pb-7">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
@@ -174,22 +174,22 @@ export default function LegalPage() {
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               {t("common.back")}
             </Link>
-            <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground mb-4">
+            <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground mb-3 sm:text-4xl">
               {activeContent.title}
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base leading-7 sm:text-lg">
               {activeContent.subtitle}
             </p>
           </div>
 
           {/* Sections */}
-          <div className="space-y-8">
+          <div className="space-y-5">
             {activeContent.sections.map((section, idx) => {
               const Icon = section.icon;
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border/60 rounded-xl p-6 shadow-md backdrop-blur-md transition-all hover:border-primary/20"
+                  className="bg-card/65 border border-border/70 rounded-xl p-5 shadow-sm backdrop-blur-[2px] transition-colors hover:bg-card sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
