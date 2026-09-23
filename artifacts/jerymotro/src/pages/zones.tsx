@@ -303,8 +303,8 @@ export default function ZonesPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-full bg-background p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-heading text-2xl font-bold">{t("zones.title")}</h1>
@@ -327,17 +327,17 @@ export default function ZonesPage() {
       {/* Zone cards */}
       {/* Main Content Layout */}
       {zones.length === 0 ? (
-        <div className="bg-card border border-dashed border-border rounded-xl p-12 text-center">
+        <div className="rounded-xl border border-dashed border-border/70 bg-card/45 p-10 text-center shadow-sm sm:p-12">
           <Target className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">{t("zones.empty")}</p>
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col gap-5 lg:flex-row">
           {/* List of Zone Cards */}
           <div className="flex-1 order-2 lg:order-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {zones.map(z => (
-                <div key={z.id} data-testid={`card-zone-${z.id}`} className="bg-card border border-card-border rounded-xl p-5 group flex flex-col justify-between">
+                <div key={z.id} data-testid={`card-zone-${z.id}`} className="group flex flex-col justify-between rounded-xl border border-border/70 bg-card/65 p-5 shadow-sm transition-colors hover:bg-card">
                   <div>
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -375,7 +375,7 @@ export default function ZonesPage() {
                         )}
                       </div>
                       {z.custom_ai_prompt && (
-                        <div className="text-xs text-muted-foreground bg-secondary/50 rounded px-2 py-1.5 italic">
+                        <div className="rounded-lg border border-border/50 bg-background/35 px-3 py-2 text-xs italic text-muted-foreground">
                           "{z.custom_ai_prompt}"
                         </div>
                       )}
@@ -393,11 +393,11 @@ export default function ZonesPage() {
           </div>
 
           {/* Overview Google Map */}
-          <div className="w-full lg:w-[360px] xl:w-[420px] h-[350px] lg:h-[480px] bg-card border border-card-border rounded-xl p-3 flex flex-col gap-2.5 order-1 lg:order-2 sticky top-6">
+          <div className="sticky top-4 order-1 flex h-[350px] w-full flex-col gap-2.5 rounded-xl border border-border/70 bg-card/65 p-3 shadow-sm sm:h-[400px] lg:order-2 lg:h-[480px] lg:w-[360px] xl:w-[420px]">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
               Carte des zones prioritaires (Google Maps)
             </div>
-            <div className="flex-1 rounded-lg overflow-hidden border border-border relative z-0">
+            <div className="relative z-0 flex-1 overflow-hidden rounded-lg border border-border/60 bg-background/20">
               {/* Floating Search Bar on Overview Map */}
               <div className="absolute top-3 left-3 right-3 z-[500] flex flex-col overview-search-container">
                 <form
@@ -513,8 +513,8 @@ export default function ZonesPage() {
 
       {/* Create form modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-card-border rounded-xl p-6 w-full max-w-3xl shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-3xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-2xl sm:p-6">
             <h3 className="font-heading font-bold text-lg mb-4">{t("zones.form.title")}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -711,7 +711,7 @@ export default function ZonesPage() {
       {/* Delete confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-card-border rounded-xl p-6 w-full max-w-sm shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
+          <div className="w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-2xl sm:p-6">
             <h3 className="font-heading font-bold mb-2">{t("zones.delete.title")}</h3>
             <p className="text-sm text-muted-foreground mb-5">{t("zones.delete.confirm")}</p>
             <div className="flex gap-3">
