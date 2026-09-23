@@ -264,7 +264,7 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
               {rows.map((row, index) => {
                 const risk = riskMeta(row.value);
                 return (
-                  <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/40 last:border-0 transition-colors hover:bg-muted/30">
+                  <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">{isRisk && !row.is_null ? <RiskBadge value={row.value} /> : row.is_null ? c.notProvided : displayValue(row.value, lang, c)}</td>
                     <td className="text-right font-medium">{row.detections.toLocaleString()}</td>
                     <td className="min-w-[140px] text-right">
@@ -329,17 +329,25 @@ function MetricCard({
   emphasis?: "primary" | "secondary";
 }) {
   return (
-    <div className={`group rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-px hover:border-border3 ${emphasis === "primary" ? "sm:p-5" : ""}`}>
-      <div className="flex items-center justify-between gap-3">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${tone}`}>
-          <Icon className="h-4 w-4" />
+    <article
+      className={
+        emphasis === "primary"
+          ? "group flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-border3 hover:shadow-md sm:gap-4 sm:px-5 sm:py-4"
+          : "group flex min-w-0 items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 shadow-sm transition-colors hover:border-border3 sm:px-4"
+      }
+    >
+      <div className={`flex shrink-0 items-center justify-center rounded-xl ${tone} ${emphasis === "primary" ? "h-11 w-11 sm:h-12 sm:w-12" : "h-9 w-9"}`}>
+        <Icon className={emphasis === "primary" ? "h-5 w-5" : "h-4 w-4"} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground sm:text-[11px]">
+          {label}
         </div>
-        <span className="max-w-[10rem] text-right text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{label}</span>
+        <div className={`mt-1 truncate font-heading font-bold leading-none tracking-tight ${emphasis === "primary" ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"}`}>
+          {percent ? formatPercent(value) : formatNumber(value, 0)}
+        </div>
       </div>
-      <div className={`mt-4 font-heading font-semibold tracking-tight ${emphasis === "primary" ? "text-3xl" : "text-2xl"}`}>
-        {percent ? formatPercent(value) : formatNumber(value, 0)}
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -555,10 +563,10 @@ export default function StatsPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {kpis.slice(0, 4).map((item, index) => <MetricCard key={item.label} {...item} emphasis="primary" tone={["bg-primary/10 text-primary", "bg-primary/10 text-primary", "bg-destructive/10 text-destructive", "bg-accent/10 text-accent"][index]} />)}
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {kpis.slice(4).map((item, index) => <MetricCard key={item.label} {...item} emphasis="secondary" tone={["bg-muted text-muted-foreground", "bg-muted text-muted-foreground", "bg-primary/10 text-primary", "bg-muted text-muted-foreground"][index]} />)}
           </div>
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
@@ -648,7 +656,7 @@ export default function StatsPage() {
                     </thead>
                     <tbody>
                       {hourly.map((row, index) => (
-                        <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="border-b border-border/40 last:border-0 transition-colors hover:bg-muted/30">
+                        <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                           <td className="px-3 py-2.5 font-medium">{row.is_null ? c.notProvided : String(row.local_hour).padStart(2, "0") + "h"}</td>
                           <td className="px-3 py-2.5 text-right">{row.detections.toLocaleString()}</td>
                           <td className="px-3 py-2.5 text-right">{formatPercent(row.percentage)}</td>
@@ -688,7 +696,7 @@ export default function StatsPage() {
                     <th className="pb-2">{c.variable}</th><th className="pb-2 text-right">{c.detections}</th><th className="pb-2 text-right">{c.mean}</th><th className="pb-2 text-right">{c.median}</th><th className="pb-2 text-right">{c.variance}</th><th className="pb-2 text-right">{c.stdDev}</th>
                   </tr></thead>
                   <tbody>{advanced.context_composition.map(row => (
-                    <tr key={row.context} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                    <tr key={row.context} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{displayValue(row.context, lang, c)}</td>
                       <td className="text-right">{row.detections_with_context.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.mean_percentage)}</td>
@@ -729,7 +737,7 @@ export default function StatsPage() {
                     <th className="pb-3 text-right">{c.iqr}</th><th className="pb-3 text-right">{c.outliers}</th>
                   </tr></thead>
                   <tbody>{numeric.map(row => (
-                    <tr key={row.field} className="border-b border-border/40 last:border-0 transition-colors hover:bg-muted/30">
+                    <tr key={row.field} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.field}</td>
                       <td className="text-muted-foreground">{numericUnits[row.field] ?? "—"}</td>
                       <td className="text-right">{row.valid_count.toLocaleString()}</td>
@@ -755,7 +763,7 @@ export default function StatsPage() {
                 <table className="w-full min-w-[720px] text-xs">
                   <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">X</th><th className="pb-2">Y</th><th className="pb-2 text-right">{c.pairs}</th><th className="pb-2 text-right">{c.pearson}</th><th className="pb-2 text-right">{c.covariance}</th></tr></thead>
                   <tbody>{correlations.map(row => (
-                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.variable_x}</td><td>{row.variable_y}</td>
                       <td className="text-right">{row.pair_count.toLocaleString()}</td>
                       <td className="text-right font-medium">{formatNumber(row.pearson_correlation, 3)}</td>
@@ -777,7 +785,7 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_clusters.map(row => (
-                  <tr key={row.cluster_id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                  <tr key={row.cluster_id} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">#{row.cluster_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td>{row.dominant_environment ? displayValue(row.dominant_environment, lang, c) : c.notProvided}</td>
                     <td className="text-right">{formatNumber(row.total_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
@@ -795,7 +803,7 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Max</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_fire_events.map(row => (
-                  <tr key={row.fire_event_id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                  <tr key={row.fire_event_id} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">#{row.fire_event_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td className="text-right">{formatNumber(row.total_frp)}</td>
                     <td className="text-right">{formatNumber(row.max_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
@@ -816,7 +824,7 @@ export default function StatsPage() {
                     <th className="pb-2 text-right">{c.nullCount}</th><th className="pb-2 text-right">{c.nullPercent}</th>
                   </tr></thead>
                   <tbody>{advanced.null_analysis.map(row => (
-                    <tr key={row.field} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                    <tr key={row.field} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.field}</td><td className="text-right">{row.total_count.toLocaleString()}</td>
                       <td className="text-right">{row.non_null_count.toLocaleString()}</td><td className="text-right">{row.null_count.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.null_percentage)}</td>
