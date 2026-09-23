@@ -1,98 +1,355 @@
 import { useMemo } from "react";
-import { useGetDailyStats, useGetEnvironmentalAdvancedStats, useListDetections, useListClusters } from "@workspace/api-client-react";
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
+import { useGetEnvironmentalAdvancedStats } from "@workspace/api-client-react";
+import {
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, LineChart, Line, Legend
+} from "recharts";
 import { useI18n } from "@/hooks/use-i18n";
 import { subDays } from "date-fns";
-import { Download } from "lucide-react";
+import { Download, Activity, Flame, Trees, BarChart3, Database, MapPin, Layers3 } from "lucide-react";
 import { AsyncStateInline } from "@/components/ui/async-state";
 
-const formatDateForTooltip = (value: string, lang: string) => { const parts = value.split('-'); if (parts.length === 3) { const localDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); const langCode = lang === "mg" ? "mg-MG" : lang === "fr" ? "fr-FR" : "en-US"; const formatted = new Intl.DateTimeFormat(langCode, { weekday: "long", day: "numeric", month: "long" }).format(localDate); return formatted.charAt(0).toUpperCase() + formatted.slice(1); } return value; };
-function formatDateForAPI(date: Date): string { return date.toISOString().split('T')[0]; }
 const chartGrid = "hsl(150 15% 15%)";
 const chartTick = { fontSize: 10, fill: "hsl(150 8% 55%)" };
-const chartTooltip = { background: "hsl(var(--popover))", border: "1px solid hsl(var(--popover-border))", borderRadius: 10, fontSize: 11 };
+const chartTooltip = {
+  background: "hsl(var(--popover))",
+  border: "1px solid hsl(var(--popover-border))",
+  borderRadius: 10,
+  fontSize: 11,
+};
+
+function apiDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatNumber(value: number | null | undefined, digits = 1) {
+  if (value == null || !Number.isFinite(value)) return "—";
+  return value.toLocaleString(undefined, { maximumFractionDigits: digits });
+}
+
+function formatPercent(value: number | null | undefined) {
+  return value == null || !Number.isFinite(value) ? "—" : `${value.toFixed(1)}%`;
+}
+
+function label(value: string | null | undefined) {
+  return value == null || value === "" ? "Non renseigné" : value;
+}
+
+function DistributionTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<{
+    dimension: string;
+    value?: string | null;
+    is_null: boolean;
+    detections: number;
+    percentage: number;
+    enriched_percentage: number;
+    average_frp?: number | null;
+    average_risk?: number | null;
+  }>;
+}) {
+  return (
+    <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="font-heading text-sm font-semibold">{title}</h2>
+        <span className="text-[10px] text-muted-foreground">{rows.length} catégories</span>
+      </div>
+      {rows.length === 0 ? (
+        <div className="text-xs text-muted-foreground">Aucune donnée disponible.</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-xs">
+            <thead>
+              <tr className="border-b border-border/50 text-left text-muted-foreground">
+                <th className="pb-2 font-medium">Valeur</th>
+                <th className="pb-2 text-right font-medium">Détections</th>
+                <th className="pb-2 text-right font-medium">Part</th>
+                <th className="pb-2 text-right font-medium">Enrichies</th>
+                <th className="pb-2 text-right font-medium">FRP moyen</th>
+                <th className="pb-2 text-right font-medium">Risque moyen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/30 last:border-0">
+                  <td className="py-2.5 font-medium">{row.is_null ? "Non renseigné" : label(row.value)}</td>
+                  <td className="py-2.5 text-right">{row.detections.toLocaleString()}</td>
+                  <td className="py-2.5 text-right">{formatPercent(row.percentage)}</td>
+                  <td className="py-2.5 text-right">{formatPercent(row.enriched_percentage)}</td>
+                  <td className="py-2.5 text-right">{formatNumber(row.average_frp)}</td>
+                  <td className="py-2.5 text-right">{formatNumber(row.average_risk, 3)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
 
 export default function StatsPage() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { dateFrom, dateTo } = useMemo(() => {
     const to = new Date();
-    return { dateFrom: formatDateForAPI(subDays(to, 30)), dateTo: formatDateForAPI(to) };
+    return { dateFrom: apiDate(subDays(to, 30)), dateTo: apiDate(to) };
   }, []);
+
   const advancedQ = useGetEnvironmentalAdvancedStats(
     { date_from: dateFrom, date_to: dateTo, exclude_noise: true },
-    { query: { staleTime: 60_000, refetchInterval: 5 * 60_000 } }
+    { query: { staleTime: 60_000, refetchInterval: 5 * 60_000 } },
   );
-  const dailyQ = useGetDailyStats({ date_from: dateFrom });
-  const detectionsQ = useListDetections({ limit: 2000, date_from: dateFrom });
-  const clustersQ = useListClusters({ limit: 50 });
-  const daily = dailyQ.data?.stats || [];
-  const detections = detectionsQ.data?.detections || [];
-  const clusters = clustersQ.data?.clusters || [];
+
   const advanced = advancedQ.data;
-  const last30 = daily.slice().reverse();
-  const last7 = daily.slice(-7).reverse();
+  const summary = advanced?.summary;
+  const daily = advanced?.daily_evolution ?? [];
+  const numeric = advanced?.numeric_statistics ?? [];
 
-  const regionStats = useMemo(() => { const map: Record<string, { detections: number; critical: number; clusters: number }> = {}; detections.forEach(d => { const r = d.region || "Autre"; if (!map[r]) map[r] = { detections: 0, critical: 0, clusters: 0 }; map[r].detections++; if ((d.risk_score ?? 0) >= 0.7) map[r].critical++; }); clusters.forEach(c => { const r = c.region || "Autre"; if (!map[r]) map[r] = { detections: 0, critical: 0, clusters: 0 }; map[r].clusters++; }); return Object.entries(map).map(([region, d]) => ({ region, ...d })).sort((a, b) => b.detections - a.detections).slice(0, 8); }, [detections, clusters]);
-  const sourceStats = useMemo(() => { const map: Record<string, number> = {}; detections.forEach(d => { const src = d.source?.toLowerCase().includes("viirs") ? "VIIRS" : "MODIS"; map[src] = (map[src] || 0) + 1; }); return Object.entries(map).map(([source, count]) => ({ source, count })); }, [detections]);
-  const weeklyComparison = useMemo(() => last7.map(d => ({ date: d.date.slice(5), fullDate: d.date, current: d.total_detections, high_risk: d.high_risk_count, clusters: d.active_clusters })), [last7]);
-
-  if (dailyQ.isLoading || detectionsQ.isLoading || clustersQ.isLoading || advancedQ.isLoading) return <AsyncStateInline type="loading" title={t("common.loading")} description="Préparation des statistiques et graphiques…" />;
-  if (dailyQ.isError || detectionsQ.isError || clustersQ.isError || advancedQ.isError) return <AsyncStateInline type="error" title="Impossible de charger les statistiques" description="Les données analytiques ne sont pas disponibles. Réessayez pour actualiser." onAction={() => { dailyQ.refetch(); detectionsQ.refetch(); clustersQ.refetch(); advancedQ.refetch(); }} actionLabel="Réessayer" />;
-
-  const totalDetections = last30.reduce((s, d) => s + d.total_detections, 0);
-  const totalHighRisk = last30.reduce((s, d) => s + d.high_risk_count, 0);
-  const avgPerDay = Math.round(totalDetections / 30);
-  const maxDay = last30.reduce((m, d) => d.total_detections > m.total_detections ? d : m, last30[0] || { total_detections: 0, date: "" });
-  const criticalScaleMax = Math.ceil(Math.max(...last30.map(d => d.high_risk_count), 1) * 1.2);
-  const criticalScaleMaxWeekly = Math.ceil(Math.max(...last7.map(d => d.high_risk_count), 1) * 1.2);
-
-  const numeric = advanced?.numeric_statistics || [];
   const getNumeric = (field: string) => numeric.find(item => item.field === field);
-  const frpStats = getNumeric("frp");
-  const riskStats = getNumeric("risk_score");
-  const envRows = advanced?.environment_distribution || [];
-  const riskRows = advanced?.risk_distribution || [];
-  const correlationRows = (advanced?.correlations || []).filter(row => row.pair_count >= 2).slice().sort((a,b) => Math.abs(b.pearson_correlation ?? 0) - Math.abs(a.pearson_correlation ?? 0)).slice(0, 12);
+  const frp = getNumeric("frp");
+  const brightness = getNumeric("brightness");
+  const risk = getNumeric("risk_score");
+  const temperature = getNumeric("temperature_2m");
+  const humidity = getNumeric("relative_humidity");
+  const wind = getNumeric("wind_speed");
+  const precipitation = getNumeric("precipitation");
+  const ndvi = getNumeric("ndvi_10m");
 
-    {advanced && <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div><h2 className="font-heading text-sm font-semibold">Analyse avancée</h2><p className="mt-1 text-xs text-muted-foreground">30 jours · toutes les statistiques proviennent de firms_fire_detections.</p></div>
-        <div className="text-xs text-muted-foreground">{advanced.summary.enriched_detections.toLocaleString()} enrichies · {advanced.summary.environmental_coverage_percent.toFixed(1)}% couverture</div>
-      </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[
-          ["Détections", advanced.summary.total_detections.toLocaleString()],
-          ["FRP total", advanced.summary.total_frp.toLocaleString(undefined,{maximumFractionDigits:1})],
-          ["FRP moyen", frpStats?.mean == null ? "—" : frpStats.mean.toFixed(1)],
-          ["Écart-type FRP", frpStats?.std_dev == null ? "—" : frpStats.std_dev.toFixed(1)]
-        ].map(([label,value]) => <div key={label} className="rounded-lg border border-border/50 bg-background/30 p-3"><div className="text-lg font-semibold">{value}</div><div className="mt-1 text-[10px] text-muted-foreground">{label}</div></div>)}
-      </div>
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <div className="rounded-lg border border-border/50 p-4">
-          <h3 className="mb-3 text-xs font-semibold">Environnements</h3>
-          <div className="space-y-2">{envRows.slice(0,8).map(row => <div key={row.dimension+String(row.value)+row.is_null} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1 truncate">{row.is_null ? "Non renseigné" : row.value}</span><span className="font-medium">{row.percentage.toFixed(1)}%</span><span className="text-muted-foreground">{row.detections.toLocaleString()}</span></div>)}</div>
+  const correlations = useMemo(
+    () => (advanced?.correlations ?? [])
+      .filter(row => row.pair_count >= 2 && row.pearson_correlation != null)
+      .sort((a, b) => Math.abs(b.pearson_correlation ?? 0) - Math.abs(a.pearson_correlation ?? 0))
+      .slice(0, 15),
+    [advanced?.correlations],
+  );
+
+  if (advancedQ.isLoading) {
+    return <AsyncStateInline type="loading" title={t("common.loading")} description="Préparation des statistiques analytiques…" />;
+  }
+
+  if (advancedQ.isError || !advanced) {
+    return (
+      <AsyncStateInline
+        type="error"
+        title="Impossible de charger les statistiques"
+        description="L'analyse avancée n'est pas disponible actuellement."
+        onAction={() => advancedQ.refetch()}
+        actionLabel="Réessayer"
+      />
+    );
+  }
+
+  const kpis = [
+    { label: "Détections", value: summary?.total_detections, icon: Flame },
+    { label: "FRP total", value: summary?.total_frp, icon: Activity },
+    { label: "Couverture environnementale", value: summary?.environmental_coverage_percent, icon: Trees, suffix: "%" },
+    { label: "Régions", value: summary?.total_regions, icon: MapPin },
+    { label: "Clusters", value: summary?.total_clusters, icon: Layers3 },
+    { label: "Événements feu", value: summary?.total_fire_events, icon: BarChart3 },
+    { label: "Satellites", value: summary?.total_satellites, icon: Database },
+    { label: "Runs de collecte", value: summary?.total_collection_runs, icon: Database },
+  ];
+
+  const numericRows = [
+    ["FRP", frp], ["Brightness", brightness], ["Risque", risk],
+    ["Température 2 m", temperature], ["Humidité relative", humidity],
+    ["Vent", wind], ["Précipitations", precipitation], ["NDVI 10 m", ndvi],
+  ] as const;
+
+  return (
+    <div className="space-y-7 p-4 sm:p-6">
+      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">{t("stats.title")}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            Analyse avancée de firms_fire_detections du {dateFrom} au {dateTo}. Les valeurs NULL restent explicitement identifiées et ne sont jamais converties en zéro.
+          </p>
         </div>
-        <div className="rounded-lg border border-border/50 p-4">
-          <h3 className="mb-3 text-xs font-semibold">Niveaux de risque</h3>
-          <div className="space-y-2">{riskRows.map(row => <div key={row.dimension+String(row.value)+row.is_null} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1">{row.is_null ? "Non renseigné" : row.value}</span><span className="font-medium">{row.percentage.toFixed(1)}%</span><span className="text-muted-foreground">{row.detections.toLocaleString()}</span></div>)}</div>
+        <a href="/export" className="inline-flex h-9 items-center gap-2 self-start rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:opacity-90 lg:self-auto">
+          <Download className="h-3.5 w-3.5" />{t("export.title")}
+        </a>
+      </header>
+
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+        {kpis.map(({ label: kpiLabel, value, icon: Icon, suffix }) => (
+          <div key={kpiLabel} className="rounded-xl border border-border/55 bg-card/55 p-3.5">
+            <Icon className="mb-3 h-4 w-4 text-primary" />
+            <div className="font-heading text-xl font-semibold">{suffix ? formatPercent(value) : formatNumber(value, 0)}</div>
+            <div className="mt-1 text-[10px] text-muted-foreground">{kpiLabel}</div>
+          </div>
+        ))}
+      </section>
+
+      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="font-heading text-sm font-semibold">Évolution temporelle</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Détections, risque et clusters par jour.</p>
+          </div>
+          <span className="text-[10px] text-muted-foreground">{daily.length} jours</span>
         </div>
+        {daily.length === 0 ? (
+          <div className="py-10 text-center text-xs text-muted-foreground">Aucune donnée temporelle.</div>
+        ) : (
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={daily}>
+              <defs>
+                <linearGradient id="statsTotal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(18 80% 50%)" stopOpacity={0.22} />
+                  <stop offset="95%" stopColor="hsl(18 80% 50%)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} strokeOpacity={0.25} vertical={false} />
+              <XAxis dataKey="date" tick={chartTick} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} />
+              <YAxis tick={chartTick} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={chartTooltip} />
+              <Legend wrapperStyle={{ fontSize: 10 }} iconSize={7} />
+              <Area type="monotone" dataKey="detections" name="Détections" stroke="hsl(18 80% 50%)" fill="url(#statsTotal)" />
+              <Line type="monotone" dataKey="high_risk_detections" name="Risque élevé" stroke="hsl(0 84% 60%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="clusters" name="Clusters" stroke="hsl(38 92% 50%)" strokeWidth={2} dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DistributionTable title="Environnement" rows={advanced.environment_distribution} />
+        <DistributionTable title="Niveau de risque" rows={advanced.risk_distribution} />
+        <DistributionTable title="Régions" rows={advanced.region_distribution} />
+        <DistributionTable title="Sources" rows={advanced.source_distribution} />
+        <DistributionTable title="Satellites" rows={advanced.satellite_distribution} />
+        <DistributionTable title="Instruments" rows={advanced.instrument_distribution} />
+        <DistributionTable title="Confiance FIRMS" rows={advanced.confidence_distribution} />
+        <DistributionTable title="Jour / nuit" rows={advanced.daynight_distribution} />
+        <DistributionTable title="Saison sèche" rows={advanced.season_distribution} />
+        <DistributionTable title="Perte récente" rows={advanced.recent_loss_distribution} />
+        <DistributionTable title="Landcover" rows={advanced.landcover_distribution} />
       </div>
-      <div className="mt-4 rounded-lg border border-border/50 p-4">
-        <h3 className="mb-3 text-xs font-semibold">Corrélations Pearson</h3>
-        <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-xs"><thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">Variable X</th><th className="pb-2">Variable Y</th><th className="pb-2 text-right">Paires</th><th className="pb-2 text-right">r</th><th className="pb-2 text-right">Covariance</th></tr></thead><tbody>{correlationRows.map(row => <tr key={row.variable_x+row.variable_y} className="border-b border-border/30"><td className="py-2">{row.variable_x}</td><td>{row.variable_y}</td><td className="text-right">{row.pair_count.toLocaleString()}</td><td className="text-right font-medium">{row.pearson_correlation == null ? "—" : row.pearson_correlation.toFixed(3)}</td><td className="text-right">{row.covariance == null ? "—" : row.covariance.toFixed(2)}</td></tr>)}</tbody></table></div>
+
+      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+        <div className="mb-4">
+          <h2 className="font-heading text-sm font-semibold">Statistiques numériques</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Échantillon valide, valeurs manquantes, dispersion et valeurs extrêmes.</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1050px] text-xs">
+            <thead><tr className="border-b border-border/50 text-left text-muted-foreground">
+              <th className="pb-2">Variable</th><th className="text-right">N valide</th><th className="text-right">NULL</th><th className="text-right">Moyenne</th><th className="text-right">Médiane</th><th className="text-right">Variance</th><th className="text-right">Écart-type</th><th className="text-right">Q1</th><th className="text-right">Q3</th><th className="text-right">IQR</th><th className="text-right">Outliers</th>
+            </tr></thead>
+            <tbody>{numericRows.map(([name, row]) => (
+              <tr key={name} className="border-b border-border/30 last:border-0">
+                <td className="py-2.5 font-medium">{name}</td>
+                <td className="text-right">{row?.valid_count.toLocaleString() ?? "—"}</td>
+                <td className="text-right">{row ? `${row.missing_count.toLocaleString()} (${formatPercent(row.missing_percentage)})` : "—"}</td>
+                <td className="text-right">{formatNumber(row?.mean)}</td>
+                <td className="text-right">{formatNumber(row?.median)}</td>
+                <td className="text-right">{formatNumber(row?.variance)}</td>
+                <td className="text-right">{formatNumber(row?.std_dev)}</td>
+                <td className="text-right">{formatNumber(row?.q1)}</td>
+                <td className="text-right">{formatNumber(row?.q3)}</td>
+                <td className="text-right">{formatNumber(row?.iqr)}</td>
+                <td className="text-right">{row?.outlier_count.toLocaleString() ?? "—"}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+          <h2 className="mb-4 font-heading text-sm font-semibold">Composition des contextes</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-xs">
+              <thead><tr className="border-b border-border/50 text-left text-muted-foreground">
+                <th className="pb-2">Contexte</th><th className="text-right">Détections</th><th className="text-right">Moyenne</th><th className="text-right">Médiane</th><th className="text-right">Variance</th><th className="text-right">Écart-type</th>
+              </tr></thead>
+              <tbody>{advanced.context_composition.map(row => (
+                <tr key={row.context} className="border-b border-border/30 last:border-0">
+                  <td className="py-2.5 font-medium">{row.context}</td>
+                  <td className="text-right">{row.detections_with_context.toLocaleString()}</td>
+                  <td className="text-right">{formatPercent(row.mean_percentage)}</td>
+                  <td className="text-right">{formatPercent(row.median_percentage)}</td>
+                  <td className="text-right">{formatNumber(row.variance)}</td>
+                  <td className="text-right">{formatNumber(row.std_dev)}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+          <h2 className="mb-4 font-heading text-sm font-semibold">Analyse des NULL</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[520px] text-xs">
+              <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">Champ</th><th className="text-right">Total</th><th className="text-right">Valides</th><th className="text-right">NULL</th><th className="text-right">Part NULL</th></tr></thead>
+              <tbody>{advanced.null_analysis.map(row => (
+                <tr key={row.field} className="border-b border-border/30 last:border-0">
+                  <td className="py-2.5 font-medium">{row.field}</td><td className="text-right">{row.total_count.toLocaleString()}</td><td className="text-right">{row.non_null_count.toLocaleString()}</td><td className="text-right">{row.null_count.toLocaleString()}</td><td className="text-right">{formatPercent(row.null_percentage)}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        </section>
       </div>
-    </section>}
-  return <div className="space-y-7 p-4 sm:p-6">
-    <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("stats.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("stats.subtitle")}</p></div><a href="/export" className="inline-flex h-9 items-center gap-2 self-start rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:self-auto"><Download className="h-3.5 w-3.5" />{t("export.title")}</a></header>
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">{[{ label: t("stats.kpi.total30"), value: totalDetections.toLocaleString(), color: "text-primary" }, { label: t("stats.kpi.highRisk30"), value: totalHighRisk.toLocaleString(), color: "text-destructive" }, { label: t("stats.kpi.avg"), value: avgPerDay, color: "text-[#f59e0b]" }, { label: t("stats.kpi.peak"), value: maxDay?.total_detections ?? "—", color: "text-accent" }].map(k => <div key={k.label} className="rounded-xl border border-border/55 bg-card/55 px-4 py-3.5 transition-colors hover:bg-card"><div className={`font-heading text-2xl font-semibold tracking-tight ${k.color}`}>{k.value}</div><div className="mt-1 text-[11px] text-muted-foreground">{k.label}</div></div>)}</div>
-    <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5"><div className="mb-4 flex items-center justify-between gap-4"><h2 className="font-heading text-sm font-semibold">{t("stats.trend.title")}</h2><span className="text-[10px] text-muted-foreground">30 jours</span></div>{last30.length === 0 ? <AsyncStateInline type="empty" title="Aucune statistique disponible" description="Aucune donnée n'est disponible pour les 30 derniers jours." /> : <ResponsiveContainer width="100%" height={220}><AreaChart data={last30}><defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(18 80% 50%)" stopOpacity={0.18} /><stop offset="95%" stopColor="hsl(18 80% 50%)" stopOpacity={0} /></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(0 84% 60%)" stopOpacity={0.14} /><stop offset="95%" stopColor="hsl(0 84% 60%)" stopOpacity={0} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke={chartGrid} strokeOpacity={0.28} vertical={false} /><XAxis dataKey="date" tick={chartTick} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} interval={4} /><YAxis yAxisId="total" tick={chartTick} tickLine={false} axisLine={false} /><YAxis yAxisId="critical" orientation="right" tick={chartTick} tickLine={false} axisLine={false} domain={[0, criticalScaleMax]} /><Tooltip contentStyle={chartTooltip} labelFormatter={value => formatDateForTooltip(value, lang)} /><Legend wrapperStyle={{ fontSize: 10 }} iconSize={7} /><Area type="monotone" dataKey="total_detections" yAxisId="total" name={t("stats.trend.total")} stroke="hsl(18 80% 50%)" strokeWidth={2} fill="url(#g1)" /><Area type="monotone" dataKey="high_risk_count" yAxisId="critical" name={t("stats.trend.highRisk")} stroke="hsl(0 84% 60%)" strokeWidth={2} fill="url(#g2)" /></AreaChart></ResponsiveContainer>}</section>
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5"><h2 className="mb-4 font-heading text-sm font-semibold">{t("stats.byRegion.title")}</h2>{regionStats.length === 0 ? <AsyncStateInline type="empty" title="Aucune donnée par région" description="Les statistiques régionales apparaîtront lorsque des détections seront disponibles." /> : <ResponsiveContainer width="100%" height={220}><BarChart data={regionStats} margin={{ left: -10 }}><CartesianGrid strokeDasharray="3 3" stroke={chartGrid} strokeOpacity={0.28} vertical={false} /><XAxis dataKey="region" tick={{ ...chartTick, fontSize: 9 }} tickLine={false} axisLine={false} angle={-20} textAnchor="end" height={40} /><YAxis tick={chartTick} tickLine={false} axisLine={false} /><Tooltip contentStyle={chartTooltip} /><Bar dataKey="detections" name={t("stats.regionTable.detections")} fill="hsl(18 80% 50%)" radius={[3, 3, 0, 0]} /><Bar dataKey="critical" name={t("stats.regionTable.critical")} fill="hsl(0 84% 60%)" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer>}</section>
-      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5"><h2 className="mb-4 font-heading text-sm font-semibold">{t("stats.weekly.title")}</h2>{last7.length === 0 ? <AsyncStateInline type="empty" title="Aucune comparaison disponible" description="Les tendances hebdomadaires apparaîtront avec les prochaines données." /> : <ResponsiveContainer width="100%" height={220}><LineChart data={weeklyComparison}><CartesianGrid strokeDasharray="3 3" stroke={chartGrid} strokeOpacity={0.28} vertical={false} /><XAxis dataKey="fullDate" tick={chartTick} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} /><YAxis yAxisId="total" tick={chartTick} tickLine={false} axisLine={false} /><YAxis yAxisId="critical" orientation="right" tick={chartTick} tickLine={false} axisLine={false} domain={[0, criticalScaleMaxWeekly]} /><Tooltip contentStyle={chartTooltip} labelFormatter={value => formatDateForTooltip(value, lang)} /><Legend wrapperStyle={{ fontSize: 10 }} iconSize={7} /><Line type="monotone" dataKey="current" yAxisId="total" name={t("stats.weekly.total")} stroke="hsl(18 80% 50%)" strokeWidth={2} dot={{ r: 3, fill: "hsl(18 80% 50%)" }} /><Line type="monotone" dataKey="high_risk" yAxisId="critical" name={t("stats.weekly.highRisk")} stroke="hsl(0 84% 60%)" strokeWidth={2} dot={{ r: 3, fill: "hsl(0 84% 60%)" }} /><Line type="monotone" dataKey="clusters" yAxisId="total" name={t("stats.weekly.clusters")} stroke="hsl(38 92% 50%)" strokeWidth={2} dot={{ r: 3, fill: "hsl(38 92% 50%)" }} /></LineChart></ResponsiveContainer>}</section>
+
+      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+        <div className="mb-4">
+          <h2 className="font-heading text-sm font-semibold">Corrélations Pearson</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Calculées uniquement sur les paires où les deux variables sont disponibles.</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-xs">
+            <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">X</th><th className="pb-2">Y</th><th className="pb-2 text-right">Paires</th><th className="pb-2 text-right">r</th><th className="pb-2 text-right">Covariance</th></tr></thead>
+            <tbody>{correlations.map(row => (
+              <tr key={`${row.variable_x}-${row.variable_y}`} className="border-b border-border/30 last:border-0">
+                <td className="py-2.5 font-medium">{row.variable_x}</td><td>{row.variable_y}</td><td className="text-right">{row.pair_count.toLocaleString()}</td><td className="text-right font-medium">{formatNumber(row.pearson_correlation, 3)}</td><td className="text-right">{formatNumber(row.covariance, 3)}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+          <h2 className="mb-4 font-heading text-sm font-semibold">Clusters principaux</h2>
+          <div className="overflow-x-auto"><table className="w-full min-w-[650px] text-xs">
+            <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">Cluster</th><th className="text-right">Détections</th><th>Région</th><th>Environnement</th><th className="text-right">FRP total</th><th className="text-right">Risque</th></tr></thead>
+            <tbody>{advanced.top_clusters.map(row => <tr key={row.cluster_id} className="border-b border-border/30 last:border-0"><td className="py-2.5 font-medium">#{row.cluster_id}</td><td className="text-right">{row.detections.toLocaleString()}</td><td>{label(row.region)}</td><td>{label(row.dominant_environment)}</td><td className="text-right">{formatNumber(row.total_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td></tr>)}</tbody>
+          </table></div>
+        </section>
+
+        <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+          <h2 className="mb-4 font-heading text-sm font-semibold">Événements feu principaux</h2>
+          <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-xs">
+            <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">Événement</th><th className="text-right">Détections</th><th>Région</th><th className="text-right">FRP total</th><th className="text-right">FRP max</th><th className="text-right">Risque</th></tr></thead>
+            <tbody>{advanced.top_fire_events.map(row => <tr key={row.fire_event_id} className="border-b border-border/30 last:border-0"><td className="py-2.5 font-medium">#{row.fire_event_id}</td><td className="text-right">{row.detections.toLocaleString()}</td><td>{label(row.region)}</td><td className="text-right">{formatNumber(row.total_frp)}</td><td className="text-right">{formatNumber(row.max_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td></tr>)}</tbody>
+          </table></div>
+        </section>
+      </div>
+
+      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+        <h2 className="mb-4 font-heading text-sm font-semibold">Étendue géospatiale</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            ["Latitude min", advanced.geospatial_summary.min_latitude],
+            ["Latitude max", advanced.geospatial_summary.max_latitude],
+            ["Longitude min", advanced.geospatial_summary.min_longitude],
+            ["Longitude max", advanced.geospatial_summary.max_longitude],
+            ["Centre latitude", advanced.geospatial_summary.centroid_latitude],
+            ["Centre longitude", advanced.geospatial_summary.centroid_longitude],
+            ["Écart-type latitude", advanced.geospatial_summary.latitude_std_dev],
+            ["Écart-type longitude", advanced.geospatial_summary.longitude_std_dev],
+          ].map(([name, value]) => (
+            <div key={name} className="rounded-lg border border-border/45 bg-background/25 p-3">
+              <div className="text-sm font-semibold">{formatNumber(value as number | null | undefined, 4)}</div>
+              <div className="mt-1 text-[10px] text-muted-foreground">{name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5"><h2 className="mb-4 font-heading text-sm font-semibold">{t("stats.sources.title")}</h2>{sourceStats.length === 0 ? <AsyncStateInline type="empty" title="Aucune source disponible" description="Les sources apparaîtront avec les premières détections." /> : <div className="space-y-3">{sourceStats.map(s => <div key={s.source} className="flex items-center gap-3"><div className="flex-1"><div className="mb-1 flex items-center justify-between text-sm"><span>{s.source}</span><span className="font-medium">{s.count}</span></div><div className="h-1 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: detections.length ? `${(s.count / detections.length) * 100}%` : "0%" }} /></div></div></div>)}</div>}</section>
-      <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5"><h2 className="mb-4 font-heading text-sm font-semibold">{t("stats.regionTable.title")}</h2>{regionStats.length === 0 ? <AsyncStateInline type="empty" title="Aucune région à afficher" description="Le tableau sera renseigné dès que des données régionales seront disponibles." /> : <div className="overflow-x-auto"><div className="min-w-[420px] divide-y divide-border/45"><div className="grid grid-cols-4 pb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"><span>{t("stats.regionTable.region")}</span><span className="text-right">{t("stats.regionTable.detections")}</span><span className="text-right">{t("stats.regionTable.critical")}</span><span className="text-right">{t("stats.regionTable.clusters")}</span></div>{regionStats.map(r => <div key={r.region} className="grid grid-cols-4 py-2.5 text-sm"><span className="truncate font-medium">{r.region}</span><span className="text-right text-primary">{r.detections}</span><span className="text-right text-destructive">{r.critical}</span><span className="text-right text-[#f59e0b]">{r.clusters}</span></div>)}</div></div>}</section>
-    </div>
-  </div>;
+  );
 }
