@@ -185,7 +185,7 @@ function formatNumber(value: number | null | undefined, digits = 1) {
 }
 
 function formatPercent(value: number | null | undefined) {
-  return value == null || !Number.isFinite(value) ? "—" : \`\${value.toFixed(1)}%\`;
+  return value == null || !Number.isFinite(value) ? "—" : `${value.toFixed(1)}%`;
 }
 
 function displayValue(value: string | null | undefined, lang: Lang, c: Copy) {
