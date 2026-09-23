@@ -90,5 +90,6 @@ export default function DetectionsPage() {
         </aside>}
       </div></section>
     </div>
+  </div>
   );
 }
