@@ -32,10 +32,10 @@ export default function ProfilePage() {
   const isPremium = profile?.role === "admin" || profile?.role === "premium";
 
   return (
-    <div className="w-full max-w-3xl space-y-6 p-4 sm:p-6">
-      <div><h1 className="font-heading text-2xl font-bold">{t("profile.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("profile.subtitle")}</p></div>
+    <div className="min-h-full w-full bg-background px-4 py-5 sm:px-6 sm:py-7">
+      <header className="border-b border-border/60 pb-5"><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("profile.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("profile.subtitle")}</p></header>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-card-border bg-card p-5 sm:flex-row sm:items-start sm:gap-5 sm:p-6">
+      <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-card/65 p-5 shadow-sm sm:flex-row sm:items-start sm:gap-5 sm:p-6">
         <div className="mx-auto flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/20 text-2xl font-heading font-bold text-primary sm:mx-0">{profile?.full_name?.charAt(0) || "U"}</div>
         <div className="min-w-0 flex-1 text-center sm:text-left">
           <h2 className="truncate font-heading text-lg font-bold">{profile?.full_name || "Utilisateur"}</h2>
@@ -44,9 +44,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {saved && <div className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />{t("profile.saved")}</div>}
+      {saved && <div className="flex items-start gap-2 rounded-lg border border-accent/25 bg-accent/8 px-4 py-3 text-sm text-accent shadow-sm"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />{t("profile.saved")}</div>}
 
-      <div className="rounded-xl border border-card-border bg-card p-5 sm:p-6">
+      <div className="rounded-xl border border-border/70 bg-card/65 p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><h3 className="font-heading font-semibold">{t("profile.info.title")}</h3></div>
         <Form {...profileForm}><form onSubmit={profileForm.handleSubmit(async data => { try { await updateProfileMutation.mutateAsync({ data }); } catch { setSaved("profile"); setTimeout(() => setSaved(null), 3000); } })} className="space-y-4">
           <div><label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{t("profile.info.email")}</label><input value={profile?.email || ""} disabled className="h-10 w-full rounded-md border border-input bg-secondary/50 px-3 text-sm text-muted-foreground cursor-not-allowed" /></div>
@@ -72,7 +72,7 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-sm font-medium">{t("profile.prefs.language")}</div><div className="text-xs text-muted-foreground">{LANG_LABELS[lang]}</div></div><div className="flex gap-1">{LANGS.map(l => <button key={l} onClick={() => setLang(l)} className={`rounded-md border px-2.5 py-1 text-xs font-medium uppercase transition-colors ${lang === l ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-secondary"}`}>{l}</button>)}</div></div>
       </div>
 
-      <div className="rounded-xl border border-destructive/20 bg-card p-5 sm:p-6">
+      <div className="rounded-xl border border-destructive/25 bg-card/60 p-5 shadow-sm sm:p-6">
         <div className="mb-4 flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-destructive" /><h3 className="font-heading font-semibold text-destructive">{t("profile.danger.title")}</h3></div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-sm font-medium">{t("profile.danger.logout")}</div><div className="text-xs text-muted-foreground">{t("profile.danger.logoutDesc")}</div></div><button onClick={logout} data-testid="button-logout" className="w-full rounded-lg border border-destructive/30 px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10 sm:w-auto">{t("common.logout")}</button></div>
       </div>
