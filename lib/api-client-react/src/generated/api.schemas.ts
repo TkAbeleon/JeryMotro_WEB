@@ -38,6 +38,8 @@ export type DetectionListFiltersApplied = { [key: string]: unknown };
 export interface DetectionList { detections: Detection[]; count: number; total: number; limit: number; offset: number; filters_applied?: DetectionListFiltersApplied; }
 export interface DailyStats { date: string; total_detections: number; high_risk_count: number; avg_frp?: number | null; max_frp?: number | null; active_clusters: number; regions_affected: string[]; }
 export interface DailyStatsResponse { stats: DailyStats[]; }
+export interface EnvironmentalContextDistributionItem { context: string; detections: number; percentage: number; }
+export interface EnvironmentalContextStatsResponse { date: string; total_detections: number; enriched_detections: number; pending_detections: number; last_enriched_at?: string | null; distribution: EnvironmentalContextDistributionItem[]; }
 export interface Cluster { id: number; fire_id?: string | null; center_latitude: number; center_longitude: number; radius_km?: number | null; region?: string | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; risk_score_max?: number | null; risk_level?: string | null; first_seen: string; last_seen: string; duration_hours?: number | null; hours_since_last_seen?: number | null; cluster_status: string; status_reason?: string | null; reactivation_count?: number; }
 export interface ClusterList { clusters: Cluster[]; count: number; total: number; }
 export interface ClusterDetections { cluster_id: number; detections: Detection[]; count: number; }
