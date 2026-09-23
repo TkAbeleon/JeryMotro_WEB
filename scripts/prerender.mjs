@@ -179,6 +179,7 @@ const STATIC_CONTENT = {
           <li>Filtrage par niveau de risque : Critique, Élevé, Moyen, Faible</li>
           <li>Historique sur 24h, 7 jours, 30 jours, 90 jours ou 1 an</li>
           <li>Précision de détection IA : 89% (XGBoost v2.1)</li>
+          <li>Répartition environnementale quotidienne issue de l'enrichissement Google Earth Engine (WorldCover)</li>
         </ul>
         <p><a href="/dashboard">Voir le tableau de bord →</a></p>`,
     },
@@ -212,6 +213,7 @@ const STATIC_CONTENT = {
           <li>Fahitana voalamina amin'ny faritra (Antananarivo, Fianarantsoa, Toamasina...)</li>
           <li>Fanavahana ny habetsahana: Mampidi-doza, Avo, Antonony, Ambany</li>
           <li>Fahamarinana 89% (XGBoost v2.1)</li>
+          <li>Fizarana ara-tontolo iainana isan’andro avy amin’ny Google Earth Engine (WorldCover)</li>
         </ul>
         <p><a href="/dashboard">Hijery ny tabilao →</a></p>`,
     },
@@ -243,6 +245,7 @@ const STATIC_CONTENT = {
           <li>Filter by risk level: Critical, High, Medium, Low</li>
           <li>History: 24h, 7 days, 30 days, 90 days, or 1 year</li>
           <li>AI detection accuracy: 89% (XGBoost v2.1)</li>
+          <li>Daily environmental distribution from Google Earth Engine (WorldCover) enrichment</li>
         </ul>
         <p><a href="/dashboard">View dashboard →</a></p>`,
     },
