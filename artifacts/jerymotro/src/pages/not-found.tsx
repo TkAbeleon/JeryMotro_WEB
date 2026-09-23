@@ -6,11 +6,11 @@ export default function NotFound() {
   const { t } = useI18n();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 sm:p-8">
       <div className="text-center max-w-lg">
         {/* Logo */}
         <div className="relative mb-8 flex justify-center">
-          <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute inset-0 bg-primary/8 rounded-full blur-3xl animate-pulse" />
           <img
             src="/logo.png"
             alt="JeryMotro Logo"
@@ -19,7 +19,7 @@ export default function NotFound() {
         </div>
 
         {/* 404 Title */}
-        <div className="font-heading text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/60 mb-4">
+        <div className="font-heading text-7xl font-bold sm:text-8xl text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/60 mb-4">
           404
         </div>
 
@@ -33,7 +33,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
           <Link
             href="/"
-            className="group flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
+            className="group flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-all shadow-sm"
           >
             <Home className="w-4 h-4" />
             {t("common.back")}
@@ -41,7 +41,7 @@ export default function NotFound() {
           </Link>
           <Link
             href="/dashboard"
-            className="flex items-center justify-center gap-2 border-2 border-border bg-card px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-secondary hover:border-primary/30 transition-all"
+            className="flex items-center justify-center gap-2 border border-border/70 bg-card/60 px-5 py-2.5 rounded-xl font-medium text-sm hover:bg-secondary hover:border-primary/30 transition-all"
           >
             <Search className="w-4 h-4" />
             {t("notfound.cta")}
