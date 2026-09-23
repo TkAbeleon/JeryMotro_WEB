@@ -32,12 +32,12 @@ import {
 import { AsyncStateInline } from "@/components/ui/async-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const chartGrid = "hsl(150 15% 15%)";
-const chartTick = { fontSize: 10, fill: "hsl(150 8% 55%)" };
+const chartGrid = "hsl(var(--border))";
+const chartTick = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 const chartTooltip = {
-  background: "hsl(var(--popover))",
-  border: "1px solid hsl(var(--popover-border))",
-  borderRadius: 10,
+  background: "hsl(var(--card))",
+  border: "1px solid hsl(var(--border))",
+  borderRadius: 12,
   fontSize: 11,
 };
 
@@ -205,10 +205,10 @@ function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5 ${className}`}>
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <section className={`rounded-2xl border border-border/60 bg-card/55 p-5 shadow-sm sm:p-6 ${className}`}>
+      <div className="mb-5 flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-heading text-sm font-semibold">{title}</h2>
+          <h2 className="font-heading text-sm font-semibold tracking-tight">{title}</h2>
           {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
         </div>
       </div>
@@ -237,8 +237,8 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
             </thead>
             <tbody>
               {rows.map((row, index) => (
-                <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/30 last:border-0">
-                  <td className="py-2.5 font-medium">{row.is_null ? c.notProvided : displayValue(row.value, lang, c)}</td>
+                <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                  <td className="py-3 font-medium">{row.is_null ? c.notProvided : displayValue(row.value, lang, c)}</td>
                   <td className="text-right">{row.detections.toLocaleString()}</td>
                   <td className="text-right">{formatPercent(row.percentage)}</td>
                   <td className="text-right">{formatPercent(row.enriched_percentage)}</td>
@@ -254,12 +254,28 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
   );
 }
 
-function MetricCard({ label, value, icon: Icon, percent = false }: { label: string; value: number | null | undefined; icon: typeof Flame; percent?: boolean }) {
+function MetricCard({
+  label,
+  value,
+  icon: Icon,
+  percent = false,
+  tone,
+}: {
+  label: string;
+  value: number | null | undefined;
+  icon: typeof Flame;
+  percent?: boolean;
+  tone: string;
+}) {
   return (
-    <div className="rounded-xl border border-border/55 bg-card/55 p-3.5">
-      <Icon className="mb-3 h-4 w-4 text-primary" />
-      <div className="font-heading text-xl font-semibold">{percent ? formatPercent(value) : formatNumber(value, 0)}</div>
-      <div className="mt-1 text-[10px] text-muted-foreground">{label}</div>
+    <div className="group rounded-2xl border border-border/60 bg-card/55 p-4 shadow-sm transition-colors hover:border-border hover:bg-card/80">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <span className="max-w-[9rem] text-right text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</span>
+      </div>
+      <div className="font-heading text-2xl font-semibold tracking-tight">{percent ? formatPercent(value) : formatNumber(value, 0)}</div>
     </div>
   );
 }
@@ -368,24 +384,24 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="space-y-5 p-4 sm:p-6">
-      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mx-auto w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight">{t("stats.title")}</h1>
-          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            {c.currentPeriod} : {dateFrom} → {dateTo}
+          <div className="flex items-center gap-3"><div className="h-2 w-2 rounded-full bg-primary" /><h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">{t("stats.title")}</h1></div>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            {c.currentPeriod} : <span className="font-medium text-foreground">{dateFrom} → {dateTo}</span>
           </p>
         </div>
         <a
           href="/export"
-          className="inline-flex h-9 items-center gap-2 self-start rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:opacity-90 lg:self-auto"
+          className="inline-flex h-10 items-center gap-2 self-start rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 lg:self-auto"
         >
           <Download className="h-3.5 w-3.5" />{t("export.title")}
         </a>
       </header>
 
-      <section className="sticky top-2 z-20 rounded-xl border border-border/60 bg-background/95 p-3 shadow-sm backdrop-blur sm:p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <section className="sticky top-3 z-30 rounded-2xl border border-border/70 bg-background/90 p-4 shadow-md shadow-black/5 backdrop-blur-xl sm:p-5 lg:top-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <CalendarRange className="h-4 w-4 text-primary" />
             <h2 className="font-heading text-sm font-semibold">{c.filters}</h2>
@@ -393,13 +409,13 @@ export default function StatsPage() {
           <button
             type="button"
             onClick={resetFilters}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             {c.reset}
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1.15fr_1.15fr_auto]">
           <label className="space-y-1.5 text-xs">
             <span className="text-muted-foreground">{c.dateFrom}</span>
             <input
@@ -407,7 +423,7 @@ export default function StatsPage() {
               value={dateFrom}
               max={dateTo}
               onChange={e => setDateFrom(e.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-background px-2.5 text-xs"
+              className="h-10 w-full rounded-xl border border-border/70 bg-background px-3 text-xs outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring/30"
             />
           </label>
 
@@ -448,35 +464,55 @@ export default function StatsPage() {
             </select>
           </label>
 
-          <label className="flex min-h-9 items-center gap-2 rounded-md border border-border bg-background px-2.5 text-xs">
+          <label className="flex min-h-10 items-center gap-2 rounded-xl border border-border/70 bg-background px-3 text-xs transition-colors hover:bg-muted/40">
             <input type="checkbox" checked={excludeNoise} onChange={e => setExcludeNoise(e.target.checked)} />
             <span>{c.excludeNoise}</span>
           </label>
         </div>
       </section>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg p-1">
-          <TabsTrigger value="overview" className="shrink-0 gap-1.5"><Globe2 className="h-3.5 w-3.5" />{c.overview}</TabsTrigger>
-          <TabsTrigger value="time" className="shrink-0 gap-1.5"><CalendarRange className="h-3.5 w-3.5" />{c.time}</TabsTrigger>
-          <TabsTrigger value="environment" className="shrink-0 gap-1.5"><Trees className="h-3.5 w-3.5" />{c.environmentTab}</TabsTrigger>
-          <TabsTrigger value="risk" className="shrink-0 gap-1.5"><ShieldAlert className="h-3.5 w-3.5" />{c.riskSignals}</TabsTrigger>
-          <TabsTrigger value="numeric" className="shrink-0 gap-1.5"><BarChart3 className="h-3.5 w-3.5" />{c.numeric}</TabsTrigger>
-          <TabsTrigger value="cluster" className="shrink-0 gap-1.5"><Layers3 className="h-3.5 w-3.5" />{c.cluster}</TabsTrigger>
-          <TabsTrigger value="quality" className="shrink-0 gap-1.5"><Database className="h-3.5 w-3.5" />{c.quality}</TabsTrigger>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="flex h-auto w-full justify-start gap-0 overflow-x-auto rounded-none border-b border-border/70 bg-transparent p-0">
+          <TabsTrigger value="overview" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><Globe2 className="h-3.5 w-3.5" />{c.overview}</TabsTrigger>
+          <TabsTrigger value="time" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><CalendarRange className="h-3.5 w-3.5" />{c.time}</TabsTrigger>
+          <TabsTrigger value="environment" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><Trees className="h-3.5 w-3.5" />{c.environmentTab}</TabsTrigger>
+          <TabsTrigger value="risk" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><ShieldAlert className="h-3.5 w-3.5" />{c.riskSignals}</TabsTrigger>
+          <TabsTrigger value="numeric" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><BarChart3 className="h-3.5 w-3.5" />{c.numeric}</TabsTrigger>
+          <TabsTrigger value="cluster" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><Layers3 className="h-3.5 w-3.5" />{c.cluster}</TabsTrigger>
+          <TabsTrigger value="quality" className="shrink-0 rounded-none border-b-2 border-transparent px-3 py-3 text-xs font-medium transition-colors data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none sm:px-4"><Database className="h-3.5 w-3.5" />{c.quality}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-            {kpis.map(item => <MetricCard key={item.label} {...item} />)}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
+            {kpis.map((item, index) => <MetricCard key={item.label} {...item} tone={["bg-primary/10 text-primary", "bg-amber-500/10 text-amber-500", "bg-emerald-500/10 text-emerald-500", "bg-sky-500/10 text-sky-500", "bg-violet-500/10 text-violet-500", "bg-rose-500/10 text-rose-500", "bg-cyan-500/10 text-cyan-500", "bg-indigo-500/10 text-indigo-500"][index] ?? "bg-primary/10 text-primary"} />)}
           </div>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <DistributionTable title={c.environmentDistribution} rows={advanced.environment_distribution} lang={lang} c={c} />
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+            <SectionCard title={c.environmentDistribution}>
+              <div className="h-[300px] w-full">
+                {advanced.environment_distribution.length === 0 ? (
+                  <EmptyState message={c.noData} />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={advanced.environment_distribution.filter((row: DistributionRow) => !row.is_null).slice(0, 8)}
+                      layout="vertical"
+                      margin={{ top: 4, right: 18, left: 12, bottom: 4 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} strokeOpacity={0.35} horizontal={false} />
+                      <XAxis type="number" tick={chartTick} axisLine={false} tickLine={false} />
+                      <YAxis type="category" dataKey="value" width={118} tick={chartTick} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={chartTooltip} formatter={(value) => [formatNumber(Number(value), 0), c.detections]} />
+                      <Bar dataKey="detections" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} maxBarSize={18} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </SectionCard>
             <DistributionTable title={c.riskDistribution} rows={advanced.risk_distribution} lang={lang} c={c} />
           </div>
         </TabsContent>
 
-        <TabsContent value="time" className="space-y-4">
+        <TabsContent value="time" className="space-y-6">
           <SectionCard title={c.temporalEvolution} description={c.temporalDescription}>
             {daily.length === 0 ? <EmptyState message={c.noData} /> : (
               <ResponsiveContainer width="100%" height={330}>
@@ -515,8 +551,8 @@ export default function StatsPage() {
                   </thead>
                   <tbody>
                     {hourly.map((row, index) => (
-                      <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="border-b border-border/30 last:border-0">
-                        <td className="py-2.5 font-medium">{row.is_null ? c.notProvided : String(row.local_hour).padStart(2, "0") + "h"}</td>
+                      <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                        <td className="py-3 font-medium">{row.is_null ? c.notProvided : String(row.local_hour).padStart(2, "0") + "h"}</td>
                         <td className="text-right">{row.detections.toLocaleString()}</td>
                         <td className="text-right">{formatPercent(row.percentage)}</td>
                         <td className="text-right">{formatNumber(row.average_frp)}</td>
@@ -529,7 +565,7 @@ export default function StatsPage() {
             )}
           </SectionCard>
 
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <DistributionTable title={c.sources} rows={advanced.source_distribution} lang={lang} c={c} />
             <DistributionTable title={c.satellitesTitle} rows={advanced.satellite_distribution} lang={lang} c={c} />
             <DistributionTable title={c.instruments} rows={advanced.instrument_distribution} lang={lang} c={c} />
@@ -539,8 +575,8 @@ export default function StatsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="environment" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <TabsContent value="environment" className="space-y-6">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <DistributionTable title={c.environmentDistribution} rows={advanced.environment_distribution} lang={lang} c={c} />
             <DistributionTable title={c.regionDistribution} rows={advanced.region_distribution} lang={lang} c={c} />
             <DistributionTable title={c.landcover} rows={advanced.landcover_distribution} lang={lang} c={c} />
@@ -554,8 +590,8 @@ export default function StatsPage() {
                     <th className="pb-2">{c.variable}</th><th className="pb-2 text-right">{c.detections}</th><th className="pb-2 text-right">{c.mean}</th><th className="pb-2 text-right">{c.median}</th><th className="pb-2 text-right">{c.variance}</th><th className="pb-2 text-right">{c.stdDev}</th>
                   </tr></thead>
                   <tbody>{advanced.context_composition.map(row => (
-                    <tr key={row.context} className="border-b border-border/30 last:border-0">
-                      <td className="py-2.5 font-medium">{displayValue(row.context, lang, c)}</td>
+                    <tr key={row.context} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                      <td className="py-3 font-medium">{displayValue(row.context, lang, c)}</td>
                       <td className="text-right">{row.detections_with_context.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.mean_percentage)}</td>
                       <td className="text-right">{formatPercent(row.median_percentage)}</td>
@@ -569,20 +605,20 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="risk" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <TabsContent value="risk" className="space-y-6">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <DistributionTable title={c.riskDistribution} rows={advanced.risk_distribution} lang={lang} c={c} />
             <DistributionTable title={c.fireLabel} rows={advanced.fire_label_distribution} lang={lang} c={c} />
             <DistributionTable title={c.noise} rows={advanced.noise_distribution} lang={lang} c={c} />
             <DistributionTable title={c.recentLoss} rows={advanced.recent_loss_distribution} lang={lang} c={c} />
           </div>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <DistributionTable title={c.sources} rows={advanced.source_distribution} lang={lang} c={c} />
             <DistributionTable title={c.confidence} rows={advanced.confidence_distribution} lang={lang} c={c} />
           </div>
         </TabsContent>
 
-        <TabsContent value="numeric" className="space-y-4">
+        <TabsContent value="numeric" className="space-y-6">
           <SectionCard title={c.numericStats} description={c.numericDescription}>
             {numeric.length === 0 ? <EmptyState message={c.noData} /> : (
               <div className="overflow-x-auto">
@@ -595,8 +631,8 @@ export default function StatsPage() {
                     <th className="pb-2 text-right">{c.iqr}</th><th className="pb-2 text-right">{c.outliers}</th>
                   </tr></thead>
                   <tbody>{numeric.map(row => (
-                    <tr key={row.field} className="border-b border-border/30 last:border-0">
-                      <td className="py-2.5 font-medium">{row.field}</td>
+                    <tr key={row.field} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                      <td className="py-3 font-medium">{row.field}</td>
                       <td className="text-muted-foreground">{numericUnits[row.field] ?? "—"}</td>
                       <td>{row.valid_count.toLocaleString()}</td>
                       <td>{row.missing_count.toLocaleString()} ({formatPercent(row.missing_percentage)})</td>
@@ -621,8 +657,8 @@ export default function StatsPage() {
                 <table className="w-full min-w-[720px] text-xs">
                   <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">X</th><th className="pb-2">Y</th><th className="pb-2 text-right">{c.pairs}</th><th className="pb-2 text-right">{c.pearson}</th><th className="pb-2 text-right">{c.covariance}</th></tr></thead>
                   <tbody>{correlations.map(row => (
-                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="border-b border-border/30 last:border-0">
-                      <td className="py-2.5 font-medium">{row.variable_x}</td><td>{row.variable_y}</td>
+                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                      <td className="py-3 font-medium">{row.variable_x}</td><td>{row.variable_y}</td>
                       <td className="text-right">{row.pair_count.toLocaleString()}</td>
                       <td className="text-right font-medium">{formatNumber(row.pearson_correlation, 3)}</td>
                       <td className="text-right">{formatNumber(row.covariance, 3)}</td>
@@ -634,7 +670,7 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="cluster" className="space-y-4">
+        <TabsContent value="cluster" className="space-y-6">
           <SectionCard title={c.topClusters}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-xs">
@@ -643,8 +679,8 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_clusters.map(row => (
-                  <tr key={row.cluster_id} className="border-b border-border/30 last:border-0">
-                    <td className="py-2.5 font-medium">#{row.cluster_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
+                  <tr key={row.cluster_id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                    <td className="py-3 font-medium">#{row.cluster_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td>{row.dominant_environment ? displayValue(row.dominant_environment, lang, c) : c.notProvided}</td>
                     <td className="text-right">{formatNumber(row.total_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
                   </tr>
@@ -661,8 +697,8 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Max</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_fire_events.map(row => (
-                  <tr key={row.fire_event_id} className="border-b border-border/30 last:border-0">
-                    <td className="py-2.5 font-medium">#{row.fire_event_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
+                  <tr key={row.fire_event_id} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                    <td className="py-3 font-medium">#{row.fire_event_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td className="text-right">{formatNumber(row.total_frp)}</td>
                     <td className="text-right">{formatNumber(row.max_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
                   </tr>
@@ -672,7 +708,7 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="quality" className="space-y-4">
+        <TabsContent value="quality" className="space-y-6">
           <SectionCard title={c.nullAnalysis}>
             {advanced.null_analysis.length === 0 ? <EmptyState message={c.noData} /> : (
               <div className="overflow-x-auto">
@@ -682,8 +718,8 @@ export default function StatsPage() {
                     <th className="pb-2 text-right">{c.nullCount}</th><th className="pb-2 text-right">{c.nullPercent}</th>
                   </tr></thead>
                   <tbody>{advanced.null_analysis.map(row => (
-                    <tr key={row.field} className="border-b border-border/30 last:border-0">
-                      <td className="py-2.5 font-medium">{row.field}</td><td className="text-right">{row.total_count.toLocaleString()}</td>
+                    <tr key={row.field} className="border-b border-border/30 last:border-0 transition-colors hover:bg-muted/30">
+                      <td className="py-3 font-medium">{row.field}</td><td className="text-right">{row.total_count.toLocaleString()}</td>
                       <td className="text-right">{row.non_null_count.toLocaleString()}</td><td className="text-right">{row.null_count.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.null_percentage)}</td>
                     </tr>
@@ -694,7 +730,7 @@ export default function StatsPage() {
           </SectionCard>
 
           <SectionCard title={c.geospatial}>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {[
                 [c.minLatitude, advanced.geospatial_summary.min_latitude],
                 [c.maxLatitude, advanced.geospatial_summary.max_latitude],
@@ -705,7 +741,7 @@ export default function StatsPage() {
                 [c.latitudeStd, advanced.geospatial_summary.latitude_std_dev],
                 [c.longitudeStd, advanced.geospatial_summary.longitude_std_dev],
               ].map(([name, value]) => (
-                <div key={String(name)} className="rounded-lg border border-border/45 bg-background/25 p-3">
+                <div key={String(name)} className="rounded-xl border border-border/50 bg-background/35 p-4 transition-colors hover:bg-background/55">
                   <div className="text-sm font-semibold">{formatNumber(value as number | null | undefined, 4)}</div>
                   <div className="mt-1 text-[10px] text-muted-foreground">{name}</div>
                 </div>
