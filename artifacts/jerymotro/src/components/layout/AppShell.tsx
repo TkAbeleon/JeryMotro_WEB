@@ -16,7 +16,7 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col" style={{ marginLeft }}>
         <Topbar />
-        <main className="min-h-screen flex-1 overflow-auto">{children}</main>
+        <main className="min-h-screen flex-1 overflow-auto pt-[58px]">{children}</main>
       </div>
     </div>
   );
@@ -56,7 +56,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto pt-[58px]">{children}</main>
     </div>
   );
 }
