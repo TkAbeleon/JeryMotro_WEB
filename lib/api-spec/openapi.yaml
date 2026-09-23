@@ -236,6 +236,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/DetectionList"
 
+  /detections/stats/environment:
+    get:
+      operationId: getEnvironmentalContextStats
+      tags: [detections]
+      summary: Daily environmental context distribution
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: exclude_noise
+          in: query
+          schema:
+            type: ["boolean", "null"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentalContextStatsResponse"
+
   /detections/{id}:
     get:
       operationId: getDetection
@@ -881,6 +903,37 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DailyStats"
+
+    EnvironmentalContextDistributionItem:
+      type: object
+      required: [context, detections, percentage]
+      properties:
+        context:
+          type: string
+        detections:
+          type: integer
+        percentage:
+          type: number
+
+    EnvironmentalContextStatsResponse:
+      type: object
+      required: [date, total_detections, enriched_detections, pending_detections, distribution]
+      properties:
+        date:
+          type: string
+        total_detections:
+          type: integer
+        enriched_detections:
+          type: integer
+        pending_detections:
+          type: integer
+        last_enriched_at:
+          type: ["string", "null"]
+          format: date-time
+        distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalContextDistributionItem"
 
     Cluster:
       type: object
