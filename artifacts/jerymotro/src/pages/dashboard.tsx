@@ -1,4 +1,4 @@
-import { useGetDailyStats, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
+import { useGetDailyStats, useGetEnvironmentalContextStats, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity, Flame, Bell, Cpu, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
@@ -16,11 +16,14 @@ const getRiskColor = (score: number | null | undefined) => {
 export default function DashboardPage() {
   const { t, lang } = useI18n();
   const dailyQ = useGetDailyStats();
+  const environmentalQ = useGetEnvironmentalContextStats({ exclude_noise: true }, { query: { refetchInterval: 60_000, staleTime: 30_000 } });
   const detectionsQ = useListDetections({ limit: 10 });
   const clustersQ = useListClusters({ active_only: true });
   const daily = dailyQ.data ?? { stats: [] };
   const detectionsData = detectionsQ.data ?? { detections: [] as Detection[] };
   const clustersData = clustersQ.data ?? { clusters: [] as Cluster[] };
+  const environmental = environmentalQ.data;
+  const environmentRows = environmental?.distribution ?? [];
 
   const summary = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -57,6 +60,36 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-border/55 bg-card/40 p-4 sm:p-5 lg:col-span-2"><div className="mb-5 flex items-center justify-between gap-4"><h2 className="font-heading text-sm font-semibold">{t("dashboard.chart.title")}</h2><div className="flex items-center gap-3 text-[10px] text-muted-foreground"><span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-primary/60" />{t("dashboard.chart.total")}</span><span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-destructive" />{t("dashboard.chart.highRisk")}</span></div></div><ResponsiveContainer width="100%" height={200}><AreaChart data={chartData}><defs><linearGradient id="gTotal" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.22} /><stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} /></linearGradient><linearGradient id="gHigh" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.18} /><stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0} /></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.35} vertical={false} /><XAxis dataKey="fullDate" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} tickFormatter={value => { const parts = value.split('-'); return parts.length === 3 ? `${parts[2]}/${parts[1]}` : value; }} /><YAxis yAxisId="total" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} /><YAxis yAxisId="critical" orientation="right" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} domain={[0, criticalScaleMax]} /><Tooltip contentStyle={{ background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))", border: "1px solid hsl(var(--popover-border))", borderRadius: 10, fontSize: 12 }} labelFormatter={value => { const parts = value.split('-'); if (parts.length !== 3) return value; const localDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); const langCode = lang === "mg" ? "mg-MG" : lang === "fr" ? "fr-FR" : "en-US"; const formatted = new Intl.DateTimeFormat(langCode, { weekday: "long", day: "numeric", month: "long" }).format(localDate); return formatted.charAt(0).toUpperCase() + formatted.slice(1); }} /><Area type="monotone" dataKey="total" yAxisId="total" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#gTotal)" name={t("dashboard.chart.total")} /><Area type="monotone" dataKey="high" yAxisId="critical" stroke="hsl(var(--destructive))" strokeWidth={2} fill="url(#gHigh)" name={t("dashboard.chart.highRisk")} /></AreaChart></ResponsiveContainer></div>
         <div className="rounded-xl border border-border/55 bg-card/40 p-4 sm:p-5"><div className="mb-4 flex items-center justify-between"><h2 className="font-heading text-sm font-semibold">{t("dashboard.regions.title")}</h2><span className="text-[10px] text-muted-foreground">{t("dashboard.regions.updated")}</span></div>{summary.regions_affected_today.length === 0 ? <AsyncStateInline type="empty" title="Aucune région signalée" description="Aucune détection régionale n'est disponible pour cette période." /> : <div className="space-y-1">{summary.regions_affected_today.map((region, i) => { const count = detectionsData.detections?.filter(d => d.region === region).length || 0; return <div key={region} className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/35"><span className={`h-1.5 w-1.5 shrink-0 rounded-full ${i === 0 ? "bg-destructive" : i === 1 ? "bg-primary" : "bg-warning"}`} /><span className="min-w-0 flex-1 truncate text-sm">{region}</span><span className="text-xs text-muted-foreground">{count} {t("dashboard.regions.fires")}</span></div>; })}</div>}</div>
       </div>
+      <section className="rounded-xl border border-border/55 bg-card/40 p-4 sm:p-5">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="font-heading text-sm font-semibold">{t("dashboard.environment.title")}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{t("dashboard.environment.subtitle")}</p>
+          </div>
+          <div className="text-right text-[10px] text-muted-foreground">
+            <div>{environmental?.enriched_detections ?? 0} {t("dashboard.environment.enriched")} · {environmental?.pending_detections ?? 0} {t("dashboard.environment.pending")}</div>
+            <div>{t("dashboard.environment.coverage")}: {environmental?.total_detections ? ((environmental.enriched_detections / environmental.total_detections) * 100).toFixed(0) : 0}%</div>
+          </div>
+        </div>
+        {environmentRows.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border/60 px-4 py-7 text-center text-xs text-muted-foreground">{t("dashboard.environment.noData")}</div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {environmentRows.map((row, index) => (
+              <div key={row.context} className="rounded-lg border border-border/50 bg-background/35 p-3">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="truncate text-xs font-medium">{row.context}</span>
+                  <span className="text-xs font-semibold">{row.percentage.toFixed(1)}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, Math.max(0, row.percentage))}%`, opacity: Math.max(0.55, 1 - index * 0.08) }} />
+                </div>
+                <div className="mt-1 text-[10px] text-muted-foreground">{row.detections} détection{row.detections > 1 ? "s" : ""}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
       <div className="rounded-xl border border-border/55 bg-card/35"><div className="flex items-center justify-between px-4 py-4 sm:px-5"><h2 className="font-heading text-sm font-semibold">{t("dashboard.recent.title")}</h2><a href="/detections" className="text-xs font-medium text-primary hover:underline">{t("common.seeAll")}</a></div><div className="border-t border-border/45 divide-y divide-border/45">{recentDetections.length === 0 ? <AsyncStateInline type="empty" title="Aucune détection récente" description="Les nouvelles détections apparaîtront ici dès leur disponibilité." /> : recentDetections.map(d => <div key={d.id} className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-muted/25 sm:px-5"><div className={`h-1.5 w-1.5 shrink-0 rounded-full ${d.risk_score && d.risk_score >= 0.7 ? "bg-destructive" : d.risk_score && d.risk_score >= 0.5 ? "bg-primary" : d.risk_score && d.risk_score >= 0.3 ? "bg-warning" : "bg-accent"}`} /><div className="min-w-0 flex-1"><div className="truncate text-sm font-medium">{d.region || t("dashboard.recent.unknownRegion")}</div><div className="truncate text-xs text-muted-foreground">{d.latitude?.toFixed(3)}, {d.longitude?.toFixed(3)} — {d.source}</div></div><div className="text-right"><div className={`text-xs font-semibold ${getRiskColor(d.risk_score)}`}>{getRiskLabel(d.risk_score)}</div><div className="text-xs text-muted-foreground">{t("dashboard.recent.frp")}: {d.frp?.toFixed(0)} MW</div></div></div>)}</div></div>
     </div>
   );
