@@ -100,7 +100,7 @@ export { SIDEBAR_FULL, SIDEBAR_COLLAPSED };
 
 export function Sidebar() {
   const [location] = useLocation();
-  const { logout, isAuthenticated, isAdmin } = useAuth();
+  const { logout, isAuthenticated, isAdmin, user } = useAuth();
   const { t } = useI18n();
   const { isCollapsed, isOpen, isMobile, toggle, close } = useSidebar();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
