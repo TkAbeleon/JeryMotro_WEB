@@ -67,3 +67,20 @@ export interface Detection {
   /** @nullable */
   inserted_at?: string | null;
 }
+
+
+export interface EnvironmentalContextDistributionItem {
+  context: string;
+  detections: number;
+  percentage: number;
+}
+
+export interface EnvironmentalContextStatsResponse {
+  date: string;
+  total_detections: number;
+  enriched_detections: number;
+  pending_detections: number;
+  /** @nullable */
+  last_enriched_at?: string | null;
+  distribution: EnvironmentalContextDistributionItem[];
+}
