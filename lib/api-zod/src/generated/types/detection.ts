@@ -57,6 +57,10 @@ export interface Detection {
   /** @nullable */
   landcover?: string | null;
   /** @nullable */
+  fire_context_type?: string | null;
+  /** @nullable */
+  context_percentages?: { [key: string]: number } | null;
+  /** @nullable */
   ndvi_10m?: number | null;
   /** @nullable */
   region?: string | null;
