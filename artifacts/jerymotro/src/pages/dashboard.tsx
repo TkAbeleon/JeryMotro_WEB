@@ -84,7 +84,7 @@ export default function DashboardPage() {
                 <div className="h-2 overflow-hidden rounded-full bg-secondary">
                   <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, Math.max(0, row.percentage))}%`, opacity: Math.max(0.55, 1 - index * 0.08) }} />
                 </div>
-                <div className="mt-1 text-[10px] text-muted-foreground">{row.detections} détection{row.detections > 1 ? "s" : ""}</div>
+                <div className="mt-1 text-[10px] text-muted-foreground">{row.detections} {t("dashboard.environment.detections")}</div>
               </div>
             ))}
           </div>
