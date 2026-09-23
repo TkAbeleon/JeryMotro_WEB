@@ -24,6 +24,35 @@ export default function LandingPage() {
     { value: "<2s", label: t("landing.stats.responseTime") },
   ];
   const { theme, toggleTheme } = useTheme();
+  const workflowSteps = lang === "mg" ? [
+    { icon: Activity, title: "Angona", desc: "Angona avy amin'ny zanabolana sy loharano azo itokisana." },
+    { icon: Brain, title: "Famakafakana", desc: "Ny modely ML dia manampy amin'ny fanombanana ny loza." },
+    { icon: Map, title: "Fanamarihana", desc: "Ny fahitana dia apetraka amin'ny sarintany mba ho mora vakiana." },
+    { icon: Bell, title: "Fampandrenesana", desc: "Ny rafitra dia manomana fampandrenesana amin'ny toe-javatra voafantina." },
+  ] : lang === "en" ? [
+    { icon: Activity, title: "Collect", desc: "Satellite detections and trusted environmental data are gathered." },
+    { icon: Brain, title: "Analyze", desc: "ML models help estimate the level of wildfire risk." },
+    { icon: Map, title: "Visualize", desc: "Signals are placed on the map so they can be understood quickly." },
+    { icon: Bell, title: "Alert", desc: "Configured notifications can surface the events that matter." },
+  ] : [
+    { icon: Activity, title: "Collecter", desc: "Les détections satellites et données environnementales sont centralisées." },
+    { icon: Brain, title: "Analyser", desc: "Les modèles ML aident à estimer le niveau de risque des feux." },
+    { icon: Map, title: "Visualiser", desc: "Les signaux sont placés sur la carte pour une lecture rapide." },
+    { icon: Bell, title: "Alerter", desc: "Les notifications configurées mettent en avant les événements importants." },
+  ];
+  const audienceCards = lang === "mg" ? [
+    { icon: Map, title: "Mpandinika terrain", desc: "Mahita haingana ireo fahitana sy faritra mila fanaraha-maso." },
+    { icon: Brain, title: "Mpandinika data", desc: "Mampitaha famantarana, risika ary fironana ao amin'ny sehatra iray." },
+    { icon: Shield, title: "Fikambanana", desc: "Mametraka fanaraha-maso sy fampandrenesana mifanaraka amin'ny filàna." },
+  ] : lang === "en" ? [
+    { icon: Map, title: "Field observers", desc: "See detections and priority areas quickly from one interface." },
+    { icon: Brain, title: "Data analysts", desc: "Compare signals, risk levels and trends without losing context." },
+    { icon: Shield, title: "Organizations", desc: "Set up monitoring and notifications around operational needs." },
+  ] : [
+    { icon: Map, title: "Observateurs terrain", desc: "Consultez rapidement les détections et les zones à surveiller." },
+    { icon: Brain, title: "Analystes data", desc: "Comparez signaux, niveaux de risque et tendances au même endroit." },
+    { icon: Shield, title: "Organisations", desc: "Configurez une surveillance et des notifications adaptées à vos besoins." },
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -36,7 +65,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="hidden md:flex items-center gap-4">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
-              <a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
+              <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a><a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
               <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
               <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
               <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
@@ -61,7 +90,7 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section aria-labelledby="hero-title" className="pt-[58px] relative overflow-hidden">
+        <section aria-labelledby="hero-title" className="relative overflow-hidden border-b border-border/50 bg-[radial-gradient(circle_at_50%_15%,hsl(var(--primary)/0.10),transparent_38%)] pt-[58px]">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
           <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
           <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 text-center relative sm:px-8 sm:pb-20 sm:pt-20">
@@ -71,10 +100,10 @@ export default function LandingPage() {
               <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground"><span aria-hidden="true" className="text-base">🤖</span> XGBoost v2.1 — 89% de précision</span>
               <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground"><span aria-hidden="true" className="text-base">🎓</span> Mémoire L3 Génie Logiciel 2026</span>
             </div>
-            <h1 id="hero-title" className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">{t("landing.hero.title")}<br /><span className="text-primary">{t("landing.hero.subtitle")}</span></h1>
+            <h1 id="hero-title" className="mx-auto max-w-5xl font-heading text-4xl font-bold leading-[1.05] tracking-tight mb-6 sm:text-5xl md:text-6xl lg:text-7xl">{t("landing.hero.title")}<br /><span className="text-primary">{t("landing.hero.subtitle")}</span></h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">{t("landing.hero.description")}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/map" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"><Map className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.map")}</Link>
+              <Link href="/map" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-[0_12px_35px_hsl(var(--primary)/0.18)]"><Map className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.map")}</Link>
               <Link href="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border bg-card px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors"><Activity className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.dashboard")}</Link>
             </div>
             <aside aria-label="Compte de démonstration" className="mt-6 inline-flex items-center gap-2 border border-border bg-card/80 px-4 py-2.5 rounded-lg text-sm"><span className="text-accent font-semibold">Demo :</span><code className="text-xs font-mono text-muted-foreground">demo@jerymotro.mg</code><span className="text-muted-foreground/50" aria-hidden="true">/</span><code className="text-xs font-mono text-muted-foreground">demo1234</code><Link href="/login" className="ml-1 text-xs text-primary hover:underline">Essayer →</Link></aside>
@@ -107,12 +136,45 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section id="how-it-works" aria-labelledby="workflow-title" className="border-y border-border/60 bg-secondary/8 scroll-mt-16">
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-24">
+            <div className="mb-12 max-w-2xl">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{lang === "mg" ? "Fomba tsotra" : lang === "en" ? "Simple workflow" : "Un parcours simple"}</span>
+              <h2 id="workflow-title" className="mt-2 font-heading text-3xl font-bold tracking-tight">{lang === "mg" ? "Avy amin'ny fahitana ka hatramin'ny fanapahan-kevitra" : lang === "en" ? "From detection to decision" : "De la détection à la décision"}</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "JeryMotro dia mampifandray ny angona, ny famakafakana ary ny fanaraha-maso ao anatin'ny workflow tokana." : lang === "en" ? "JeryMotro connects data, analysis and monitoring in one operational workflow." : "JeryMotro relie les données, l’analyse et la surveillance dans un seul parcours opérationnel."}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="relative rounded-xl border border-border/70 bg-card/55 p-5 shadow-sm sm:p-6">
+                <div className="flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div><span className="font-heading text-2xl font-bold text-muted-foreground/25">{String(index + 1).padStart(2, "0")}</span></div>
+                <h3 className="mt-5 font-heading font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{step.desc}</p>
+                {index < workflowSteps.length - 1 ? <ChevronRight className="absolute -right-2 top-9 z-10 hidden h-4 w-4 rounded-full bg-background text-muted-foreground xl:block" aria-hidden="true" /> : null}
+              </article>; })}
+            </div>
+          </div>
+        </section>
+
         <section id="coverage" aria-labelledby="coverage-title" className="max-w-5xl mx-auto px-8 pb-24 scroll-mt-16">
           <article className="rounded-2xl border border-border/70 bg-card/55 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:p-8">
             <div className="w-16 h-16 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><Globe className="w-8 h-8 text-accent" aria-hidden="true" /></div>
             <div className="flex-1"><h2 id="coverage-title" className="font-heading text-xl font-bold mb-2">{t("landing.coverage.title")}</h2><p className="text-muted-foreground text-sm leading-relaxed">{t("landing.coverage.description")}</p></div>
             <div className="flex-shrink-0" aria-label="Niveaux de risque"><div className="flex items-center gap-3 text-sm"><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive inline-block" /> {t("landing.coverage.legends.critical")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-primary inline-block" /> {t("landing.coverage.legends.high")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> {t("landing.coverage.legends.medium")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent inline-block" /> {t("landing.coverage.legends.low")}</span></div></div>
           </article>
+        </section>
+
+        <section aria-labelledby="audience-title" className="mx-auto max-w-6xl px-4 pb-20 scroll-mt-16 sm:px-8 sm:pb-24">
+          <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{lang === "mg" ? "Ho an'iza" : lang === "en" ? "Built for" : "Pensé pour"}</span>
+              <h2 id="audience-title" className="mt-2 font-heading text-3xl font-bold tracking-tight">{lang === "mg" ? "Fampiasana samihafa, sehatra iray" : lang === "en" ? "Different users, one platform" : "Des usages différents, une même plateforme"}</h2>
+            </div>
+            <Link href="/register" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">{lang === "mg" ? "Hanomboka" : lang === "en" ? "Get started" : "Commencer"} <ChevronRight className="h-4 w-4" /></Link>
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="rounded-xl border border-border/70 bg-card/45 p-5 shadow-sm sm:p-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Icon className="h-5 w-5" /></div>
+              <h3 className="mt-5 font-heading font-semibold">{card.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{card.desc}</p>
+            </article>; })}
+          </div>
         </section>
 
         <section id="pricing" aria-labelledby="pricing-title" className="mx-auto max-w-5xl px-4 pb-20 scroll-mt-16 sm:px-8 sm:pb-24">
@@ -127,16 +189,33 @@ export default function LandingPage() {
             </article>)}
           </div>
         </section>
+        <section aria-labelledby="final-cta-title" className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-24">
+          <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm sm:p-8 lg:p-10">
+            <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{lang === "mg" ? "Vonona hijery" : lang === "en" ? "Ready to explore" : "Prêt à explorer"}</div>
+                <h2 id="final-cta-title" className="mt-2 font-heading text-2xl font-bold tracking-tight sm:text-3xl">{lang === "mg" ? "Jereo ny zava-misy, avy eo raiso ny fepetra." : lang === "en" ? "See the situation clearly, then act." : "Voir la situation clairement, puis agir."}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "Midira amin'ny sarintany ary fantaro ny fomba fiasan'ny JeryMotro." : lang === "en" ? "Open the map and explore how JeryMotro can support your monitoring workflow." : "Ouvrez la carte et découvrez comment JeryMotro peut soutenir votre surveillance."}</p>
+              </div>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                <Link href="/map" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90">{lang === "mg" ? "Hijery ny sarintany" : lang === "en" ? "Open live map" : "Ouvrir la carte"} <Map className="h-4 w-4" /></Link>
+                <Link href="/register" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-5 py-3 text-sm font-semibold hover:bg-secondary">{lang === "mg" ? "Misoratra anarana" : lang === "en" ? "Create account" : "Créer un compte"}</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <footer id="about" className="border-t border-border/60 bg-secondary/8 scroll-mt-16">
-        <div className="max-w-5xl mx-auto px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10">
             <section aria-labelledby="footer-about-title"><div className="flex items-center gap-3 mb-4"><img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" /><span id="footer-about-title" className="font-heading font-bold text-lg text-foreground">JeryMotro</span></div><p className="text-sm text-muted-foreground leading-relaxed">{t("landing.footer.about.desc")}</p></section>
             <nav aria-labelledby="footer-links-title"><h2 id="footer-links-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.links")}</h2><ul className="space-y-2 text-sm"><li><a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a></li><li><a href="#coverage" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a></li><li><a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a></li><li><Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link></li><li><Link href="/register" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.register.title")}</Link></li></ul></nav>
             <section aria-labelledby="footer-contact-title"><h2 id="footer-contact-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.contact")}</h2><address className="not-italic"><ul className="space-y-2 text-sm"><li className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" aria-hidden="true" /><a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a></li><li className="text-muted-foreground">{t("landing.footer.data")}</li><li className="text-muted-foreground">{t("landing.footer.ai")}</li></ul></address></section>
           </div>
-          <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground"><span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span><nav aria-label="Liens juridiques" className="flex items-center gap-4"><Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link><Link href="/cv" className="hover:text-foreground cursor-pointer transition-colors">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link><Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link><Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link></nav></div>
+          <div className="mt-10 border-t border-border/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground"><span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span><nav aria-label="Liens juridiques" className="flex items-center gap-4"><Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link><Link href="/cv" className="hover:text-foreground cursor-pointer transition-colors">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link><Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link><Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link></nav></div>
         </div>
       </footer>
     </div>
