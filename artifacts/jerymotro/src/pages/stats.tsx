@@ -205,7 +205,7 @@ function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={\`rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5 \${className}\`}>
+    <section className={`rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5 ${className}`}>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-heading text-sm font-semibold">{title}</h2>
@@ -237,7 +237,7 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
             </thead>
             <tbody>
               {rows.map((row, index) => (
-                <tr key={\`\${row.dimension}-\${row.value}-\${row.is_null}-\${index}\`} className="border-b border-border/30 last:border-0">
+                <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/30 last:border-0">
                   <td className="py-2.5 font-medium">{row.is_null ? c.notProvided : displayValue(row.value, lang, c)}</td>
                   <td className="text-right">{row.detections.toLocaleString()}</td>
                   <td className="text-right">{formatPercent(row.percentage)}</td>
