@@ -12,8 +12,8 @@ export default function CvPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background py-12 px-4 sm:px-6 lg:px-8 text-foreground print:bg-white print:text-black">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-8 sm:px-6 sm:py-10 lg:px-8 text-foreground print:bg-white print:text-black">
+        <div className="mx-auto max-w-5xl">
           {/* Header Controls (Hidden on print) */}
           <div className="flex justify-between items-center mb-8 print:hidden">
             <Link
@@ -34,9 +34,9 @@ export default function CvPage() {
           </div>
 
           {/* Main CV Container */}
-          <div className="bg-card border border-border/80 rounded-2xl overflow-hidden shadow-xl print:shadow-none print:border-none">
+          <div className="bg-card/70 border border-border/70 rounded-2xl overflow-hidden shadow-sm print:shadow-none print:border-none">
             {/* Identity Hero Banner */}
-            <div className="bg-primary/10 border-b border-border/80 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 print:bg-green-50 print:border-b-2">
+            <div className="bg-primary/8 border-b border-border/70 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 print:bg-green-50 print:border-b-2">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-primary/20 shadow-md flex-shrink-0">
                 <img
                   src="/profil.jpg"
@@ -80,7 +80,7 @@ export default function CvPage() {
             {/* Grid Layout (Sidebar + Main) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12">
               {/* Sidebar Section */}
-              <aside className="lg:col-span-4 bg-secondary/30 border-r border-border/80 p-6 space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
+              <aside className="lg:col-span-4 bg-secondary/20 border-r border-border/70 p-6 space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
                 {/* Profile Objective */}
                 <div>
                   <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
@@ -112,7 +112,7 @@ export default function CvPage() {
                     ].map((skill) => (
                       <span
                         key={skill}
-                        className="bg-background border border-border/80 text-foreground text-xs font-medium px-2.5 py-1 rounded-md"
+                        className="bg-background/50 border border-border/70 text-foreground text-xs font-medium px-2.5 py-1 rounded-md"
                       >
                         {skill}
                       </span>
