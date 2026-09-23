@@ -229,7 +229,7 @@ function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 ${className}`}>
+    <section className={`rounded-xl border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-[2px] sm:p-6 ${className}`}>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-heading text-sm font-semibold tracking-tight">{title}</h2>
@@ -251,7 +251,7 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-xs">
             <thead>
-              <tr className="border-b border-border/60 text-left text-muted-foreground">
+              <tr className="border-b border-border/60 text-left text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
                 <th className="pb-3 font-medium">{c.variable}</th>
                 <th className="pb-3 text-right font-medium">{c.detections}</th>
                 <th className="pb-3 text-right font-medium">%</th>
@@ -552,7 +552,7 @@ export default function StatsPage() {
       </section>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 shadow-sm">
+        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl border border-border/70 bg-card/60 p-1 shadow-sm backdrop-blur-sm">
           <TabsTrigger value="overview" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Globe2 className="h-3.5 w-3.5" />{c.overview}</TabsTrigger>
           <TabsTrigger value="time" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><CalendarRange className="h-3.5 w-3.5" />{c.time}</TabsTrigger>
           <TabsTrigger value="environment" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Trees className="h-3.5 w-3.5" />{c.environmentTab}</TabsTrigger>
@@ -562,7 +562,7 @@ export default function StatsPage() {
           <TabsTrigger value="quality" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Database className="h-3.5 w-3.5" />{c.quality}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {kpis.slice(0, 4).map((item, index) => <MetricCard key={item.label} {...item} emphasis="primary" tone={["bg-primary/10 text-primary", "bg-primary/10 text-primary", "bg-destructive/10 text-destructive", "bg-accent/10 text-accent"][index]} />)}
           </div>
@@ -595,7 +595,7 @@ export default function StatsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="time" className="space-y-6">
+        <TabsContent value="time" className="space-y-5">
           <SectionCard title={c.temporalEvolution} description={c.temporalDescription}>
             {daily.length === 0 ? <EmptyState message={c.noData} /> : (
               <ResponsiveContainer width="100%" height={330}>
@@ -645,7 +645,7 @@ export default function StatsPage() {
                 </ResponsiveContainer>
                 <div className="overflow-x-auto rounded-lg border border-border/50">
                   <table className="w-full min-w-[620px] text-xs">
-                    <thead className="bg-muted/35">
+                    <thead className="bg-muted/25">
                       <tr className="border-b border-border/50 text-left text-muted-foreground">
                         <th className="px-3 py-2.5">{c.variable}</th>
                         <th className="px-3 py-2.5 text-right">{c.detections}</th>
@@ -671,7 +671,7 @@ export default function StatsPage() {
             )}
           </SectionCard>
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <DistributionTable title={c.sources} rows={advanced.source_distribution} lang={lang} c={c} />
             <DistributionTable title={c.satellitesTitle} rows={advanced.satellite_distribution} lang={lang} c={c} />
             <DistributionTable title={c.instruments} rows={advanced.instrument_distribution} lang={lang} c={c} />
@@ -681,8 +681,8 @@ export default function StatsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="environment" className="space-y-6">
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <TabsContent value="environment" className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <DistributionTable title={c.environmentDistribution} rows={advanced.environment_distribution} lang={lang} c={c} />
             <DistributionTable title={c.regionDistribution} rows={advanced.region_distribution} lang={lang} c={c} />
             <DistributionTable title={c.landcover} rows={advanced.landcover_distribution} lang={lang} c={c} />
@@ -711,24 +711,24 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="risk" className="space-y-6">
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            <DistributionTable title={c.riskDistribution} rows={advanced.risk_distribution} lang={lang} c={c} />
+        <TabsContent value="risk" className="space-y-5">
+          <RiskOverview rows={advanced.risk_distribution} lang={lang} c={c} />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <DistributionTable title={c.fireLabel} rows={advanced.fire_label_distribution} lang={lang} c={c} />
             <DistributionTable title={c.noise} rows={advanced.noise_distribution} lang={lang} c={c} />
             <DistributionTable title={c.recentLoss} rows={advanced.recent_loss_distribution} lang={lang} c={c} />
           </div>
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <DistributionTable title={c.sources} rows={advanced.source_distribution} lang={lang} c={c} />
             <DistributionTable title={c.confidence} rows={advanced.confidence_distribution} lang={lang} c={c} />
           </div>
         </TabsContent>
 
-        <TabsContent value="numeric" className="space-y-6">
+        <TabsContent value="numeric" className="space-y-5">
           <SectionCard title={c.numericStats} description={c.numericDescription}>
             {numeric.length === 0 ? <EmptyState message={c.noData} /> : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1320px] text-xs">
+                <table className="w-full min-w-[1180px] text-xs">
                   <thead><tr className="border-b border-border/60 text-left text-muted-foreground">
                     <th className="pb-3">{c.variable}</th><th className="pb-3">{c.unit}</th><th className="pb-3 text-right">{c.valid}</th><th className="pb-3 text-right">{c.missing}</th>
                     <th className="pb-3 text-right">{c.mean}</th><th className="pb-3 text-right">{c.median}</th>
@@ -776,7 +776,7 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="cluster" className="space-y-6">
+        <TabsContent value="cluster" className="space-y-5">
           <SectionCard title={c.topClusters}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-xs">
@@ -814,7 +814,7 @@ export default function StatsPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="quality" className="space-y-6">
+        <TabsContent value="quality" className="space-y-5">
           <SectionCard title={c.nullAnalysis}>
             {advanced.null_analysis.length === 0 ? <EmptyState message={c.noData} /> : (
               <div className="overflow-x-auto">
@@ -836,7 +836,7 @@ export default function StatsPage() {
           </SectionCard>
 
           <SectionCard title={c.geospatial}>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
               {[
                 [c.minLatitude, advanced.geospatial_summary.min_latitude],
                 [c.maxLatitude, advanced.geospatial_summary.max_latitude],
