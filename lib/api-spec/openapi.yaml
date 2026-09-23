@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 2.3.0
+  version: 2.4.0
   description: JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
 servers:
   - url: /api
@@ -958,97 +958,360 @@ components:
       type: object
       required: [date_from, date_to, exclude_noise]
       properties:
-        date_from: {type: string, format: date}
-        date_to: {type: string, format: date}
-        environment: {type: ["string", "null"]}
-        region: {type: ["string", "null"]}
-        exclude_noise: {type: boolean}
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+        environment:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        exclude_noise:
+          type: boolean
+          default: true
 
     EnvironmentalStatsSummary:
       type: object
+      required:
+        - total_detections
+        - enriched_detections
+        - pending_detections
+        - environmental_coverage_percent
+        - total_regions
+        - total_sources
+        - total_satellites
+        - total_instruments
+        - total_clusters
+        - total_fire_events
+        - total_collection_runs
+        - total_frp
+        - total_frp_valid_detections
+        - critical_detections
+        - high_risk_detections
+        - medium_risk_detections
+        - low_risk_detections
+        - unknown_risk_detections
+        - daytime_detections
+        - nighttime_detections
+        - dry_season_detections
+        - recent_loss_detections
       properties:
         total_detections: {type: integer}
         enriched_detections: {type: integer}
         pending_detections: {type: integer}
         environmental_coverage_percent: {type: number}
         total_regions: {type: integer}
+        total_sources: {type: integer}
+        total_satellites: {type: integer}
+        total_instruments: {type: integer}
         total_clusters: {type: integer}
+        total_fire_events: {type: integer}
+        total_collection_runs: {type: integer}
         total_frp: {type: number}
+        total_frp_valid_detections: {type: integer}
         average_frp: {type: ["number", "null"]}
-        maximum_frp: {type: ["number", "null"]}
+        median_frp: {type: ["number", "null"]}
         average_risk: {type: ["number", "null"]}
+        median_risk: {type: ["number", "null"]}
         critical_detections: {type: integer}
         high_risk_detections: {type: integer}
+        medium_risk_detections: {type: integer}
+        low_risk_detections: {type: integer}
+        unknown_risk_detections: {type: integer}
+        daytime_detections: {type: integer}
+        nighttime_detections: {type: integer}
+        dry_season_detections: {type: integer}
+        recent_loss_detections: {type: integer}
 
-    EnvironmentalStatsEnvironmentRow:
+    EnvironmentalStatsNumeric:
       type: object
+      required: [field, valid_count, missing_count, missing_percentage]
       properties:
-        context: {type: string}
-        detections: {type: integer}
-        percentage: {type: number}
-        average_frp: {type: ["number", "null"]}
-        average_risk: {type: ["number", "null"]}
+        field: {type: string}
+        valid_count: {type: integer}
+        missing_count: {type: integer}
+        missing_percentage: {type: number}
+        total: {type: ["number", "null"]}
+        mean: {type: ["number", "null"]}
+        median: {type: ["number", "null"]}
+        variance: {type: ["number", "null"]}
+        std_dev: {type: ["number", "null"]}
+        min: {type: ["number", "null"]}
+        p05: {type: ["number", "null"]}
+        q1: {type: ["number", "null"]}
+        q3: {type: ["number", "null"]}
+        p95: {type: ["number", "null"]}
+        iqr: {type: ["number", "null"]}
+        max: {type: ["number", "null"]}
+        coefficient_of_variation_percent: {type: ["number", "null"]}
+        skewness: {type: ["number", "null"]}
+        kurtosis: {type: ["number", "null"]}
+        outlier_count: {type: integer}
+        outlier_percentage: {type: number}
 
-    EnvironmentalStatsRegionRow:
+    EnvironmentalStatsNullRow:
       type: object
+      required: [field, total_count, non_null_count, null_count, null_percentage]
       properties:
-        region: {type: string}
+        field: {type: string}
+        total_count: {type: integer}
+        non_null_count: {type: integer}
+        null_count: {type: integer}
+        null_percentage: {type: number}
+
+    EnvironmentalStatsDistributionRow:
+      type: object
+      required: [dimension, is_null, detections, percentage]
+      properties:
+        dimension: {type: string}
+        value: {type: ["string", "null"]}
+        is_null: {type: boolean}
         detections: {type: integer}
         percentage: {type: number}
         enriched_detections: {type: integer}
-        dominant_environment: {type: ["string", "null"]}
+        enriched_percentage: {type: number}
+        total_frp: {type: number}
+        average_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+        average_brightness: {type: ["number", "null"]}
+        average_confidence: {type: ["number", "null"]}
 
     EnvironmentalStatsDailyRow:
       type: object
+      required:
+        - date
+        - detections
+        - enriched_detections
+        - pending_detections
+        - total_frp
+        - critical_detections
+        - high_risk_detections
+        - clusters
+        - regions
       properties:
         date: {type: string, format: date}
         detections: {type: integer}
         enriched_detections: {type: integer}
         pending_detections: {type: integer}
+        total_frp: {type: number}
+        average_frp: {type: ["number", "null"]}
+        average_brightness: {type: ["number", "null"]}
+        average_confidence: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+        critical_detections: {type: integer}
+        high_risk_detections: {type: integer}
+        clusters: {type: integer}
+        regions: {type: integer}
+
+    EnvironmentalStatsHourlyRow:
+      type: object
+      required: [is_null, detections, percentage]
+      properties:
+        local_hour: {type: ["integer", "null"]}
+        is_null: {type: boolean}
+        detections: {type: integer}
+        percentage: {type: number}
         average_frp: {type: ["number", "null"]}
         average_risk: {type: ["number", "null"]}
 
-    EnvironmentalStatsRiskRow:
+    EnvironmentalStatsContextCompositionRow:
       type: object
+      required: [context, detections_with_context]
       properties:
-        risk_level: {type: string}
-        detections: {type: integer}
-        percentage: {type: number}
+        context: {type: string}
+        detections_with_context: {type: integer}
+        mean_percentage: {type: ["number", "null"]}
+        median_percentage: {type: ["number", "null"]}
+        variance: {type: ["number", "null"]}
+        std_dev: {type: ["number", "null"]}
+        min_percentage: {type: ["number", "null"]}
+        q1: {type: ["number", "null"]}
+        q3: {type: ["number", "null"]}
+        max_percentage: {type: ["number", "null"]}
 
-    EnvironmentalStatsSourceRow:
+    EnvironmentalStatsCorrelationRow:
+      type: object
+      required: [variable_x, variable_y, pair_count]
+      properties:
+        variable_x: {type: string}
+        variable_y: {type: string}
+        pair_count: {type: integer}
+        pearson_correlation: {type: ["number", "null"]}
+        covariance: {type: ["number", "null"]}
+
+    EnvironmentalStatsClusterRow:
+      type: object
+      required: [cluster_id, detections]
+      properties:
+        cluster_id: {type: integer}
+        detections: {type: integer}
+        region: {type: ["string", "null"]}
+        dominant_environment: {type: ["string", "null"]}
+        total_frp: {type: ["number", "null"]}
+        max_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+        cluster_size: {type: ["integer", "null"]}
+
+    EnvironmentalStatsClusterSummary:
+      type: object
+      required: [total_clusters, clustered_detections, unclustered_detections, total_cluster_frp]
+      properties:
+        total_clusters: {type: integer}
+        clustered_detections: {type: integer}
+        unclustered_detections: {type: integer}
+        average_cluster_size: {type: ["number", "null"]}
+        median_cluster_size: {type: ["number", "null"]}
+        maximum_cluster_size: {type: ["integer", "null"]}
+        total_cluster_frp: {type: number}
+        average_cluster_frp: {type: ["number", "null"]}
+        maximum_cluster_frp: {type: ["number", "null"]}
+
+    EnvironmentalStatsEventRow:
+      type: object
+      required: [fire_event_id, detections]
+      properties:
+        fire_event_id: {type: integer}
+        detections: {type: integer}
+        region: {type: ["string", "null"]}
+        total_frp: {type: ["number", "null"]}
+        max_frp: {type: ["number", "null"]}
+        average_risk: {type: ["number", "null"]}
+
+    EnvironmentalStatsGeospatialSummary:
       type: object
       properties:
-        source: {type: string}
-        detections: {type: integer}
-        percentage: {type: number}
+        min_latitude: {type: ["number", "null"]}
+        max_latitude: {type: ["number", "null"]}
+        min_longitude: {type: ["number", "null"]}
+        max_longitude: {type: ["number", "null"]}
+        centroid_latitude: {type: ["number", "null"]}
+        centroid_longitude: {type: ["number", "null"]}
+        latitude_std_dev: {type: ["number", "null"]}
+        longitude_std_dev: {type: ["number", "null"]}
 
     EnvironmentalAdvancedStatsResponse:
       type: object
+      required:
+        - filters
+        - summary
+        - geospatial_summary
+        - numeric_statistics
+        - null_analysis
+        - environment_distribution
+        - context_composition
+        - region_distribution
+        - source_distribution
+        - satellite_distribution
+        - instrument_distribution
+        - confidence_distribution
+        - daynight_distribution
+        - season_distribution
+        - recent_loss_distribution
+        - fire_label_distribution
+        - noise_distribution
+        - landcover_distribution
+        - daily_evolution
+        - hourly_distribution
+        - risk_distribution
+        - correlations
+        - cluster_summary
+        - top_clusters
+        - top_fire_events
       properties:
         filters:
           $ref: "#/components/schemas/EnvironmentalStatsFilters"
         summary:
           $ref: "#/components/schemas/EnvironmentalStatsSummary"
+        geospatial_summary:
+          $ref: "#/components/schemas/EnvironmentalStatsGeospatialSummary"
+        numeric_statistics:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsNumeric"
+        null_analysis:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsNullRow"
         environment_distribution:
           type: array
           items:
-            $ref: "#/components/schemas/EnvironmentalStatsEnvironmentRow"
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        context_composition:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsContextCompositionRow"
         region_distribution:
           type: array
           items:
-            $ref: "#/components/schemas/EnvironmentalStatsRegionRow"
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        source_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        satellite_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        instrument_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        confidence_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        daynight_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        season_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        recent_loss_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        fire_label_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        noise_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        landcover_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
         daily_evolution:
           type: array
           items:
             $ref: "#/components/schemas/EnvironmentalStatsDailyRow"
+        hourly_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsHourlyRow"
         risk_distribution:
           type: array
           items:
-            $ref: "#/components/schemas/EnvironmentalStatsRiskRow"
-        source_distribution:
+            $ref: "#/components/schemas/EnvironmentalStatsDistributionRow"
+        correlations:
           type: array
           items:
-            $ref: "#/components/schemas/EnvironmentalStatsSourceRow"
+            $ref: "#/components/schemas/EnvironmentalStatsCorrelationRow"
+        cluster_summary:
+          $ref: "#/components/schemas/EnvironmentalStatsClusterSummary"
+        top_clusters:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsClusterRow"
+        top_fire_events:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentalStatsEventRow"
 
     EnvironmentalContextStatsResponse:
       type: object
