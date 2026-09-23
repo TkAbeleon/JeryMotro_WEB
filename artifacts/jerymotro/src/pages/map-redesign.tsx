@@ -15,7 +15,7 @@ type RiskLevel = "critical" | "high" | "medium" | "low";
 type Period = "today" | "7d" | "30d" | "90d" | "1y" | "custom";
 type MapStyle = "satellite" | "roadmap" | "dark";
 
-interface FirePoint { id: number; lat: number; lng: number; risk: number; confidence: number; brightness: number; source: "MODIS" | "VIIRS"; sourceRaw: string; region: string; detectedAt: Date; }
+interface FirePoint { id: number; lat: number; lng: number; risk: number; confidence: number; brightness: number; source: "MODIS" | "VIIRS"; sourceRaw: string; region: string; detectedAt: Date; fireContextType: string | null; contextPercentages: Record<string, number> | null; }
 interface SearchResult { formatted_address: string; lat: number; lng: number; }
 interface RegionCenter { name: string; lat: number; lng: number; }
 
@@ -37,6 +37,30 @@ const PERIODS: Period[] = ["today", "7d", "30d", "90d", "1y", "custom"];
 const RISK_LEVELS: { key: RiskLevel; color: string }[] = [
   { key: "critical", color: "#ef4444" }, { key: "high", color: "#f97316" }, { key: "medium", color: "#f59e0b" }, { key: "low", color: "#22c55e" },
 ];
+
+const WORLDCOVER_CONTEXTS = [
+  { key: "Forêt", i18n: "map.context.class.forest" },
+  { key: "Arbustes", i18n: "map.context.class.shrubland" },
+  { key: "Prairie / Herbacé", i18n: "map.context.class.grassland" },
+  { key: "Culture agricole", i18n: "map.context.class.cropland" },
+  { key: "Zone bâtie", i18n: "map.context.class.builtup" },
+  { key: "Sol nu / Végétation clairsemée", i18n: "map.context.class.bare" },
+  { key: "Neige / Glace", i18n: "map.context.class.snow" },
+  { key: "Eau permanente", i18n: "map.context.class.water" },
+  { key: "Zone humide herbacée", i18n: "map.context.class.wetland" },
+  { key: "Mangrove", i18n: "map.context.class.mangrove" },
+  { key: "Mousse / Lichen", i18n: "map.context.class.moss" },
+] as const;
+
+function contextLabel(context: string, t: (key: any) => string) {
+  const known = WORLDCOVER_CONTEXTS.find(item => item.key === context);
+  return known ? t(known.i18n as any) : context;
+}
+
+function sortedContextEntries(percentages: Record<string, number> | null) {
+  if (!percentages) return [];
+  return Object.entries(percentages).filter(([, value]) => Number.isFinite(value) && value > 0).sort((a, b) => b[1] - a[1]);
+}
 
 function getRiskLevel(risk: number): RiskLevel { if (risk >= 0.7) return "critical"; if (risk >= 0.5) return "high"; if (risk >= 0.3) return "medium"; return "low"; }
 function getRiskColor(risk: number) { if (risk >= 0.7) return "#ef4444"; if (risk >= 0.5) return "#f97316"; if (risk >= 0.3) return "#f59e0b"; return "#22c55e"; }
@@ -77,7 +101,7 @@ export default function MapRedesignPage() {
   const [locating, setLocating] = useState(false); const [target, setTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null); const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null); const [hoveredFireId, setHoveredFireId] = useState<number | null>(null);
   const [mapStyle, setMapStyle] = useState<MapStyle>("satellite"); const [period, setPeriod] = useState<Period>("30d");
-  const [selectedRisks, setSelectedRisks] = useState<Set<RiskLevel>>(new Set(["critical", "high", "medium", "low"])); const [selectedRegion, setSelectedRegion] = useState("all"); const [selectedSource, setSelectedSource] = useState("all");
+  const [selectedRisks, setSelectedRisks] = useState<Set<RiskLevel>>(new Set(["critical", "high", "medium", "low"])); const [selectedRegion, setSelectedRegion] = useState("all"); const [selectedSource, setSelectedSource] = useState("all"); const [selectedContext, setSelectedContext] = useState("all");
   const [dateRange, setDateRange] = useState(() => ({ from: subDays(new Date(), 30), to: new Date() }));
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -103,7 +127,7 @@ export default function MapRedesignPage() {
   const detectionsQuery = useListDetections(queryParams);
   const fires: FirePoint[] = useMemo(() => (detectionsQuery.data?.detections || []).map(d => ({
     id: d.id, lat: d.latitude, lng: d.longitude, risk: d.risk_score ?? 0, confidence: d.confidence_num ?? (d.confidence ? parseInt(d.confidence) : 0), brightness: d.brightness ?? 0,
-    source: d.source?.toLowerCase().includes("viirs") ? "VIIRS" : "MODIS", sourceRaw: d.source || "", region: d.region || "Inconnue", detectedAt: d.inserted_at ? new Date(d.inserted_at) : new Date(d.acq_date),
+    source: d.source?.toLowerCase().includes("viirs") ? "VIIRS" : "MODIS", sourceRaw: d.source || "", region: d.region || "Inconnue", detectedAt: d.inserted_at ? new Date(d.inserted_at) : new Date(d.acq_date), fireContextType: d.fire_context_type ?? null, contextPercentages: d.context_percentages ?? null,
   })), [detectionsQuery.data]);
 
   const filtered = useMemo(() => fires.filter(fire => {
@@ -111,11 +135,13 @@ export default function MapRedesignPage() {
     if (selectedRegion !== "all" && fire.region !== selectedRegion) return false;
     if (selectedSource === "VIIRS" && fire.source !== "VIIRS") return false;
     if (selectedSource === "MODIS" && fire.source !== "MODIS") return false;
+    if (selectedContext === "pending" && fire.fireContextType !== null) return false;
+    if (selectedContext !== "all" && selectedContext !== "pending" && fire.fireContextType !== selectedContext) return false;
     return true;
-  }), [fires, selectedRisks, selectedRegion, selectedSource]);
+  }), [fires, selectedRisks, selectedRegion, selectedSource, selectedContext]);
   const visibleFires = useMemo(() => visibleBounds ? filtered.filter(fire => visibleBounds.contains([fire.lat, fire.lng])) : filtered, [filtered, visibleBounds]);
   const criticalCount = filtered.filter(fire => fire.risk >= 0.7).length;
-  const activeFiltersCount = (selectedRegion !== "all" ? 1 : 0) + (selectedSource !== "all" ? 1 : 0) + (selectedRisks.size < 4 ? 1 : 0) + (period !== "30d" ? 1 : 0);
+  const activeFiltersCount = (selectedRegion !== "all" ? 1 : 0) + (selectedSource !== "all" ? 1 : 0) + (selectedContext !== "all" ? 1 : 0) + (selectedRisks.size < 4 ? 1 : 0) + (period !== "30d" ? 1 : 0);
 
   useEffect(() => {
     if (!controlsOpen) return;
@@ -126,7 +152,7 @@ export default function MapRedesignPage() {
   }, [controlsOpen]);
 
   const toggleRisk = (risk: RiskLevel) => setSelectedRisks(prev => { const next = new Set(prev); if (next.has(risk)) next.delete(risk); else next.add(risk); return next; });
-  const resetFilters = () => { const end = new Date(); setPeriod("30d"); setSelectedRisks(new Set(["critical", "high", "medium", "low"])); setSelectedRegion("all"); setSelectedSource("all"); setDateRange({ from: subDays(end, 30), to: end }); };
+  const resetFilters = () => { const end = new Date(); setPeriod("30d"); setSelectedRisks(new Set(["critical", "high", "medium", "low"])); setSelectedRegion("all"); setSelectedSource("all"); setSelectedContext("all"); setDateRange({ from: subDays(end, 30), to: end }); };
 
   const selectSearchResult = (result: SearchResult) => { setTarget(result); setSearchResults([]); setSearchOpen(false); setSearchQuery(""); };
   const searchLocation = async () => {
@@ -173,7 +199,7 @@ export default function MapRedesignPage() {
       {userLocation && <CircleMarker center={[userLocation.lat, userLocation.lng]} radius={7} pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.9, weight: 2 }} />}
       <MarkerClusterGroup chunkedLoading maxClusterRadius={48} spiderfyOnMaxZoom>{filtered.map(point => <CircleMarker key={point.id} center={[point.lat, point.lng]} radius={hoveredFireId === point.id ? 11 : point.risk >= .7 ? 8 : point.risk >= .5 ? 7 : 6} eventHandlers={{ mouseover: () => setHoveredFireId(point.id), mouseout: () => setHoveredFireId(null) }} pathOptions={{ color: hoveredFireId === point.id ? "#ffffff" : getRiskColor(point.risk), fillColor: getRiskColor(point.risk), fillOpacity: .86, weight: hoveredFireId === point.id ? 2 : 1.25 }}>
         <Tooltip direction="top" offset={[0, -8]} opacity={1}><div className="min-w-[190px] rounded-lg border border-border bg-popover px-3 py-2 text-popover-foreground shadow-lg"><div className="mb-2 flex items-center gap-2 text-xs font-semibold"><span className="h-2 w-2 rounded-full" style={{ background: getRiskColor(point.risk) }} /><span className="truncate">{point.region}</span><span className="ml-auto text-[10px] font-bold uppercase" style={{ color: getRiskColor(point.risk) }}>{t(`risk.${getRiskLevel(point.risk)}` as any)}</span></div><div className="space-y-1 text-[11px] text-muted-foreground"><div className="flex justify-between gap-4"><span>{t("map.popup.confidence")}</span><span className="font-medium text-foreground">{point.confidence}%</span></div><div className="flex justify-between gap-4"><span>{t("map.popup.source")}</span><span className="font-medium text-foreground">{point.source}</span></div><div className="flex justify-between gap-4"><span>{t("map.popup.brightness")}</span><span className="font-medium text-foreground">{point.brightness} K</span></div></div></div></Tooltip>
-        <Popup className="fire-popup"><div className="mb-2 flex items-center gap-2 text-sm font-semibold"><span className="h-2.5 w-2.5 rounded-full" style={{ background: getRiskColor(point.risk) }} /><span className="truncate">{point.region}</span><span className="ml-auto text-[10px] font-bold uppercase" style={{ color: getRiskColor(point.risk) }}>{t(`risk.${getRiskLevel(point.risk)}` as any)}</span></div><div className="space-y-1 text-xs text-muted-foreground"><div className="flex justify-between gap-5"><span>{t("map.popup.confidence")}</span><span className="font-medium text-foreground">{point.confidence}%</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.brightness")}</span><span className="font-medium text-foreground">{point.brightness} K</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.source")}</span><span className="font-medium text-foreground">{point.sourceRaw || point.source}</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.detected")}</span><span className="font-medium text-foreground">{format(point.detectedAt, "dd/MM HH:mm")}</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.coords")}</span><span className="font-medium text-foreground">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span></div></div></Popup>
+        <Popup className="fire-popup"><div className="mb-2 flex items-center gap-2 text-sm font-semibold"><span className="h-2.5 w-2.5 rounded-full" style={{ background: getRiskColor(point.risk) }} /><span className="truncate">{point.region}</span><span className="ml-auto text-[10px] font-bold uppercase" style={{ color: getRiskColor(point.risk) }}>{t(`risk.${getRiskLevel(point.risk)}` as any)}</span></div><div className="space-y-1 text-xs text-muted-foreground"><div className="flex justify-between gap-5"><span>{t("map.popup.confidence")}</span><span className="font-medium text-foreground">{point.confidence}%</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.brightness")}</span><span className="font-medium text-foreground">{point.brightness} K</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.source")}</span><span className="font-medium text-foreground">{point.sourceRaw || point.source}</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.detected")}</span><span className="font-medium text-foreground">{format(point.detectedAt, "dd/MM HH:mm")}</span></div><div className="flex justify-between gap-5"><span>{t("map.popup.coords")}</span><span className="font-medium text-foreground">{point.lat.toFixed(3)}, {point.lng.toFixed(3)}</span></div><div className="mt-3 border-t border-border/60 pt-3"><div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-foreground">{t("map.context.title")}</div>{point.fireContextType ? <><div className="flex justify-between gap-5 text-xs"><span className="text-muted-foreground">{t("map.context.dominant")}</span><span className="font-semibold text-foreground">{contextLabel(point.fireContextType, t)}</span></div>{sortedContextEntries(point.contextPercentages).slice(0, 4).map(([name, value]) => <div key={name} className="mt-2"><div className="mb-1 flex justify-between gap-3 text-[11px]"><span className="truncate text-muted-foreground">{contextLabel(name, t)}</span><span className="font-medium text-foreground">{value.toFixed(1)}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} /></div></div>)}</> : <div className="text-xs text-muted-foreground">{t("map.context.pending")}</div>}</div></div></Popup>
       </CircleMarker>)}</MarkerClusterGroup>
     </MapContainer></div>
 
@@ -201,6 +227,7 @@ export default function MapRedesignPage() {
           <section><div className="mb-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("map.filter.risk")}</div><div className="grid grid-cols-2 gap-1.5">{RISK_LEVELS.map(({ key, color }) => { const checked = selectedRisks.has(key); return <button key={key} type="button" onClick={() => toggleRisk(key)} className={`flex min-h-10 items-center gap-2 rounded-xl border px-3 text-left text-[11px] font-semibold transition ${checked ? "border-border bg-secondary" : "border-border/70 text-muted-foreground opacity-60"}`}><span className="flex h-5 w-5 items-center justify-center rounded-md border-2" style={{ borderColor: color, background: checked ? color : "transparent" }}>{checked && <Check className="h-3 w-3 text-white" />}</span><span className="truncate">{riskLabel(key)}</span></button>; })}</div></section>
           <section><div className="mb-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("map.filter.region")}</div><div className="relative"><select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)} className="h-10 w-full appearance-none rounded-xl border border-border bg-background px-3 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary"><option value="all">{t("map.filter.region.all")}</option>{MADAGASCAR_REGIONS.map(region => <option key={region.name} value={region.name}>{region.name}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /></div></section>
           <section><div className="mb-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("map.filter.source")}</div><div className="grid grid-cols-3 gap-1.5">{["all", "MODIS", "VIIRS"].map(source => <button key={source} type="button" onClick={() => setSelectedSource(source)} className={`min-h-10 rounded-xl border text-[11px] font-semibold transition ${selectedSource === source ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-secondary"}`}>{source === "all" ? t("map.filter.source.all") : source}</button>)}</div></section>
+          <section><div className="mb-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("map.filter.context")}</div><div className="grid grid-cols-1 gap-1.5">{[{ key: "all", label: t("map.filter.context.all") }, { key: "pending", label: t("map.filter.context.pending") }, ...WORLDCOVER_CONTEXTS.map(context => ({ key: context.key, label: t(context.i18n as any) }))].map(context => <button key={context.key} type="button" onClick={() => setSelectedContext(context.key)} className={`${selectedContext === context.key ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-secondary"}`}>{context.label}</button>)}</div></section>
           <section className="flex items-center justify-between rounded-2xl border border-border bg-secondary/40 p-3"><div className="flex items-center gap-2"><Layers className="h-4 w-4 text-muted-foreground" /><span className="text-xs font-semibold">{t("map.legend")}</span></div><div className="flex items-center gap-3 text-[10px] text-muted-foreground">{RISK_LEVELS.map(({ key, color }) => <span key={key} className="flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{ background: color }} />{riskLabel(key)}</span>)}</div></section>
           <button type="button" onClick={resetFilters} className="flex min-h-10 w-full items-center justify-center rounded-xl border border-border text-xs font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground">{t("common.reset")}</button>
         </div></div>}
