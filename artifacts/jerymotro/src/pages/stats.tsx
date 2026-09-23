@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useGetDailyStats, useListDetections, useListClusters } from "@workspace/api-client-react";
+import { useGetDailyStats, useGetEnvironmentalAdvancedStats, useListDetections, useListClusters } from "@workspace/api-client-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
 import { useI18n } from "@/hooks/use-i18n";
 import { subDays } from "date-fns";
@@ -14,13 +14,21 @@ const chartTooltip = { background: "hsl(var(--popover))", border: "1px solid hsl
 
 export default function StatsPage() {
   const { t, lang } = useI18n();
-  const { dateFrom } = useMemo(() => ({ dateFrom: formatDateForAPI(subDays(new Date(), 30)) }), []);
+  const { dateFrom, dateTo } = useMemo(() => {
+    const to = new Date();
+    return { dateFrom: formatDateForAPI(subDays(to, 30)), dateTo: formatDateForAPI(to) };
+  }, []);
+  const advancedQ = useGetEnvironmentalAdvancedStats(
+    { date_from: dateFrom, date_to: dateTo, exclude_noise: true },
+    { query: { staleTime: 60_000, refetchInterval: 5 * 60_000 } }
+  );
   const dailyQ = useGetDailyStats({ date_from: dateFrom });
   const detectionsQ = useListDetections({ limit: 2000, date_from: dateFrom });
   const clustersQ = useListClusters({ limit: 50 });
   const daily = dailyQ.data?.stats || [];
   const detections = detectionsQ.data?.detections || [];
   const clusters = clustersQ.data?.clusters || [];
+  const advanced = advancedQ.data;
   const last30 = daily.slice().reverse();
   const last7 = daily.slice(-7).reverse();
 
@@ -28,8 +36,8 @@ export default function StatsPage() {
   const sourceStats = useMemo(() => { const map: Record<string, number> = {}; detections.forEach(d => { const src = d.source?.toLowerCase().includes("viirs") ? "VIIRS" : "MODIS"; map[src] = (map[src] || 0) + 1; }); return Object.entries(map).map(([source, count]) => ({ source, count })); }, [detections]);
   const weeklyComparison = useMemo(() => last7.map(d => ({ date: d.date.slice(5), fullDate: d.date, current: d.total_detections, high_risk: d.high_risk_count, clusters: d.active_clusters })), [last7]);
 
-  if (dailyQ.isLoading || detectionsQ.isLoading || clustersQ.isLoading) return <AsyncStateInline type="loading" title={t("common.loading")} description="Préparation des statistiques et graphiques…" />;
-  if (dailyQ.isError || detectionsQ.isError || clustersQ.isError) return <AsyncStateInline type="error" title="Impossible de charger les statistiques" description="Les données analytiques ne sont pas disponibles. Réessayez pour actualiser." onAction={() => { dailyQ.refetch(); detectionsQ.refetch(); clustersQ.refetch(); }} actionLabel="Réessayer" />;
+  if (dailyQ.isLoading || detectionsQ.isLoading || clustersQ.isLoading || advancedQ.isLoading) return <AsyncStateInline type="loading" title={t("common.loading")} description="Préparation des statistiques et graphiques…" />;
+  if (dailyQ.isError || detectionsQ.isError || clustersQ.isError || advancedQ.isError) return <AsyncStateInline type="error" title="Impossible de charger les statistiques" description="Les données analytiques ne sont pas disponibles. Réessayez pour actualiser." onAction={() => { dailyQ.refetch(); detectionsQ.refetch(); clustersQ.refetch(); advancedQ.refetch(); }} actionLabel="Réessayer" />;
 
   const totalDetections = last30.reduce((s, d) => s + d.total_detections, 0);
   const totalHighRisk = last30.reduce((s, d) => s + d.high_risk_count, 0);
@@ -38,6 +46,42 @@ export default function StatsPage() {
   const criticalScaleMax = Math.ceil(Math.max(...last30.map(d => d.high_risk_count), 1) * 1.2);
   const criticalScaleMaxWeekly = Math.ceil(Math.max(...last7.map(d => d.high_risk_count), 1) * 1.2);
 
+  const numeric = advanced?.numeric_statistics || [];
+  const getNumeric = (field: string) => numeric.find(item => item.field === field);
+  const frpStats = getNumeric("frp");
+  const riskStats = getNumeric("risk_score");
+  const envRows = advanced?.environment_distribution || [];
+  const riskRows = advanced?.risk_distribution || [];
+  const correlationRows = (advanced?.correlations || []).filter(row => row.pair_count >= 2).slice().sort((a,b) => Math.abs(b.pearson_correlation ?? 0) - Math.abs(a.pearson_correlation ?? 0)).slice(0, 12);
+
+    {advanced && <section className="rounded-xl border border-border/55 bg-card/35 p-4 sm:p-5">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div><h2 className="font-heading text-sm font-semibold">Analyse avancée</h2><p className="mt-1 text-xs text-muted-foreground">30 jours · toutes les statistiques proviennent de firms_fire_detections.</p></div>
+        <div className="text-xs text-muted-foreground">{advanced.summary.enriched_detections.toLocaleString()} enrichies · {advanced.summary.environmental_coverage_percent.toFixed(1)}% couverture</div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          ["Détections", advanced.summary.total_detections.toLocaleString()],
+          ["FRP total", advanced.summary.total_frp.toLocaleString(undefined,{maximumFractionDigits:1})],
+          ["FRP moyen", frpStats?.mean == null ? "—" : frpStats.mean.toFixed(1)],
+          ["Écart-type FRP", frpStats?.std_dev == null ? "—" : frpStats.std_dev.toFixed(1)]
+        ].map(([label,value]) => <div key={label} className="rounded-lg border border-border/50 bg-background/30 p-3"><div className="text-lg font-semibold">{value}</div><div className="mt-1 text-[10px] text-muted-foreground">{label}</div></div>)}
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="rounded-lg border border-border/50 p-4">
+          <h3 className="mb-3 text-xs font-semibold">Environnements</h3>
+          <div className="space-y-2">{envRows.slice(0,8).map(row => <div key={row.dimension+String(row.value)+row.is_null} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1 truncate">{row.is_null ? "Non renseigné" : row.value}</span><span className="font-medium">{row.percentage.toFixed(1)}%</span><span className="text-muted-foreground">{row.detections.toLocaleString()}</span></div>)}</div>
+        </div>
+        <div className="rounded-lg border border-border/50 p-4">
+          <h3 className="mb-3 text-xs font-semibold">Niveaux de risque</h3>
+          <div className="space-y-2">{riskRows.map(row => <div key={row.dimension+String(row.value)+row.is_null} className="flex items-center gap-3 text-xs"><span className="min-w-0 flex-1">{row.is_null ? "Non renseigné" : row.value}</span><span className="font-medium">{row.percentage.toFixed(1)}%</span><span className="text-muted-foreground">{row.detections.toLocaleString()}</span></div>)}</div>
+        </div>
+      </div>
+      <div className="mt-4 rounded-lg border border-border/50 p-4">
+        <h3 className="mb-3 text-xs font-semibold">Corrélations Pearson</h3>
+        <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-xs"><thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">Variable X</th><th className="pb-2">Variable Y</th><th className="pb-2 text-right">Paires</th><th className="pb-2 text-right">r</th><th className="pb-2 text-right">Covariance</th></tr></thead><tbody>{correlationRows.map(row => <tr key={row.variable_x+row.variable_y} className="border-b border-border/30"><td className="py-2">{row.variable_x}</td><td>{row.variable_y}</td><td className="text-right">{row.pair_count.toLocaleString()}</td><td className="text-right font-medium">{row.pearson_correlation == null ? "—" : row.pearson_correlation.toFixed(3)}</td><td className="text-right">{row.covariance == null ? "—" : row.covariance.toFixed(2)}</td></tr>)}</tbody></table></div>
+      </div>
+    </section>}
   return <div className="space-y-7 p-4 sm:p-6">
     <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("stats.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("stats.subtitle")}</p></div><a href="/export" className="inline-flex h-9 items-center gap-2 self-start rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:self-auto"><Download className="h-3.5 w-3.5" />{t("export.title")}</a></header>
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">{[{ label: t("stats.kpi.total30"), value: totalDetections.toLocaleString(), color: "text-primary" }, { label: t("stats.kpi.highRisk30"), value: totalHighRisk.toLocaleString(), color: "text-destructive" }, { label: t("stats.kpi.avg"), value: avgPerDay, color: "text-[#f59e0b]" }, { label: t("stats.kpi.peak"), value: maxDay?.total_detections ?? "—", color: "text-accent" }].map(k => <div key={k.label} className="rounded-xl border border-border/55 bg-card/55 px-4 py-3.5 transition-colors hover:bg-card"><div className={`font-heading text-2xl font-semibold tracking-tight ${k.color}`}>{k.value}</div><div className="mt-1 text-[11px] text-muted-foreground">{k.label}</div></div>)}</div>
