@@ -7,7 +7,6 @@ import {
   Bot,
   MapPin,
   Bell,
-  CreditCard,
   User,
   LogOut,
   ChevronLeft,
