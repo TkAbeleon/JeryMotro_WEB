@@ -509,3 +509,37 @@
       -2px -2px 4px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-map-popup .leaflet-popup-content-wrapper {
+    border: 0 !important;
+    border-radius: 22px !important;
+    box-shadow:
+      9px 9px 18px var(--jm-card-shadow-dark),
+      -9px -9px 18px var(--jm-card-shadow-light) !important;
+  }
+
+  .jm-map-popup .leaflet-popup-content {
+    margin: 14px 16px !important;
+  }
+
+  .jm-map-popup .leaflet-popup-tip {
+    border: 0 !important;
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light) !important;
+  }
+
+  .jm-map-tooltip {
+    border: 0 !important;
+    border-radius: 16px !important;
+    box-shadow:
+      7px 7px 14px var(--jm-card-shadow-dark),
+      -7px -7px 14px var(--jm-card-shadow-light) !important;
+  }
+
+  .jm-map-tooltip-inner {
+    border-radius: 16px;
+  }
+}
