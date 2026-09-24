@@ -70,7 +70,7 @@ function UserModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onMouseDown={onClose}>
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="jm-modal-shell w-full max-w-2xl overflow-hidden border border-border bg-card" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border/70 px-5 py-4">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{t("admin.badge")}</p>
