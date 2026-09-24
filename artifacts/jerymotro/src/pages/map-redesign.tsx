@@ -97,7 +97,7 @@ const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 export default function MapRedesignPage() {
   const { t } = useI18n(); const { toast } = useToast(); const { isAuthenticated } = useAuth();
-  const mapHeightClass = isAuthenticated ? "{mapHeightClass}" : "h-[calc(100dvh-64px)]";
+  const mapHeightClass = isAuthenticated ? "h-[calc(100dvh-58px)]" : "h-[calc(100dvh-64px)]";
   const [controlsOpen, setControlsOpen] = useState(false); const [tab, setTab] = useState<"list" | "filters">("list");
   const [searchOpen, setSearchOpen] = useState(false); const [searchQuery, setSearchQuery] = useState(""); const [searchResults, setSearchResults] = useState<SearchResult[]>([]); const [searching, setSearching] = useState(false);
   const [locating, setLocating] = useState(false); const [target, setTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null); const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
