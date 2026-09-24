@@ -1059,3 +1059,24 @@
     border-radius: 20px;
   }
 }
+
+
+@layer components {
+  /* Shared secondary overlay family for dialogs, confirmations and side sheets. */
+  .jm-overlay-panel {
+    border-radius: 16px;
+    box-shadow:
+      9px 9px 18px var(--jm-card-shadow-dark),
+      -9px -9px 18px var(--jm-card-shadow-light);
+  }
+
+  .jm-overlay-close {
+    border-radius: 8px;
+  }
+
+  .jm-sheet-panel {
+    box-shadow:
+      9px 0 18px var(--jm-card-shadow-dark),
+      -5px 0 12px var(--jm-card-shadow-light);
+  }
+}
