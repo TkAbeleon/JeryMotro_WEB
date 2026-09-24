@@ -923,3 +923,31 @@
       inset -2px -2px 4px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  /* Export uses the same family logic as other functional cards. */
+  .jm-export-card {
+    border-radius: 16px;
+  }
+
+  .jm-export-option {
+    border-radius: 12px;
+    transition:
+      transform 200ms ease-out,
+      box-shadow 200ms ease-out,
+      background-color 200ms ease-out,
+      border-color 200ms ease-out;
+  }
+
+  .jm-export-option:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-export-action {
+    border-radius: 10px;
+  }
+}
