@@ -117,3 +117,35 @@
       inset -5px -5px 10px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-button-depth {
+    border-radius: 16px;
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
+  .jm-button-depth:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow:
+      7px 7px 14px var(--jm-card-shadow-dark),
+      -7px -7px 14px var(--jm-card-shadow-light);
+  }
+
+  .jm-button-depth:active:not(:disabled) {
+    transform: translateY(0.5px);
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-button-depth:focus-visible {
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light),
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring) / 0.7);
+  }
+}
