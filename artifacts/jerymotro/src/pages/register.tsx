@@ -274,7 +274,7 @@ export default function RegisterPage() {
                   type="button"
                   onClick={resendOtp}
                   disabled={requestOtpMutation.isPending}
-                  className="jm-auth-action w-full h-11 bg-transparent border border-border text-foreground font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                  className="jm-auth-secondary-action w-full h-11 text-foreground font-semibold text-sm transition-colors disabled:opacity-50"
                 >
                   {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
                 </button>
