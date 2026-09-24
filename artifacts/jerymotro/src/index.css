@@ -246,3 +246,50 @@
     box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-topbar-control {
+    border-color: transparent !important;
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out,
+      color 300ms ease-out;
+  }
+
+  .jm-topbar-control:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
+  .jm-topbar-control:active {
+    transform: translateY(0.5px);
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-topbar-segment {
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-topbar-segment-active {
+    box-shadow:
+      inset 2px 2px 5px var(--jm-card-shadow-dark),
+      inset -2px -2px 5px var(--jm-card-shadow-light);
+  }
+
+  .jm-topbar-avatar {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+}
