@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -20,7 +20,7 @@
   --color-sidebar: hsl(var(--sidebar)); --color-sidebar-foreground: hsl(var(--sidebar-foreground)); --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-primary: hsl(var(--sidebar-primary)); --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
   --color-sidebar-accent: hsl(var(--sidebar-accent)); --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground)); --color-sidebar-ring: hsl(var(--sidebar-ring));
-  --font-sans: "Space Grotesk", sans-serif; --font-heading: "Outfit", sans-serif;
+  --font-sans: "Space Grotesk", sans-serif; --font-heading: "Sora", sans-serif;
   --text-xs: .75rem; --text-xs--line-height: calc(1 / .75); --text-sm: .875rem; --text-sm--line-height: calc(1.25 / .875); --text-base: 1rem; --text-base--line-height: 1.5;
   --text-lg: 1.125rem; --text-lg--line-height: 1.75; --text-xl: 1.25rem; --text-xl--line-height: 1.75; --text-2xl: 1.5rem; --text-2xl--line-height: 2;
   --text-3xl: 1.875rem; --text-3xl--line-height: 2.25; --text-4xl: 2.25rem; --text-4xl--line-height: 2.5;
