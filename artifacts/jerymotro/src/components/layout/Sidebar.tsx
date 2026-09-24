@@ -229,9 +229,6 @@ export function Sidebar() {
                             : "w-full gap-3 px-3",
                         ].join(" ")}
                       >
-                        {active && !collapsed && (
-      
-
                         <Icon className="h-[18px] w-[18px] shrink-0" />
 
                         {!collapsed && (
