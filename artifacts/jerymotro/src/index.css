@@ -245,19 +245,19 @@
     z-index: 1;
     background: hsl(var(--sidebar));
     box-shadow:
-      7px 0 18px var(--jm-card-shadow-dark),
+      5px 0 16px var(--jm-card-shadow-dark),
       inset -1px 0 0 var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-header {
     border-bottom-color: transparent;
     box-shadow:
-      0 2px 8px color-mix(in srgb, var(--jm-card-shadow-dark) 45%, transparent),
-      inset 0 -1px 0 color-mix(in srgb, var(--jm-card-shadow-light) 55%, transparent);
+      0 2px 7px color-mix(in srgb, var(--jm-card-shadow-dark) 38%, transparent),
+      inset 0 -1px 0 color-mix(in srgb, var(--jm-card-shadow-light) 45%, transparent);
   }
 
   .jm-sidebar-brand {
-    border-radius: 16px;
+    border-radius: 12px;
   }
 
   .jm-sidebar-item {
@@ -265,21 +265,23 @@
     box-shadow: none;
     transform: none;
     transition:
-      transform 180ms ease-out,
-      background-color 180ms ease-out,
-      color 180ms ease-out,
-      box-shadow 180ms ease-out;
+      background-color 160ms ease-out,
+      color 160ms ease-out,
+      box-shadow 160ms ease-out;
   }
 
   .jm-sidebar-item:hover {
-    transform: translateX(1px);
-    box-shadow: 3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
+    transform: none;
+    background: color-mix(in srgb, hsl(var(--sidebar-accent)) 72%, hsl(var(--sidebar)) 28%);
+    color: hsl(var(--sidebar-accent-foreground));
+    box-shadow:
+      2px 2px 5px var(--jm-card-shadow-dark),
+      -2px -2px 5px var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-item-active {
     position: relative;
-    background: color-mix(in srgb, hsl(var(--sidebar-primary)) 9%, hsl(var(--sidebar)) 91%) !important;
+    background: color-mix(in srgb, hsl(var(--sidebar-primary)) 10%, hsl(var(--sidebar)) 90%) !important;
     color: hsl(var(--sidebar-primary)) !important;
     box-shadow:
       inset 3px 3px 6px var(--jm-card-shadow-dark),
@@ -287,7 +289,8 @@
   }
 
   .jm-sidebar-item-active:hover {
-    transform: translateX(1px);
+    transform: none;
+    background: color-mix(in srgb, hsl(var(--sidebar-primary)) 10%, hsl(var(--sidebar)) 90%) !important;
     box-shadow:
       inset 3px 3px 6px var(--jm-card-shadow-dark),
       inset -3px -3px 6px var(--jm-card-shadow-light);
@@ -296,36 +299,26 @@
   .jm-sidebar-item-active::before {
     content: "";
     position: absolute;
-    left: 0.2rem;
-    top: 0.55rem;
-    bottom: 0.55rem;
+    left: 0.25rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
     width: 2px;
     border-radius: 9999px;
     background: hsl(var(--sidebar-primary));
-    opacity: 0.9;
+    box-shadow: 0 0 8px hsl(var(--sidebar-primary) / 0.2);
   }
 
   .jm-sidebar-user {
     border: 0 !important;
-    background: color-mix(in srgb, hsl(var(--sidebar-accent)) 58%, hsl(var(--sidebar)) 42%);
+    border-radius: 12px;
+    background: color-mix(in srgb, hsl(var(--sidebar-accent)) 50%, hsl(var(--sidebar)) 50%);
     box-shadow:
-      4px 4px 9px var(--jm-card-shadow-dark),
-      -4px -4px 9px var(--jm-card-shadow-light);
-    transition:
-      transform 180ms ease-out,
-      box-shadow 180ms ease-out,
-      background-color 180ms ease-out;
-  }
-
-  .jm-sidebar-user:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-avatar {
-    border-radius: 11px;
+    border-radius: 9999px;
     background: hsl(var(--sidebar));
     box-shadow:
       inset 3px 3px 6px var(--jm-card-shadow-dark),
@@ -334,17 +327,18 @@
 
   .jm-sidebar-logout {
     transition:
-      transform 180ms ease-out,
-      background-color 180ms ease-out,
-      color 180ms ease-out,
-      box-shadow 180ms ease-out;
+      background-color 160ms ease-out,
+      color 160ms ease-out,
+      box-shadow 160ms ease-out;
   }
 
   .jm-sidebar-logout:hover {
-    transform: translateX(1px);
+    transform: none;
+    background: color-mix(in srgb, hsl(var(--destructive)) 8%, hsl(var(--sidebar)) 92%);
+    color: hsl(var(--destructive));
     box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
+      2px 2px 5px var(--jm-card-shadow-dark),
+      -2px -2px 5px var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-collapse-toggle {
