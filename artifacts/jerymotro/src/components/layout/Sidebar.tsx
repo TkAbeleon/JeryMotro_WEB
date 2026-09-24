@@ -284,7 +284,7 @@ export function Sidebar() {
                 title={collapsed ? "Administration" : undefined}
                 aria-current={isActive("/admin") ? "page" : undefined}
                 className={[
-                  "group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none transition-[background-color,color,transform] duration-150 hover:translate-x-px focus-visible:ring-2 focus-visible:ring-primary",
+                  "jm-sidebar-item group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary",
                   isActive("/admin")
                     ? "jm-sidebar-item-active bg-sidebar-primary text-sidebar-primary-foreground"
                     : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
