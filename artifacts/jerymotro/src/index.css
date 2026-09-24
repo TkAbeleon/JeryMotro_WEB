@@ -800,3 +800,22 @@
       -10px -10px 20px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  /* Shared family for informational cards: close visual behavior, no palette changes. */
+  .jm-standard-card {
+    border-radius: 16px;
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-standard-card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+}
