@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Edit3, Loader2, Plus, RefreshCw, Search, Shield, ShieldCheck, Trash2, UserCheck, UserX, X } from "lucide-react";
+import { Edit3, Loader2, Plus, RefreshCw, Search, Shield, ShieldCheck, Trash2, UserCheck, UserX, UsersRound, X } from "lucide-react";
 import { AsyncStateInline } from "@/components/ui/async-state";
 import { useI18n } from "@/hooks/use-i18n";
 import {
@@ -206,7 +206,7 @@ export function UsersPanel() {
       {error && <div className="flex items-center justify-between rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"><span>{error}</span><button onClick={() => setError(null)}><X className="h-4 w-4" /></button></div>}
       <div className="grid gap-3 sm:grid-cols-3">
         {[
-          ["admin.user.stats.total", total, Users],
+          ["admin.user.stats.total", total, UsersRound],
           ["admin.user.stats.active", stats.active, UserCheck],
           ["admin.user.stats.extended", stats.extended, Shield],
         ].map(([key, value, Icon]) => <div key={key as string} className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><Icon className="h-4 w-4 text-primary" /><p className="mt-3 text-xl font-bold">{value as number}</p><p className="text-xs text-muted-foreground">{t(key as string)}</p></div>)}
