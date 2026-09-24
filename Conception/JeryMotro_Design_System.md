@@ -192,7 +192,7 @@ JeryMotro utilise deux familles complémentaires importées depuis Google Fonts.
 **Caractère :** Géométrique, moderne, très lisible en grande taille. Les weights 800–900 donnent un impact visuel fort aux données critiques.
 
 ```css
-font-family: 'Outfit', sans-serif;
+font-family: 'Sora', sans-serif;
 ```
 
 #### Space Grotesk — Corps de texte
@@ -498,7 +498,7 @@ Disposition flex centrée, gap 8px.
   background: --surface2
   border: 1px solid --border2
   border-radius: --radius-sm
-  font: Outfit 22px 800
+  font: Sora 22px 800
   color: --white
   text-align: center
 }
