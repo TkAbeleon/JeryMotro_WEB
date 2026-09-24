@@ -388,3 +388,39 @@
       -5px -5px 10px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-detection-row {
+    border-radius: 14px;
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-detection-row:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-detection-row-selected {
+    box-shadow:
+      inset 3px 3px 7px var(--jm-card-shadow-dark),
+      inset -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-detail-panel {
+    box-shadow:
+      9px 9px 18px var(--jm-card-shadow-dark),
+      -9px -9px 18px var(--jm-card-shadow-light);
+  }
+
+  .jm-detail-list {
+    box-shadow:
+      inset 4px 4px 8px var(--jm-card-shadow-dark),
+      inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+}
