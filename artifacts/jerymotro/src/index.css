@@ -761,3 +761,42 @@
       -7px -7px 14px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-zone-map {
+    border-radius: 16px;
+    box-shadow:
+      8px 8px 16px var(--jm-card-shadow-dark),
+      -8px -8px 16px var(--jm-card-shadow-light);
+  }
+
+  .jm-zone-card {
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-zone-card:hover {
+    transform: translateY(-1px);
+  }
+
+  .jm-zone-icon {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-zone-modal {
+    box-shadow:
+      12px 12px 24px var(--jm-card-shadow-dark),
+      -12px -12px 24px var(--jm-card-shadow-light);
+  }
+
+  .jm-zone-delete-modal {
+    box-shadow:
+      10px 10px 20px var(--jm-card-shadow-dark),
+      -10px -10px 20px var(--jm-card-shadow-light);
+  }
+}
