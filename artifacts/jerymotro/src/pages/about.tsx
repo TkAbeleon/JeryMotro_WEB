@@ -317,7 +317,7 @@ export default function AboutPage() {
             {/* Developer profile section */}
             <div className="jm-info-card relative overflow-hidden p-5 sm:p-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
-              <h2 className="font-heading text-xl font-bold text-foreground mb-6 pb-2 border-b border-border/60">
+              <h2 className="jm-info-subheading font-heading text-xl font-bold text-foreground mb-6 pb-3">
                 {lang === "mg" ? "Mpamorona ny Tetikasa" : lang === "en" ? "About the Developer" : "À propos du développeur"}
               </h2>
 
