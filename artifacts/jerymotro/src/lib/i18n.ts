@@ -536,7 +536,16 @@ export const translations = {
     "accessRequest.error.submit": "Impossible d’envoyer la demande.",
     "accessRequest.success.submit": "Votre demande d’accès étendu a été envoyée.",
 
-    // --- Landing ---
+        "accessRequest.requestSectionTitle": "Informations de la demande",
+    "accessRequest.requestLabel": "Demande #{{id}} · {{organization}}",
+    "accessRequest.area.madagascar": "Madagascar",
+    "accessRequest.area.analamanga": "Analamanga",
+    "accessRequest.area.boeny": "Boeny",
+    "accessRequest.area.menabe": "Menabe",
+    "accessRequest.area.atsinanana": "Atsinanana",
+    "accessRequest.area.other": "Autre / plusieurs régions",
+
+// --- Landing ---
     "landing.hero.title": "Surveillance des feux en temps réel",
     "landing.hero.subtitle": "de brousse à Madagascar",
     "landing.tagline": "Plateforme de surveillance en temps réel",
@@ -1153,7 +1162,16 @@ export const translations = {
     "accessRequest.error.submit": "Tsy azo alefa ny fangatahana.",
     "accessRequest.success.submit": "Nalefa ny fangatahana fidirana miitatra.",
 
-    // --- Landing ---
+        "accessRequest.requestSectionTitle": "Mombamomba ny fangatahana",
+    "accessRequest.requestLabel": "Fangatahana #{{id}} · {{organization}}",
+    "accessRequest.area.madagascar": "Madagasikara",
+    "accessRequest.area.analamanga": "Analamanga",
+    "accessRequest.area.boeny": "Boeny",
+    "accessRequest.area.menabe": "Menabe",
+    "accessRequest.area.atsinanana": "Atsinanana",
+    "accessRequest.area.other": "Hafa / faritra maro",
+
+// --- Landing ---
     "landing.hero.title": "Fanaraha-mason'ny afo amin'izao fotoana",
     "landing.hero.subtitle": "any an'ala eto Madagasikara",
     "landing.tagline": "Sehatra fanaraha-maso amin'izao fotoana",
@@ -1764,7 +1782,16 @@ export const translations = {
     "accessRequest.error.submit": "Unable to submit the request.",
     "accessRequest.success.submit": "Your extended access request has been submitted.",
 
-    // --- Landing ---
+        "accessRequest.requestSectionTitle": "Request information",
+    "accessRequest.requestLabel": "Request #{{id}} · {{organization}}",
+    "accessRequest.area.madagascar": "Madagascar",
+    "accessRequest.area.analamanga": "Analamanga",
+    "accessRequest.area.boeny": "Boeny",
+    "accessRequest.area.menabe": "Menabe",
+    "accessRequest.area.atsinanana": "Atsinanana",
+    "accessRequest.area.other": "Other / multiple regions",
+
+// --- Landing ---
     "landing.hero.title": "Real-time wildfire surveillance",
     "landing.hero.subtitle": "in Madagascar",
     "landing.tagline": "Real-time surveillance platform",
