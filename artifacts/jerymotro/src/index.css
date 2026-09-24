@@ -985,3 +985,41 @@
     border-radius: 10px;
   }
 }
+
+
+@layer components {
+  /* Shared family for public informational pages. */
+  .jm-info-card {
+    border-radius: 16px;
+    transition:
+      transform 240ms ease-out,
+      box-shadow 240ms ease-out,
+      background-color 240ms ease-out;
+  }
+
+  .jm-info-card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
+  .jm-info-mini {
+    border-radius: 10px;
+  }
+
+  .jm-cv-document {
+    border-radius: 20px;
+    box-shadow:
+      7px 7px 14px var(--jm-card-shadow-dark),
+      -7px -7px 14px var(--jm-card-shadow-light);
+  }
+
+  .jm-cv-chip {
+    border-radius: 8px;
+  }
+
+  .jm-cv-action {
+    border-radius: 10px;
+  }
+}
