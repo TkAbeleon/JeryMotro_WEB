@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock3, Database, Flame, Loader2, RefreshCw, Send, ShieldCheck, Users as UsersIcon, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, Database, Flame, Loader2, RefreshCw, Send, ShieldCheck, UsersRound as UsersIcon, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import { AsyncStateInline } from "@/components/ui/async-state";
