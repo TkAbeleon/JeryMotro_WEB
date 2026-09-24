@@ -975,6 +975,38 @@
   .jm-public-logo,
   .jm-public-control,
   .jm-public-lang,
+  .jm-public-menu-trigger,
+  .jm-public-mobile-menu,
+  .jm-public-mobile-action {
+    background: var(--card);
+    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
+  }
+  .jm-public-menu-trigger {
+    border: 0;
+    color: var(--foreground);
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out;
+  }
+  .jm-public-menu-trigger:active {
+    transform: translateY(0.5px);
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+  .jm-public-mobile-menu {
+    border-radius: 24px;
+    border: 0;
+  }
+  .jm-public-mobile-link {
+    color: var(--muted-foreground);
+    transition: color 180ms ease-out, box-shadow 180ms ease-out;
+  }
+  .jm-public-mobile-link:hover,
+  .jm-public-mobile-link:focus-visible {
+    color: var(--foreground);
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+    outline: none;
+  }
+  .jm-public-mobile-action {
+    border: 0;
+  }
   .jm-public-login {
     box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
   }
