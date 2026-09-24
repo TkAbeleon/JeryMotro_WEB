@@ -184,7 +184,7 @@ export default function CvPage() {
                         <h4 className="font-heading font-bold text-foreground text-base">
                           {lang === "mg" ? "Internship — Feon'ny Firaisankina Radio" : "Stage — Feon'ny Firaisankina Radio"}
                         </h4>
-                        <span className="text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded-md">
+                        <span className="jm-cv-chip text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5">
                           Oct 2025 - Jan 2026
                         </span>
                       </div>
@@ -200,7 +200,7 @@ export default function CvPage() {
                         <h4 className="font-heading font-bold text-foreground text-base">
                           {lang === "mg" ? "Animateur / Réalisateur — Feon'ny Firaisankina Radio" : "Réalisateur & Animateur — Feon'ny Firaisankina Radio"}
                         </h4>
-                        <span className="text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded-md">
+                        <span className="jm-cv-chip text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5">
                           2019 - 2022
                         </span>
                       </div>
@@ -214,7 +214,7 @@ export default function CvPage() {
                         <h4 className="font-heading font-bold text-foreground text-base">
                           {lang === "mg" ? "Mpanorina — Vondrona Mozika 'Miantsa Fiderana'" : "Fondateur & Président — Groupe Musical 'Miantsa Fiderana'"}
                         </h4>
-                        <span className="text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded-md">
+                        <span className="jm-cv-chip text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5">
                           2022 - 2024
                         </span>
                       </div>
@@ -241,7 +241,7 @@ export default function CvPage() {
                         </h4>
                         <p className="text-sm text-muted-foreground">ESP-Antsirabe (École Supérieure Polytechnique d'Antsirabe)</p>
                       </div>
-                      <span className="text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded-md">
+                      <span className="jm-cv-chip text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5">
                         2025 - 2026
                       </span>
                     </div>
@@ -253,7 +253,7 @@ export default function CvPage() {
                         </h4>
                         <p className="text-sm text-muted-foreground">Lycée Privé Luthérien Betafo</p>
                       </div>
-                      <span className="text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5 rounded-md">
+                      <span className="jm-cv-chip text-xs text-muted-foreground font-semibold bg-secondary px-2 py-0.5">
                         2023
                       </span>
                     </div>
