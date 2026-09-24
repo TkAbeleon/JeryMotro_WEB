@@ -192,8 +192,35 @@ export default function MapRedesignPage() {
   const periodLabel = (p: Period) => t(`map.filter.period.${p}` as any); const riskLabel = (r: RiskLevel) => t(`map.legend.${r}` as any);
   const mapTile = mapStyle === "satellite" ? { url: `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_KEY}`, attribution: "&copy; Google Maps", maxZoom: 20 } : mapStyle === "roadmap" ? { url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_KEY}`, attribution: "&copy; Google Maps", maxZoom: 20 } : { url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", attribution: "&copy; OpenStreetMap &copy; CARTO", maxZoom: 19, subdomains: "abcd" };
 
-  if (detectionsQuery.isLoading) return <div className={`relative isolate ${mapHeightClass} w-full overflow-hidden`><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%" }} zoomControl={false}><TileLayer {...mapTile} /></MapContainer><div className="absolute inset-x-4 top-4 z-20"><AsyncStateInline type="loading" title={t("common.loading")} description="Chargement des détections cartographiques…" className="mx-auto max-w-sm rounded-2xl bg-card/90 shadow-xl backdrop-blur" /></div></div>;
-  if (detectionsQuery.isError) return <AsyncStateInline type="error" title="Impossible de charger la carte" description="Les détections ne sont pas disponibles actuellement." onAction={() => detectionsQuery.refetch()} actionLabel="Réessayer" />;
+  if (detectionsQuery.isLoading) {
+    return (
+      <div className={`relative isolate ${mapHeightClass} w-full overflow-hidden`}>
+        <MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%" }} zoomControl={false}>
+          <TileLayer {...mapTile} />
+        </MapContainer>
+        <div className="absolute inset-x-4 top-4 z-20">
+          <AsyncStateInline
+            type="loading"
+            title={t("common.loading")}
+            description="Chargement des détections cartographiques…"
+            className="mx-auto max-w-sm rounded-2xl bg-card/90 shadow-xl backdrop-blur"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (detectionsQuery.isError) {
+    return (
+      <AsyncStateInline
+        type="error"
+        title="Impossible de charger la carte"
+        description="Les détections ne sont pas disponibles actuellement."
+        onAction={() => detectionsQuery.refetch()}
+        actionLabel="Réessayer"
+      />
+    );
+  }
 
   return <div className={`relative isolate ${mapHeightClass} min-h-0 w-full overflow-hidden bg-background`>
     <div className="absolute inset-0 z-0"><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%", background: "#111827" }} zoomControl={false} attributionControl>
