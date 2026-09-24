@@ -20,14 +20,14 @@ Le composant `BackendUnavailableBanner` fournit un message multilingue (françai
 ### Exemple
 
 ```env
-VITE_API_URL=https://api.jerymotro.duckdns.org/
+VITE_API_URL=https://rtsikynyantsa-jerymotro-pipeline.hf.space/
 VITE_BACKEND_DEFAULT_OFFLINE=true
 ```
 
 Avec cette configuration :
 
 1. le bandeau est visible immédiatement au chargement ;
-2. si `https://api.jerymotro.duckdns.org/health` répond `{"status":"ok"}`, le bandeau disparaît ;
+2. si `https://rtsikynyantsa-jerymotro-pipeline.hf.space/health` répond `{"status":"ok"}`, le bandeau disparaît ;
 3. si le backend devient ensuite inaccessible, le bandeau réapparaît lors de la prochaine vérification ;
 4. lorsqu'il revient en ligne, le bandeau disparaît automatiquement.
 
