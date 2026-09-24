@@ -1,6 +1,6 @@
 # 🚀 Plan de Travail : Intégration Frontend JeryMotro
 
-Ce plan de travail structure l'intégration complète du frontend de JeryMotro, en s'appuyant sur l'API FastAPI (sur `http://35.192.27.164/jerymotro-api`) et le Design System détaillé (mode sombre par défaut, polices Outfit & Space Grotesk).
+Ce plan de travail structure l'intégration complète du frontend de JeryMotro, en s'appuyant sur l'API FastAPI (sur `http://35.192.27.164/jerymotro-api`) et le Design System détaillé (mode sombre par défaut, polices Sora & Space Grotesk).
 
 ---
 
@@ -18,7 +18,7 @@ Toutes les phases d'intégration ont été complétées avec succès. Le fronten
     *   Création de l'application React/Vite en mode Pnpm Workspace.
     *   Configuration du routage : Séparation stricte avec gardes d'authentification (`AuthGuard`) entre les pages publiques et le tableau de bord protégé.
 2.  **Intégration du Design System (CSS)** · ✅
-    *   Importation des polices Google Fonts : *Outfit* et *Space Grotesk*.
+    *   Importation des polices Google Fonts : *Sora* et *Space Grotesk*.
     *   Définition des variables CSS racines pour le Mode Sombre (défaut) et le Mode Clair.
 3.  **Client API & Store Global** · ✅
     *   Configuration du proxy Vite pour rediriger `/jerymotro-api` vers l'IP de production `http://35.192.27.164` (résolution définitive des erreurs CORS).
