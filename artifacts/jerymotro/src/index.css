@@ -37,8 +37,13 @@
   --sidebar: 150 5% 96%; --sidebar-foreground: 150 33% 4%; --sidebar-border: 150 15% 90%; --sidebar-primary: 18 80% 50%; --sidebar-primary-foreground: 0 0% 100%; --sidebar-accent: 150 10% 92%; --sidebar-accent-foreground: 150 33% 4%; --sidebar-ring: 18 80% 50%; --radius: .5rem;
 }
 
+:root {
+  --jm-card-shadow-dark: rgba(30, 40, 48, 0.14);
+  --jm-card-shadow-light: rgba(255, 255, 255, 0.72);
+}
+
 .dark {
-  color-scheme: dark; --button-outline: rgba(255,255,255,.10); --badge-outline: rgba(255,255,255,.05); --opaque-button-border-intensity: 9; --elevate-1: rgba(255,255,255,.04); --elevate-2: rgba(255,255,255,.09);
+  color-scheme: dark; --jm-card-shadow-dark: rgba(0, 0, 0, 0.46); --jm-card-shadow-light: rgba(255, 255, 255, 0.045); --button-outline: rgba(255,255,255,.10); --badge-outline: rgba(255,255,255,.05); --opaque-button-border-intensity: 9; --elevate-1: rgba(255,255,255,.04); --elevate-2: rgba(255,255,255,.09);
   --background: 150 33% 4%; --foreground: 150 10% 92%; --border: 150 15% 15%; --input: 150 15% 15%; --ring: 18 80% 50%; --card: 150 20% 9%; --card-foreground: 150 10% 92%; --card-border: 150 15% 15%;
   --popover: 150 20% 9%; --popover-foreground: 150 10% 92%; --popover-border: 150 15% 15%; --primary: 18 80% 50%; --primary-foreground: 0 0% 100%;
   --secondary: 150 15% 15%; --secondary-foreground: 150 10% 92%; --muted: 150 15% 15%; --muted-foreground: 150 8% 55%; --accent: 142 71% 45%; --accent-foreground: 0 0% 100%;
@@ -75,3 +80,40 @@
 .leaflet-control-attribution a { color: hsl(var(--muted-foreground)) !important; }
 
 @keyframes loading { 0%,100% { transform: translateX(-120%); opacity: .45; } 50% { transform: translateX(250%); opacity: 1; } }
+
+
+/* JeryMotro card depth: visual enhancement only; existing color tokens remain unchanged. */
+@layer components {
+  .jm-card-depth {
+    border-color: transparent !important;
+    border-radius: 24px !important;
+    box-shadow:
+      9px 9px 18px var(--jm-card-shadow-dark),
+      -9px -9px 18px var(--jm-card-shadow-light) !important;
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-card-depth:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      12px 12px 22px var(--jm-card-shadow-dark),
+      -12px -12px 22px var(--jm-card-shadow-light) !important;
+  }
+
+  .jm-card-depth:active {
+    transform: translateY(0.5px);
+    box-shadow:
+      inset 5px 5px 10px var(--jm-card-shadow-dark),
+      inset -5px -5px 10px var(--jm-card-shadow-light) !important;
+  }
+
+  .jm-icon-well {
+    border-radius: 14px;
+    box-shadow:
+      inset 5px 5px 10px var(--jm-card-shadow-dark),
+      inset -5px -5px 10px var(--jm-card-shadow-light);
+  }
+}
