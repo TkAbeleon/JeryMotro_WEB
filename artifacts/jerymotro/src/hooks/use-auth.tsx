@@ -10,6 +10,7 @@ interface AuthContextType {
   hasRole: (role: string) => boolean;
   isAdmin: boolean;
   isPremium: boolean;
+  refreshUser: () => Promise<UserProfile | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -75,6 +76,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return user?.role === role;
   };
 
+  const refreshUser = async () => {
+    const storedToken = localStorage.getItem("jerymotro_token");
+    if (!storedToken) return null;
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const response = await fetch(baseUrl + "/auth/me", { headers: { Accept: "application/json", Authorization: `Bearer ${storedToken}` } });
+    if (!response.ok) return null;
+    const freshUser = await response.json() as UserProfile;
+    setUser(freshUser);
+    localStorage.setItem("jerymotro_user", JSON.stringify(freshUser));
+    return freshUser;
+  };
+
   const isAdmin = user?.role === "admin";
   const isPremium = user?.role === "admin" || user?.role === "premium";
 
@@ -87,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout, hasRole, isAdmin, isPremium }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout, hasRole, isAdmin, isPremium, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
