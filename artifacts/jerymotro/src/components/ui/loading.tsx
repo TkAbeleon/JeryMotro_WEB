@@ -22,8 +22,22 @@ export default function LoadingPage({ message }: LoadingPageProps) {
             <img src="/logo.png" alt="JeryMotro" className="jm-logo-mark relative h-10 w-10 object-contain" />
           </div>
           <div className="min-w-0">
-            <div className="font-heading text-base font-semibold tracking-tight">JeryMotro</div>
-            <div className="text-xs text-muted-foreground">Surveillance des feux de brousse</div>
+            <h3
+              aria-label="JeryMotro"
+              className="font-heading text-2xl font-bold leading-none tracking-[-0.035em] text-foreground transition-colors sm:text-3xl"
+            >
+              {Array.from("JeryMotro").map((letter, index) => (
+                <span
+                  key={`jerymotro-letter-${index}`}
+                  aria-hidden="true"
+                  className="jm-loading-letter inline-block will-change-[transform,opacity,filter]"
+                  style={{ animationDelay: `${index * 70}ms` }}
+                >
+                  {letter === " " ? "\u00A0" : letter}
+                </span>
+              ))}
+            </h3>
+            <div className="mt-1 text-xs text-muted-foreground">Surveillance des feux de brousse</div>
           </div>
         </div>
 
@@ -49,7 +63,38 @@ export default function LoadingPage({ message }: LoadingPageProps) {
         </div>
       </div>
 
-      <style>{`@keyframes loading { 0%, 100% { transform: translateX(-120%); opacity: .45; } 50% { transform: translateX(250%); opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes loading {
+          0%, 100% { transform: translateX(-120%); opacity: .45; }
+          50% { transform: translateX(250%); opacity: 1; }
+        }
+
+        @keyframes jm-letter-reveal {
+          0%, 100% {
+            opacity: 0;
+            transform: translate3d(0, 0.65em, 0) scale(0.96);
+            filter: blur(10px);
+          }
+          18%, 76% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+            filter: blur(0);
+          }
+        }
+
+        .jm-loading-letter {
+          animation: jm-letter-reveal 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .jm-loading-letter {
+            animation: none;
+            opacity: 1;
+            transform: none;
+            filter: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
