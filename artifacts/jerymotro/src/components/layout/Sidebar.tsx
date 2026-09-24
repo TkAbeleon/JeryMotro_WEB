@@ -395,7 +395,7 @@ export function Sidebar() {
         <aside
           aria-label="Application navigation"
           aria-hidden={!isOpen}
-          className={`fixed left-0 top-0 z-40 h-[100dvh] w-[min(86vw,340px)] border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
+          className={`jm-sidebar-shell fixed left-0 top-0 z-40 h-[100dvh] w-[min(86vw,340px)] border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -408,7 +408,7 @@ export function Sidebar() {
   return (
     <aside
       aria-label="Application navigation"
-      className="fixed left-0 top-0 z-20 hidden h-[100dvh] flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out lg:flex"
+      className="jm-sidebar-shell fixed left-0 top-0 z-20 hidden h-[100dvh] flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out lg:flex"
       style={{
         width: isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_FULL,
       }}
