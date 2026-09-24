@@ -26,7 +26,7 @@ export default function CvPage() {
 
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow-md shadow-primary/10"
+              className="jm-cv-action inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition-opacity shadow-md shadow-primary/10"
             >
               <FileDown className="w-4 h-4" />
               <span>{lang === "mg" ? "Hamoaka PDF / Hanonta" : lang === "en" ? "Print / Export PDF" : "Imprimer / Exporter PDF"}</span>
@@ -34,7 +34,7 @@ export default function CvPage() {
           </div>
 
           {/* Main CV Container */}
-          <div className="bg-card/70 border border-border/70 rounded-2xl overflow-hidden shadow-sm print:shadow-none print:border-none">
+          <div className="jm-cv-document bg-card/70 border border-border/70 overflow-hidden print:shadow-none print:border-none">
             {/* Identity Hero Banner */}
             <div className="bg-primary/8 border-b border-border/70 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 print:bg-green-50 print:border-b-2">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-primary/20 shadow-md flex-shrink-0">
@@ -112,7 +112,7 @@ export default function CvPage() {
                     ].map((skill) => (
                       <span
                         key={skill}
-                        className="bg-background/50 border border-border/70 text-foreground text-xs font-medium px-2.5 py-1 rounded-md"
+                        className="jm-cv-chip bg-background/50 border border-border/70 text-foreground text-xs font-medium px-2.5 py-1"
                       >
                         {skill}
                       </span>
