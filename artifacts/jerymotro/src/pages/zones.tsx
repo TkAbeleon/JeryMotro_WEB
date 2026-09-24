@@ -514,7 +514,7 @@ export default function ZonesPage() {
       {/* Create form modal */}
       {showForm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-          <div className="jm-modal-shell jm-zone-modal w-full max-w-3xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
+          <div className="jm-modal-shell jm-zone-modal w-full max-w-3xl max-h-[calc(100dvh-2rem)] overflow-y-auto border border-border/70 bg-card p-5 sm:p-6">
             <h3 className="font-heading font-bold text-lg mb-4">{t("zones.form.title")}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
