@@ -216,7 +216,7 @@ export default function ZonesPage() {
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
-  const isPremium = user?.role === "admin" || user?.role === "premium";
+  const hasExtendedAccess = user?.role === "admin" || user?.role === "premium";
   const qc = useQueryClient();
 
   const query = useListZones();
@@ -282,7 +282,7 @@ export default function ZonesPage() {
     }
   };
 
-  if (!isPremium) {
+  if (!hasExtendedAccess) {
     return (
       <div className="p-4 sm:p-6 h-full flex flex-col items-center justify-center gap-6 text-center">
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -293,7 +293,7 @@ export default function ZonesPage() {
           <p className="text-muted-foreground text-sm max-w-sm">{t("zones.premium.desc")}</p>
         </div>
         <a
-          href="/subscriptions"
+          href="/access-request"
           className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
         >
           {t("zones.premium.cta")}

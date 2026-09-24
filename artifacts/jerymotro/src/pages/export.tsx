@@ -17,7 +17,7 @@ export default function ExportPage() {
   const { user } = useAuth();
   const meQ = useGetMe();
   const profile = meQ.data ?? user ?? { role: "standard" };
-  const isPremium = profile?.role === "admin" || profile?.role === "premium";
+  const hasExtendedAccess = profile?.role === "admin" || profile?.role === "premium";
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>(() => {
     const now = new Date();
     return { from: subDays(now, 30), to: now };
@@ -59,7 +59,7 @@ export default function ExportPage() {
   };
 
   const handleExport = async () => {
-    if (!isPremium || !detections.length || isExporting) return;
+    if (!hasExtendedAccess || !detections.length || isExporting) return;
     setIsExporting(true);
     setExportError(null);
     try {
@@ -74,7 +74,7 @@ export default function ExportPage() {
     }
   };
 
-  if (!isPremium) return <div className="p-4 sm:p-6"><div className="mx-auto max-w-2xl rounded-2xl border border-border/70 bg-card/70 p-6 text-center shadow-sm sm:p-8"><Lock className="mx-auto mb-4 h-14 w-14 text-muted-foreground sm:h-16 sm:w-16" /><h1 className="mb-2 font-heading text-2xl font-bold">{t("export.title")}</h1><p className="mb-6 text-muted-foreground">{t("export.premiumRequired")}</p><a href="/subscriptions" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90 sm:w-auto">{t("export.upgradeToPremium")}</a></div></div>;
+  if (!hasExtendedAccess) return <div className="p-4 sm:p-6"><div className="mx-auto max-w-2xl rounded-2xl border border-border/70 bg-card/70 p-6 text-center shadow-sm sm:p-8"><Lock className="mx-auto mb-4 h-14 w-14 text-muted-foreground sm:h-16 sm:w-16" /><h1 className="mb-2 font-heading text-2xl font-bold">{t("export.title")}</h1><p className="mb-6 text-muted-foreground">{t("export.premiumRequired")}</p><a href="/access-request" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90 sm:w-auto">{t("export.upgradeToPremium")}</a></div></div>;
 
   return <div className="min-h-full bg-background px-4 py-5 sm:px-6 sm:py-7">
     <header className="border-b border-border/60 pb-5"><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("export.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("export.subtitle")}</p></header>

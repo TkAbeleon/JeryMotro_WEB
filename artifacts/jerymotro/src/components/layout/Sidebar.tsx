@@ -77,7 +77,7 @@ const navGroups: NavGroup[] = [
     authOnly: true,
     items: [
       { labelKey: "nav.profile", href: "/profile", icon: User },
-      { labelKey: "nav.subscriptions", href: "/subscriptions", icon: ShieldCheck },
+      { labelKey: "nav.subscriptions", href: "/access-request", icon: ShieldCheck },
       { labelKey: "nav.export", href: "/export", icon: Download },
     ],
   },
@@ -246,7 +246,7 @@ export function Sidebar() {
 
                             {item.locked && (
                               <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
-                                PRO
+                                ACCÈS
                               </span>
                             )}
 
@@ -341,7 +341,7 @@ export function Sidebar() {
                     {user?.email || ""}
                   </div>
                   <span className="mt-1 inline-flex rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
-                    {user?.role || "standard"}
+                    {user?.role === "premium" ? "Accès étendu" : user?.role === "admin" ? "Administrateur" : "Compte Standard"}
                   </span>
                 </div>
               )}

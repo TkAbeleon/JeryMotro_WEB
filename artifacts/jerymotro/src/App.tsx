@@ -29,7 +29,7 @@ const StatsPage = lazy(() => import("@/pages/stats"));
 const ChatPage = lazy(() => import("@/pages/chat"));
 const ZonesPage = lazy(() => import("@/pages/zones"));
 const AlertsPage = lazy(() => import("@/pages/alerts"));
-const SubscriptionsPage = lazy(() => import("@/pages/subscriptions"));
+const AccessRequestPage = lazy(() => import("@/pages/access-request"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const ExportPage = lazy(() => import("@/pages/export"));
 const AdminPage = lazy(() => import("@/pages/admin"));
@@ -159,7 +159,8 @@ function Router() {
         <Route path="/chat">{() => <AuthedRoute component={ChatPage} />}</Route>
         <Route path="/zones">{() => <AuthedRoute component={ZonesPage} />}</Route>
         <Route path="/alerts">{() => <AuthedRoute component={AlertsPage} />}</Route>
-        <Route path="/subscriptions">{() => <AuthedRoute component={SubscriptionsPage} />}</Route>
+        <Route path="/access-request">{() => <AuthedRoute component={AccessRequestPage} />}</Route>
+        <Route path="/subscriptions">{() => <AuthedRoute component={AccessRequestPage} />}</Route>
         <Route path="/profile">{() => <AuthedRoute component={ProfilePage} />}</Route>
         <Route path="/export">{() => <AuthedRoute component={ExportPage} />}</Route>
         <Route path="/admin" component={AdminRoute} />

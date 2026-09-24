@@ -66,7 +66,7 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center gap-4">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
               <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a><a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
-              <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
+              <a href="#access" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a>
               <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
               <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</Link>
@@ -177,18 +177,23 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="pricing" aria-labelledby="pricing-title" className="mx-auto max-w-5xl px-4 pb-20 scroll-mt-16 sm:px-8 sm:pb-24">
-          <div className="text-center mb-16"><h2 id="pricing-title" className="font-heading text-3xl font-bold mb-4">{t("landing.pricing.title")}</h2></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {tiers.map(tier => <article key={tier.name} className={`p-6 rounded-xl border shadow-sm sm:p-8 ${tier.highlighted ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
-              {tier.highlighted && <p className="inline-block text-xs font-bold bg-primary text-primary-foreground px-2 py-1 rounded mb-4">{t("landing.pricing.recommended")}</p>}
-              <div className="mb-6"><h3 className="font-heading text-xl font-bold">{tier.name}</h3><div className="flex items-end gap-1 mt-2"><span className="font-heading text-4xl font-bold">{tier.price}€</span><span className="text-muted-foreground mb-1">/mois</span></div><p className="text-sm text-muted-foreground mt-1">{tier.desc}</p></div>
-              <ul className="space-y-3 mb-8">{tier.features.map(f => <li key={f} className="flex items-start gap-2 text-sm"><span className="text-accent mt-0.5" aria-hidden="true">✓</span><span>{f}</span></li>)}</ul>
-              <Link href="/register" className={`block text-center py-3 rounded-lg font-semibold text-sm transition-opacity hover:opacity-90 ${tier.highlighted ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-secondary'}`}>{tier.cta}</Link>
-              {tier.highlighted && <p className="text-xs text-center text-muted-foreground mt-3">{t("landing.pricing.trialNote")}</p>}
-            </article>)}
+        <section id="access" aria-labelledby="access-title" className="mx-auto max-w-5xl px-4 pb-20 scroll-mt-16 sm:px-8 sm:pb-24">
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm sm:p-8">
+            <div className="max-w-2xl">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"}</span>
+              <h2 id="access-title" className="mt-2 font-heading text-3xl font-bold">{lang === "mg" ? "Fidirana mifanaraka amin'ny filànao" : lang === "en" ? "Access adapted to your needs" : "Un accès adapté à vos besoins"}</h2>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "Ny kaonty Standard dia ahafahanao mahita ny sehatra. Ho an'ny fampiasana miasa na andrim-panjakana, mandefasa fangatahana mba ho dinihin'ny mpitantana." : lang === "en" ? "A Standard account lets you discover the platform. For operational or institutional use, submit a request for an administrator to review." : "Le compte Standard permet de découvrir la plateforme. Pour un usage opérationnel ou institutionnel, envoyez une demande à un administrateur."}</p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link href="/register" className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-3 text-sm font-semibold hover:bg-secondary">{lang === "mg" ? "Mamorona kaonty Standard" : lang === "en" ? "Create a Standard account" : "Créer un compte Standard"}</Link>
+                <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">{lang === "mg" ? "Efa manana kaonty" : lang === "en" ? "I already have an account" : "J’ai déjà un compte"} <ChevronRight className="h-4 w-4"/></Link>
+              </div>
+            </div>
+            <div className="mt-7 grid gap-3 border-t border-primary/15 pt-6 sm:grid-cols-3">
+              {[lang === "mg" ? "Mandefa fangatahana" : lang === "en" ? "Submit a request" : "Envoyer une demande", lang === "mg" ? "Dinihin'ny admin" : lang === "en" ? "Administrative review" : "Examen administratif", lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"].map((label,index)=><div key={label} className="rounded-xl border border-border/60 bg-card/60 p-4"><div className="text-xs font-bold text-primary">0{index+1}</div><div className="mt-2 text-sm font-semibold">{label}</div></div>)}
+            </div>
           </div>
         </section>
+
         <section aria-labelledby="final-cta-title" className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-24">
           <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm sm:p-8 lg:p-10">
             <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />

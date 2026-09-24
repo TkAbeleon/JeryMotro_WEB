@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const updateContactsMutation = useUpdateContacts({ mutation: { onSuccess: () => { setSaved("contacts"); setTimeout(() => setSaved(null), 3000); } } });
   const profileForm = useForm<z.infer<typeof profileSchema>>({ resolver: zodResolver(profileSchema), defaultValues: { full_name: profile?.full_name || "", organization: profile?.organization || "" } });
   const contactForm = useForm<z.infer<typeof contactSchema>>({ resolver: zodResolver(contactSchema), defaultValues: { phone_number: profile?.phone_number || "", whatsapp_number: profile?.whatsapp_number || "" } });
-  const isPremium = profile?.role === "admin" || profile?.role === "premium";
+  const hasExtendedAccess = profile?.role === "admin" || profile?.role === "premium";
 
   return (
     <div className="min-h-full w-full bg-background px-4 py-5 sm:px-6 sm:py-7">
@@ -40,7 +40,7 @@ export default function ProfilePage() {
         <div className="min-w-0 flex-1 text-center sm:text-left">
           <h2 className="truncate font-heading text-lg font-bold">{profile?.full_name || "Utilisateur"}</h2>
           <div className="truncate text-sm text-muted-foreground">{profile?.email}</div>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start"><span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${isPremium ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>{profile?.role || "user"}</span><span className={`rounded-full px-2 py-0.5 text-xs ${profile?.is_active ? "bg-accent/15 text-accent" : "bg-destructive/15 text-destructive"}`}>{profile?.is_active ? t("profile.badge.active") : t("profile.badge.inactive")}</span></div>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start"><span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${hasExtendedAccess ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>{profile?.role === "premium" ? "Accès étendu" : profile?.role === "admin" ? "Administrateur" : "Compte Standard"}</span><span className={`rounded-full px-2 py-0.5 text-xs ${profile?.is_active ? "bg-accent/15 text-accent" : "bg-destructive/15 text-destructive"}`}>{profile?.is_active ? t("profile.badge.active") : t("profile.badge.inactive")}</span></div>
         </div>
       </div>
 
@@ -57,12 +57,12 @@ export default function ProfilePage() {
       </div>
 
       <div className="rounded-xl border border-card-border bg-card p-5 sm:p-6">
-        <div className="flex flex-wrap items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><h3 className="font-heading font-semibold">{t("profile.contacts.title")}</h3>{!isPremium && <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{t("profile.contacts.premiumNote")}</span>}</div>
+        <div className="flex flex-wrap items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><h3 className="font-heading font-semibold">{t("profile.contacts.title")}</h3>{!hasExtendedAccess && <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{t("profile.contacts.premiumNote")}</span>}</div>
         <p className="mb-5 mt-1 text-xs text-muted-foreground">{t("profile.contacts.subtitle")}</p>
         <Form {...contactForm}><form onSubmit={contactForm.handleSubmit(async data => { const payload = { phone_number: data.phone_number?.trim().replace(/\s/g, "") || null, whatsapp_number: data.whatsapp_number?.trim().replace(/\s/g, "") || null }; try { await updateContactsMutation.mutateAsync({ data: payload }); } catch { setSaved("contacts"); setTimeout(() => setSaved(null), 3000); } })} className="space-y-4">
-          <FormField control={contactForm.control} name="phone_number" render={({ field }) => <FormItem><FormLabel>{t("profile.contacts.phone")}</FormLabel><FormControl><input {...field} data-testid="input-phone" placeholder="+261 34 00 000 00" disabled={!isPremium} className={`h-10 w-full rounded-md border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 ${!isPremium ? "cursor-not-allowed opacity-50" : ""}`} /></FormControl><FormMessage /></FormItem>} />
-          <FormField control={contactForm.control} name="whatsapp_number" render={({ field }) => <FormItem><FormLabel>{t("profile.contacts.whatsapp")}</FormLabel><FormControl><input {...field} data-testid="input-whatsapp" placeholder="+261 34 00 000 00" disabled={!isPremium} className={`h-10 w-full rounded-md border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 ${!isPremium ? "cursor-not-allowed opacity-50" : ""}`} /></FormControl><FormMessage /></FormItem>} />
-          <button type="submit" disabled={updateContactsMutation.isPending || !isPremium} data-testid="button-save-contacts" className="h-10 w-full rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:w-auto">{updateContactsMutation.isPending ? t("common.saving") : t("common.save")}</button>
+          <FormField control={contactForm.control} name="phone_number" render={({ field }) => <FormItem><FormLabel>{t("profile.contacts.phone")}</FormLabel><FormControl><input {...field} data-testid="input-phone" placeholder="+261 34 00 000 00" disabled={!hasExtendedAccess} className={`h-10 w-full rounded-md border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 ${!hasExtendedAccess ? "cursor-not-allowed opacity-50" : ""}`} /></FormControl><FormMessage /></FormItem>} />
+          <FormField control={contactForm.control} name="whatsapp_number" render={({ field }) => <FormItem><FormLabel>{t("profile.contacts.whatsapp")}</FormLabel><FormControl><input {...field} data-testid="input-whatsapp" placeholder="+261 34 00 000 00" disabled={!hasExtendedAccess} className={`h-10 w-full rounded-md border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/30 ${!hasExtendedAccess ? "cursor-not-allowed opacity-50" : ""}`} /></FormControl><FormMessage /></FormItem>} />
+          <button type="submit" disabled={updateContactsMutation.isPending || !hasExtendedAccess} data-testid="button-save-contacts" className="h-10 w-full rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:w-auto">{updateContactsMutation.isPending ? t("common.saving") : t("common.save")}</button>
         </form></Form>
       </div>
 
