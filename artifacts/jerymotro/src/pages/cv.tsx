@@ -36,7 +36,7 @@ export default function CvPage() {
           {/* Main CV Container */}
           <div className="jm-cv-document bg-card/70 overflow-hidden print:shadow-none print:border-none">
             {/* Identity Hero Banner */}
-            <div className="bg-primary/8 border-b border-border/70 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-5 sm:gap-6 print:bg-green-50 print:border-b-2">
+            <div className="jm-cv-hero bg-primary/8 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-5 sm:gap-6 print:bg-green-50 print:border-b-2">
               <div className="jm-info-photo w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
                 <img
                   src="/profil.jpg"
@@ -80,7 +80,7 @@ export default function CvPage() {
             {/* Grid Layout (Sidebar + Main) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12">
               {/* Sidebar Section */}
-              <aside className="lg:col-span-4 bg-secondary/20 border-b lg:border-b-0 lg:border-r border-border/70 p-5 sm:p-6 space-y-7 sm:space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
+              <aside className="jm-cv-sidebar lg:col-span-4 bg-secondary/20 p-5 sm:p-6 space-y-7 sm:space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
                 {/* Profile Objective */}
                 <div>
                   <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
@@ -112,7 +112,7 @@ export default function CvPage() {
                     ].map((skill) => (
                       <span
                         key={skill}
-                        className="jm-cv-chip bg-background/50 border border-border/70 text-foreground text-xs font-medium px-2.5 py-1"
+                        className="jm-cv-chip bg-background/50 text-foreground text-xs font-medium px-2.5 py-1"
                       >
                         {skill}
                       </span>
@@ -173,7 +173,7 @@ export default function CvPage() {
               <main className="lg:col-span-8 p-6 sm:p-8 space-y-8 print:col-span-8">
                 {/* Experience */}
                 <section>
-                  <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 border-b border-border/60 pb-1.5 print:text-green-800">
+                  <h2 className="jm-cv-section-heading font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 pb-2 print:text-green-800">
                     <Briefcase className="w-4.5 h-4.5" />
                     <span>{lang === "mg" ? "Traikefa" : lang === "en" ? "Experiences" : "Expériences professionnelles"}</span>
                   </h2>
@@ -228,7 +228,7 @@ export default function CvPage() {
 
                 {/* Formation */}
                 <section>
-                  <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 border-b border-border/60 pb-1.5 print:text-green-800">
+                  <h2 className="jm-cv-section-heading font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 pb-2 print:text-green-800">
                     <GraduationCap className="w-4.5 h-4.5" />
                     <span>{lang === "mg" ? "Fianarana sy Diampianarana" : lang === "en" ? "Education" : "Formation"}</span>
                   </h2>
@@ -262,7 +262,7 @@ export default function CvPage() {
 
                 {/* Projects */}
                 <section>
-                  <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 border-b border-border/60 pb-1.5 print:text-green-800">
+                  <h2 className="jm-cv-section-heading font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 pb-2 print:text-green-800">
                     <Code className="w-4.5 h-4.5" />
                     <span>{lang === "mg" ? "Tetikasa Natao" : lang === "en" ? "Academic Projects" : "Projets phares"}</span>
                   </h2>
@@ -285,7 +285,7 @@ export default function CvPage() {
 
                 {/* Interests / Loisirs */}
                 <section>
-                  <h2 className="font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 border-b border-border/60 pb-1.5 print:text-green-800">
+                  <h2 className="jm-cv-section-heading font-heading text-sm font-bold uppercase tracking-wider text-primary mb-4 flex items-center gap-2 pb-2 print:text-green-800">
                     <Heart className="w-4.5 h-4.5" />
                     <span>{lang === "mg" ? "Finakafakàna sy Loisirs" : lang === "en" ? "Interests & Hobbies" : "Domaines d'intérêt & Loisirs"}</span>
                   </h2>
