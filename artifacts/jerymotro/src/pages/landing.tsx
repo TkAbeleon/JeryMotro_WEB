@@ -1,8 +1,70 @@
 import { Link } from "wouter";
-import { useState } from "react";
+import { Children, cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from "react";
 import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail, Menu, X } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
+
+type LandingLetterRevealProps = {
+  children: ReactNode;
+};
+
+function LandingLetterReveal({ children }: LandingLetterRevealProps) {
+  let sequence = 0;
+
+  const animateNode = (node: ReactNode, path: string): ReactNode => {
+    if (typeof node === "string" || typeof node === "number") {
+      const value = String(node);
+      if (!value.trim()) return node;
+
+      const start = sequence;
+      sequence += Array.from(value).length;
+
+      return (
+        <span
+          key={`landing-text-${path}-${value}`}
+          aria-label={value}
+        >
+          {Array.from(value).map((letter, index) => (
+            <span
+              key={`landing-letter-${path}-${index}-${letter}`}
+              aria-hidden="true"
+              className="jm-landing-letter inline-block will-change-[transform,opacity,filter]"
+              style={{
+                animationDelay: `${Math.min(start * 13 + index * 26, 1200)}ms`,
+              }}
+            >
+              {letter}
+            </span>
+          ))}
+        </span>
+      );
+    }
+
+    if (Array.isArray(node)) {
+      return node.map((child, index) => animateNode(child, `${path}-${index}`));
+    }
+
+    if (!isValidElement(node)) return node;
+
+    const element = node as ReactElement<{ children?: ReactNode }>;
+    if (typeof element.type === "string" &&
+      ["input", "option", "select", "textarea", "svg", "script", "style", "noscript"].includes(element.type)) {
+      return node;
+    }
+
+    if (element.props.children == null) return node;
+
+    return cloneElement(
+      element,
+      undefined,
+      Children.map(element.props.children, (child, index) =>
+        animateNode(child, `${path}-${index}`),
+      ),
+    );
+  };
+
+  return <>{Children.map(children, (child, index) => animateNode(child, String(index)))}</>;
+}
 
 export default function LandingPage() {
   const { t, lang, setLang } = useI18n();
@@ -53,6 +115,7 @@ export default function LandingPage() {
   ];
 
   return (
+    <LandingLetterReveal>
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <header>
         <nav aria-label="Navigation principale" className="jm-landing-nav fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-4 sm:px-8">
@@ -245,5 +308,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </LandingLetterReveal>
   );
 }
