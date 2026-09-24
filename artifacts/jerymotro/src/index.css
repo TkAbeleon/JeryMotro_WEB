@@ -1239,7 +1239,7 @@
     box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
   }
 
-
+}
 
 @layer components {
   /* Export uses the same family logic as other functional cards. */
