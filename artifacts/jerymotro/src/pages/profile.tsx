@@ -66,7 +66,7 @@ export default function ProfilePage() {
         </form></Form>
       </div>
 
-      <div className="rounded-xl border border-card-border bg-card p-5 sm:p-6">
+      <div className="jm-card-depth border border-card-border bg-card p-5 shadow-sm sm:p-6">
         <h3 className="mb-2 font-heading font-semibold">{t("profile.prefs.title")}</h3>
         <div className="jm-profile-preference-row flex flex-col gap-3 border-b border-border py-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-sm font-medium">{t("profile.prefs.theme")}</div><div className="text-xs text-muted-foreground">{theme === "dark" ? t("profile.prefs.themeDark") : t("profile.prefs.themeLight")}</div></div><button onClick={toggleTheme} className="jm-button-depth w-full rounded-xl border border-border bg-secondary px-3 py-1.5 text-xs transition-colors hover:bg-secondary/80 sm:w-auto">{theme === "dark" ? t("profile.prefs.switchToLight") : t("profile.prefs.switchToDark")}</button></div>
         <div className="jm-profile-preference-row flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-sm font-medium">{t("profile.prefs.language")}</div><div className="text-xs text-muted-foreground">{LANG_LABELS[lang]}</div></div><div className="flex gap-1">{LANGS.map(l => <button key={l} onClick={() => setLang(l)} className={`jm-pill-depth rounded-md border px-2.5 py-1 text-xs font-medium uppercase transition-colors ${lang === l ? "jm-filter-active border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-secondary"}`}>{l}</button>)}</div></div>
