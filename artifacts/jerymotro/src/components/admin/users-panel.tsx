@@ -85,7 +85,15 @@ function UserModal({
             <label><span className="field-label">{t("admin.user.organization")}</span><input value={form.organization} onChange={(e) => set("organization", e.target.value)} className="field-input" /></label>
             <label><span className="field-label">{t("admin.user.phone")}</span><input value={form.phone_number} onChange={(e) => set("phone_number", e.target.value)} className="field-input" placeholder="+261 34 00 000 00" /></label>
             <label><span className="field-label">{t("admin.user.whatsapp")}</span><input value={form.whatsapp_number} onChange={(e) => set("whatsapp_number", e.target.value)} className="field-input" placeholder="+261 32 00 000 00" /></label>
-            <label><span className="field-label">{t("admin.user.role")}</span><select value={form.role} onChange={(e) => set("role", e.target.value as AdminUserRole)} className="field-input"><option value="standard">{t("admin.user.role.standard")}</option><option value="premium">{t("admin.user.role.premium")}</option><option value="admin">{t("admin.user.role.admin")}</option></select></label>
+            <label>
+              <span className="field-label">{t("admin.user.role")}</span>
+              <select value={form.role} onChange={(e) => set("role", e.target.value as AdminUserRole)} className="field-input">
+                <option value="standard">{t("admin.user.role.standard")}</option>
+                <option value="premium">{t("admin.user.role.premium")}</option>
+                <option value="admin">{t("admin.user.role.admin")}</option>
+              </select>
+              <span className="mt-1 block text-[10px] text-muted-foreground">{t("admin.user.roleHelp")}</span>
+            </label>
             <label><span className="field-label">{t("admin.user.password")}{edit && <span className="ml-1 text-muted-foreground">({t("common.optional")})</span>}</span><input type="password" required={!edit} minLength={8} value={form.password} onChange={(e) => set("password", e.target.value)} className="field-input" /></label>
           </div>
           <div className="mt-5 flex flex-wrap gap-4 rounded-xl border border-border/70 bg-muted/20 p-3">
@@ -106,6 +114,7 @@ export function UsersPanel() {
   const { t } = useI18n();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<AdminUserRole | "all">("all");
   const [active, setActive] = useState<"all" | "active" | "inactive">("all");
@@ -135,6 +144,15 @@ export function UsersPanel() {
 
   useEffect(() => { void load(); }, [load]);
 
+  const submitSearch = () => {
+    const value = searchInput.trim();
+    if (value === search) {
+      void load();
+      return;
+    }
+    setSearch(value);
+  };
+
   const stats = useMemo(() => ({
     active: users.filter((u) => u.is_active).length,
     extended: users.filter((u) => u.role === "premium").length,
@@ -145,8 +163,6 @@ export function UsersPanel() {
     setBusy(-1);
     try {
       if (modal?.user) {
-        const payload = { ...form, password: form.password || undefined };
-        delete (payload as any).password;
         await updateAdminUser(modal.user.id, { ...form, password: form.password || undefined });
       } else {
         const payload: AdminUserCreatePayload = { ...form };
@@ -213,10 +229,38 @@ export function UsersPanel() {
       </div>
       <div className="rounded-2xl border border-border/70 bg-card/60 p-3 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("admin.user.search")} className="field-input pl-9" /></div>
-          <select value={role} onChange={(e) => setRole(e.target.value as any)} className="field-input lg:w-44"><option value="all">{t("common.all")}</option><option value="standard">{t("admin.user.role.standard")}</option><option value="premium">{t("admin.user.role.premium")}</option><option value="admin">{t("admin.user.role.admin")}</option></select>
-          <select value={active} onChange={(e) => setActive(e.target.value as any)} className="field-input lg:w-40"><option value="all">{t("common.all")}</option><option value="active">{t("common.active")}</option><option value="inactive">{t("common.inactive")}</option></select>
-          <button onClick={() => void load()} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-semibold"><RefreshCw className="h-3.5 w-3.5" />{t("common.refresh")}</button>
+          <div className="min-w-0 flex-1">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t("admin.user.searchLabel")}</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitSearch(); } }}
+                placeholder={t("admin.user.search")}
+                className="field-input pl-9"
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">{t("admin.user.searchHint")}</p>
+          </div>
+          <label className="lg:w-44">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t("admin.user.filterRole")}</span>
+            <select aria-label={t("admin.user.filterRole")} value={role} onChange={(e) => setRole(e.target.value as AdminUserRole | "all")} className="field-input w-full">
+              <option value="all">{t("common.all")}</option>
+              <option value="standard">{t("admin.user.role.standard")}</option>
+              <option value="premium">{t("admin.user.role.premium")}</option>
+              <option value="admin">{t("admin.user.role.admin")}</option>
+            </select>
+          </label>
+          <label className="lg:w-40">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{t("admin.user.filterStatus")}</span>
+            <select aria-label={t("admin.user.filterStatus")} value={active} onChange={(e) => setActive(e.target.value as "all" | "active" | "inactive")} className="field-input w-full">
+              <option value="all">{t("common.all")}</option>
+              <option value="active">{t("common.active")}</option>
+              <option value="inactive">{t("common.inactive")}</option>
+            </select>
+          </label>
+          <button onClick={() => void load()} className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-semibold"><RefreshCw className="h-3.5 w-3.5" />{t("common.refresh")}</button>
           <button onClick={() => setModal({})} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-xs font-semibold text-primary-foreground"><Plus className="h-3.5 w-3.5" />{t("admin.user.create")}</button>
         </div>
       </div>
