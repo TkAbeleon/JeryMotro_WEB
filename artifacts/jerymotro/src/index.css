@@ -688,3 +688,33 @@
       -2px -2px 5px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-alert-row {
+    border-radius: 12px;
+    transition:
+      transform 250ms ease-out,
+      box-shadow 250ms ease-out,
+      background-color 250ms ease-out;
+  }
+
+  .jm-alert-row:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-alert-icon {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-alert-modal {
+    box-shadow:
+      12px 12px 24px var(--jm-card-shadow-dark),
+      -12px -12px 24px var(--jm-card-shadow-light);
+  }
+}
