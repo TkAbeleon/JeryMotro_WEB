@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
       {saved && <div className="jm-pill-depth flex items-start gap-2 rounded-xl border border-accent/25 bg-accent/8 px-4 py-3 text-sm text-accent shadow-sm"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />{t("profile.saved")}</div>}
 
-      <div className="jm-card-depth rounded-xl border border-border/70 bg-card/65 p-5 shadow-sm sm:p-6">
+      <div className="jm-card-depth border border-border/70 bg-card/65 p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex items-center gap-2"><User className="h-4 w-4 text-muted-foreground" /><h3 className="font-heading font-semibold">{t("profile.info.title")}</h3></div>
         <Form {...profileForm}><form onSubmit={profileForm.handleSubmit(async data => { try { await updateProfileMutation.mutateAsync({ data }); } catch { setSaved("profile"); setTimeout(() => setSaved(null), 3000); } })} className="space-y-4">
           <div><label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{t("profile.info.email")}</label><input value={profile?.email || ""} disabled className="jm-control-inset h-10 w-full rounded-xl border border-input bg-secondary/50 px-3 text-sm text-muted-foreground cursor-not-allowed" /></div>
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         </form></Form>
       </div>
 
-      <div className="jm-card-depth rounded-xl border border-card-border bg-card p-5 sm:p-6">
+      <div className="jm-card-depth border border-card-border bg-card p-5 sm:p-6">
         <div className="flex flex-wrap items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><h3 className="font-heading font-semibold">{t("profile.contacts.title")}</h3>{!hasExtendedAccess && <span className="rounded-full border border-border bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{t("profile.contacts.premiumNote")}</span>}</div>
         <p className="mb-5 mt-1 text-xs text-muted-foreground">{t("profile.contacts.subtitle")}</p>
         <Form {...contactForm}><form onSubmit={contactForm.handleSubmit(async data => { const payload = { phone_number: data.phone_number?.trim().replace(/\s/g, "") || null, whatsapp_number: data.whatsapp_number?.trim().replace(/\s/g, "") || null }; try { await updateContactsMutation.mutateAsync({ data: payload }); } catch { setSaved("contacts"); setTimeout(() => setSaved(null), 3000); } })} className="space-y-4">
