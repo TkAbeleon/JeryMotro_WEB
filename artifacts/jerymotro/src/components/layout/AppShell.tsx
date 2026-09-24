@@ -33,7 +33,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 items-center gap-3 sm:gap-6">
           <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3" aria-label="JeryMotro — accueil">
             <span className="jm-public-logo flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
-              <img src="/logo.png" alt="JeryMotro" className="h-8 w-8 object-contain" />
+              <img src="/logo.png" alt="JeryMotro" className="jm-logo-mark h-8 w-8 object-contain" />
             </span>
             <span className="hidden truncate font-heading text-base font-bold sm:inline sm:text-lg">JeryMotro</span>
           </Link>

@@ -865,6 +865,11 @@
 
 
 @layer components {
+  /* Brand mark — subtle ember glow so the flame logo reads as "alive" wherever it appears. */
+  .jm-logo-mark {
+    filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.4)) drop-shadow(0 0 14px hsl(var(--primary) / 0.22));
+  }
+
   /* Public landing — full Soft UI / neumorphic family. */
   .jm-landing-nav {
     background: color-mix(in srgb, var(--background) 88%, transparent);
@@ -893,6 +898,7 @@
     transition: transform 220ms ease-out, box-shadow 220ms ease-out, opacity 220ms ease-out, background-color 220ms ease-out;
   }
   .jm-landing-primary-button {
+    background-image: linear-gradient(135deg, hsl(32 92% 58%) 0%, hsl(var(--primary)) 55%, hsl(8 72% 42%) 100%);
     box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
   }
   .jm-landing-secondary-button {

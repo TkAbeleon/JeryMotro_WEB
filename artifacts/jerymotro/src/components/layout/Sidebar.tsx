@@ -139,7 +139,7 @@ export function Sidebar() {
             <img
               src="/logo.png"
               alt="JeryMotro"
-              className="h-8 w-8 rounded-lg object-cover"
+              className="jm-logo-mark h-8 w-8 rounded-lg object-cover"
             />
           </button>
         ) : (
@@ -147,7 +147,7 @@ export function Sidebar() {
             <img
               src="/logo.png"
               alt="JeryMotro"
-              className="h-9 w-9 shrink-0 rounded-xl object-cover"
+              className="jm-logo-mark h-9 w-9 shrink-0 rounded-xl object-cover"
             />
             <div className="min-w-0">
               <div className="truncate font-heading text-[15px] font-bold tracking-tight">

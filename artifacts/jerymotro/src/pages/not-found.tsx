@@ -15,7 +15,7 @@ export default function NotFound() {
           <img
             src="/logo.png"
             alt="JeryMotro Logo"
-            className="jm-notfound-logo relative w-24 h-24 object-contain"
+            className="jm-notfound-logo jm-logo-mark relative w-24 h-24 object-contain"
           />
         </div>
 

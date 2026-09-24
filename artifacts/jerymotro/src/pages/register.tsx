@@ -113,7 +113,7 @@ export default function RegisterPage() {
     <div className="jm-auth-page min-h-screen flex">
       <div className="jm-auth-sidebar hidden lg:flex flex-col w-[480px] p-10 justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="JeryMotro" className="h-9 rounded" />
+          <img src="/logo.png" alt="JeryMotro" className="jm-logo-mark h-9 rounded" />
           <span className="font-heading font-bold text-xl">JeryMotro</span>
         </div>
         <div>
@@ -139,7 +139,7 @@ export default function RegisterPage() {
         <div className="jm-auth-column w-full max-w-[420px]">
           <div className="flex items-center justify-between mb-8 lg:hidden">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
+              <img src="/logo.png" alt="JeryMotro" className="jm-logo-mark h-8 rounded" />
               <span className="font-heading font-bold text-lg">JeryMotro</span>
             </div>
             <Link href="/" className="jm-auth-home flex h-10 w-10 items-center justify-center rounded-2xl transition-colors">

@@ -57,7 +57,7 @@ export default function LandingPage() {
       <header>
         <nav aria-label="Navigation principale" className="jm-landing-nav fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-4 sm:px-8">
           <Link href="/" className="flex items-center gap-3" aria-label="JeryMotro — accueil">
-            <img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" />
+            <img src="/logo.png" alt="Logo JeryMotro" className="jm-logo-mark h-8 rounded" />
             <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -237,7 +237,7 @@ export default function LandingPage() {
       <footer id="about" className="jm-landing-footer scroll-mt-16">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10">
-            <section aria-labelledby="footer-about-title"><div className="flex items-center gap-3 mb-4"><img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" /><span id="footer-about-title" className="font-heading font-bold text-lg text-foreground">JeryMotro</span></div><p className="text-sm text-muted-foreground leading-relaxed">{t("landing.footer.about.desc")}</p></section>
+            <section aria-labelledby="footer-about-title"><div className="flex items-center gap-3 mb-4"><img src="/logo.png" alt="Logo JeryMotro" className="jm-logo-mark h-8 rounded" /><span id="footer-about-title" className="font-heading font-bold text-lg text-foreground">JeryMotro</span></div><p className="text-sm text-muted-foreground leading-relaxed">{t("landing.footer.about.desc")}</p></section>
             <nav aria-labelledby="footer-links-title"><h2 id="footer-links-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.links")}</h2><ul className="space-y-2 text-sm"><li><a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a></li><li><a href="#coverage" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a></li><li><a href="#access" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.access")}</a></li><li><Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link></li><li><Link href="/register" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.register.title")}</Link></li></ul></nav>
             <section aria-labelledby="footer-contact-title"><h2 id="footer-contact-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.contact")}</h2><address className="not-italic"><ul className="space-y-2 text-sm"><li className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" aria-hidden="true" /><a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a></li><li className="text-muted-foreground">{t("landing.footer.data")}</li><li className="text-muted-foreground">{t("landing.footer.ai")}</li></ul></address></section>
           </div>

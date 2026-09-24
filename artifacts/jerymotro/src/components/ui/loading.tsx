@@ -19,7 +19,7 @@ export default function LoadingPage({ message }: LoadingPageProps) {
         <div className="mb-6 flex items-center gap-3">
           <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
             <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-primary/15 to-accent/10" />
-            <img src="/logo.png" alt="JeryMotro" className="relative h-10 w-10 object-contain" />
+            <img src="/logo.png" alt="JeryMotro" className="jm-logo-mark relative h-10 w-10 object-contain" />
           </div>
           <div className="min-w-0">
             <div className="font-heading text-base font-semibold tracking-tight">JeryMotro</div>
