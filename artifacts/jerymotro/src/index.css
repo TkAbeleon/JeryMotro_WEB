@@ -84,6 +84,17 @@
 @keyframes loading { 0%,100% { transform: translateX(-120%); opacity: .45; } 50% { transform: translateX(250%); opacity: 1; } }
 
 
+/* Radius contract:
+ * xs 6px → tiny controls / compact elements
+ * sm 8px → small controls
+ * md 10px → compact interactive elements
+ * lg 12px → buttons / inputs / standard controls
+ * xl 16px → cards / medium panels
+ * 2xl 20px → major cards / popovers
+ * 3xl 24px → large floating panels
+ * full → pills / circular indicators
+ */
+
 /* JeryMotro card depth: visual enhancement only; existing color tokens remain unchanged. */
 @layer components {
   .jm-card-depth {
@@ -519,7 +530,7 @@
 @layer components {
   .jm-map-popup .leaflet-popup-content-wrapper {
     border: 0 !important;
-    border-radius: 22px !important;
+    border-radius: 20px !important;
     box-shadow:
       9px 9px 18px var(--jm-card-shadow-dark),
       -9px -9px 18px var(--jm-card-shadow-light) !important;
