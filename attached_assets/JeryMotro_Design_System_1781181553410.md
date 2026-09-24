@@ -185,7 +185,7 @@ Le mode clair doit conserver la même hiérarchie sémantique en remplaçant les
 
 JeryMotro utilise deux familles complémentaires importées depuis Google Fonts.
 
-#### Outfit — Titres et chiffres
+#### Sora — Titres et chiffres
 
 **Usage :** Tous les titres (`h1`→`h5`), nombres statistiques, logo, prix, valeurs de score ML.  
 **Weights disponibles :** 300 · 400 · 500 · 600 · 700 · 800 · 900  
@@ -209,12 +209,12 @@ font-family: 'Space Grotesk', sans-serif;
 
 | Classe | Font | Size | Weight | Letter-spacing | Line-height | Usage |
 |--------|------|------|--------|----------------|-------------|-------|
-| `.display` | Outfit | `clamp(40px, 5.5vw, 72px)` | 900 | `-2px` | 1.05 | Hero titre landing |
-| `.h1` | Outfit | `clamp(28px, 4vw, 48px)` | 800 | `-1px` | 1.1 | Titres de sections landing |
-| `.h2` | Outfit | `clamp(22px, 3vw, 36px)` | 700 | `-.5px` | 1.2 | Titres de pages/modales |
-| `.h3` | Outfit | `18px` | 700 | — | — | Titres de cards, widgets |
-| `.stat-num` | Outfit | `28px` | 800 | — | 1 | Chiffres stat-cards |
-| `.price-num` | Outfit | `44px` | 900 | — | 1 | Prix tarification |
+| `.display` | Sora | `clamp(40px, 5.5vw, 72px)` | 900 | `-2px` | 1.05 | Hero titre landing |
+| `.h1` | Sora | `clamp(28px, 4vw, 48px)` | 800 | `-1px` | 1.1 | Titres de sections landing |
+| `.h2` | Sora | `clamp(22px, 3vw, 36px)` | 700 | `-.5px` | 1.2 | Titres de pages/modales |
+| `.h3` | Sora | `18px` | 700 | — | — | Titres de cards, widgets |
+| `.stat-num` | Sora | `28px` | 800 | — | 1 | Chiffres stat-cards |
+| `.price-num` | Sora | `44px` | 900 | — | 1 | Prix tarification |
 | Body | Space Grotesk | `16px` (base) | 400 | — | — | Corps global |
 | `.nav-link` | Space Grotesk | `14px` | 500 | — | — | Navigation |
 | `.form-label` | Space Grotesk | `11px` | 600 | `0.8px` | — | Labels formulaire |
@@ -640,11 +640,11 @@ Structure interne obligatoire :
 
 ```
 [Header]
-  Nom cluster (Outfit 700 16px, --white) + région (12px, --muted)   |   Pill statut
+  Nom cluster (Sora 700 16px, --white) + région (12px, --muted)   |   Pill statut
 
 [Grille 3 colonnes : mini-stats]
   .cluster-mini-stat → fond --surface2, border-radius --radius-sm, padding 10px, text-align center
-  Valeur : Outfit 800 20px + couleur dynamique
+  Valeur : Sora 800 20px + couleur dynamique
   Label : 10px --muted
 
 [Footer]
@@ -665,7 +665,7 @@ Structure interne obligatoire :
 
   [Gauche : icône + infos]
     Icône 44×44px, border-radius 11px, couleur thématique (green pour forêt, amber pour parc)
-    Nom (Outfit 700 15px --white) · coordonnées (12px --muted)
+    Nom (Sora 700 15px --white) · coordonnées (12px --muted)
     Badges : min_risk (.badge-fire) + min_frp (.badge-amber)
 
   [Droite : statut + actions]
@@ -732,7 +732,7 @@ Couleur de la bordure selon canal actif :
   display: flex · justify-content: space-between · align-items: center
 
   [Gauche]
-    .stat-num : Outfit 28px 800 · couleur dynamique (fire/amber/green/white/blue)
+    .stat-num : Sora 28px 800 · couleur dynamique (fire/amber/green/white/blue)
     .stat-label : 11px --muted
 
   [Droite]
@@ -853,7 +853,7 @@ Footer : `[Annuler (btn-ghost)] [Supprimer (rouge plein, btn-danger override)]`
 ```
 
 **Contenu** (height 68px, max-width container 1180px) :
-- **Logo** : Image 36×36px (border-radius 9px, box-shadow fire-glow) + texte Outfit 800 20px ("Jery" blanc + "Motro" fire-light)
+- **Logo** : Image 36×36px (border-radius 9px, box-shadow fire-glow) + texte Sora 800 20px ("Jery" blanc + "Motro" fire-light)
 - **Liens centraux** : 14px, font-weight 500, color --text2, hover --white. Sections : Fonctionnalités, Carte Live, Rôles, Tarifs, Contact.
 - **Actions droite** : `[Connexion (btn-ghost)] [Démarrer gratuitement (btn-primary)]`
 
@@ -893,7 +893,7 @@ transition: .15s
 
 **Profil utilisateur** (sidebar-user-inner) :
 - Fond `--surface2`, border `--border2`, `--radius-sm`
-- Avatar initiales : 30×30px, circle, `rgba(232,83,26,.2)`, initiales en `--fire-light`, Outfit 11px 800
+- Avatar initiales : 30×30px, circle, `rgba(232,83,26,.2)`, initiales en `--fire-light`, Sora 11px 800
 - Nom : 12px 600 --white (ellipsis) + rôle : 10px --fire-light 600
 
 **Navigation hiérarchique complète** :
@@ -930,7 +930,7 @@ transition: .15s
 ```
 
 **Contenu** :
-- `.topbar-title` : Outfit 700 15px --white (flex: 1) — titre dynamique de l'onglet actif
+- `.topbar-title` : Sora 700 15px --white (flex: 1) — titre dynamique de l'onglet actif
 - `live-chip` vert : "API opérationnelle"
 - `live-chip` fire : "3 alertes actives" avec icône triangle-alert
 - Bouton icône bell avec `notify-dot` (largeur 32px, --surface2, --border)
@@ -1118,7 +1118,7 @@ Chaque zone affiche son état de surveillance avec le pill-statut (NORMAL = aucu
 **Grid 2 colonnes** :
 
 **Colonne Informations** (`.card card-p`) :
-- Header profil : avatar 54px (circle, --fire bg translucide, initiales fire-light Outfit 900 18px) + nom + badge rôle
+- Header profil : avatar 54px (circle, --fire bg translucide, initiales fire-light Sora 800 18px) + nom + badge rôle
 - Champs : Nom complet · Organisation · Email (disabled)
 - btn-primary sm "Sauvegarder"
 
