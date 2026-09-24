@@ -1213,26 +1213,64 @@
 
 
 @layer components {
-  /* Shared family for public informational pages. */
-  .jm-info-card {
-    border-radius: 16px;
-    transition:
-      transform 240ms ease-out,
-      box-shadow 240ms ease-out,
-      background-color 240ms ease-out;
+  /* About / Legal / Privacy — one complete public information family. */
+  .jm-info-page {
+    background: var(--background);
   }
-
+  .jm-info-page-header {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+  .jm-info-back,
+  .jm-info-action {
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out, color 200ms ease-out;
+  }
+  .jm-info-back:hover,
+  .jm-info-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
+  }
+  .jm-info-back:active,
+  .jm-info-action:active {
+    transform: translateY(0.5px);
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+  .jm-info-card {
+    border: 0 !important;
+    border-radius: 20px;
+    background: var(--card);
+    box-shadow: 8px 8px 16px var(--jm-card-shadow-dark), -8px -8px 16px var(--jm-card-shadow-light);
+    transition: transform 240ms ease-out, box-shadow 240ms ease-out, background-color 240ms ease-out;
+  }
   .jm-info-card:hover {
     transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
+    box-shadow: 10px 10px 20px var(--jm-card-shadow-dark), -10px -10px 20px var(--jm-card-shadow-light);
   }
-
+  .jm-info-icon-well {
+    background: var(--background);
+    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
+  }
+  .jm-info-note {
+    border: 0 !important;
+    border-radius: 16px;
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
   .jm-info-mini {
-    border-radius: 10px;
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
   }
-
+  .jm-info-photo {
+    border: 0 !important;
+    border-radius: 20px;
+    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
+    overflow: hidden;
+  }
   .jm-cv-document {
     border-radius: 20px;
     box-shadow:
