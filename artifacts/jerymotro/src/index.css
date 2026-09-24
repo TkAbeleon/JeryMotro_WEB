@@ -852,3 +852,31 @@
       -4px -4px 8px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  /* Landing informational cards share one proportional radius and restrained depth. */
+  .jm-landing-card {
+    border-radius: 16px;
+    transition:
+      transform 240ms ease-out,
+      box-shadow 240ms ease-out,
+      background-color 240ms ease-out,
+      border-color 240ms ease-out;
+  }
+
+  .jm-landing-card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
+  .jm-landing-mini-card {
+    border-radius: 12px;
+    transition:
+      box-shadow 220ms ease-out,
+      background-color 220ms ease-out,
+      border-color 220ms ease-out;
+  }
+}
