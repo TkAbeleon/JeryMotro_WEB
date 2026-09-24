@@ -289,14 +289,14 @@ export default function ZonesPage() {
           <Lock className="w-8 h-8 text-primary" />
         </div>
         <div>
-          <h2 className="font-heading text-xl font-bold mb-2">{t("zones.premium.title")}</h2>
-          <p className="text-muted-foreground text-sm max-w-sm">{t("zones.premium.desc")}</p>
+          <h2 className="font-heading text-xl font-bold mb-2">{t("zones.extended.title")}</h2>
+          <p className="text-muted-foreground text-sm max-w-sm">{t("zones.extended.desc")}</p>
         </div>
         <a
           href="/access-request"
           className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
         >
-          {t("zones.premium.cta")}
+          {t("zones.extended.cta")}
         </a>
       </div>
     );
@@ -309,7 +309,7 @@ export default function ZonesPage() {
           <div className="flex items-center gap-2">
             <h1 className="font-heading text-2xl font-bold">{t("zones.title")}</h1>
             <span className="text-xs bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">
-              {t("common.premium")}
+              {t("common.extendedAccess")}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">{t("zones.subtitle")}</p>
