@@ -951,3 +951,37 @@
     border-radius: 10px;
   }
 }
+
+
+@layer components {
+  /* Access Request and Admin share one functional-surface language. */
+  .jm-access-form,
+  .jm-admin-card {
+    border-radius: 16px;
+  }
+
+  .jm-access-form {
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
+  .jm-access-mini,
+  .jm-admin-mini {
+    border-radius: 10px;
+    transition:
+      background-color 180ms ease-out,
+      border-color 180ms ease-out;
+  }
+
+  .jm-admin-shell {
+    border-radius: 12px;
+    box-shadow:
+      inset 2px 2px 5px var(--jm-card-shadow-dark),
+      inset -2px -2px 5px var(--jm-card-shadow-light);
+  }
+
+  .jm-admin-tab {
+    border-radius: 10px;
+  }
+}
