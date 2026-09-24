@@ -229,7 +229,7 @@ function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={`jm-card-depth rounded-xl border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-[2px] sm:p-6 ${className}`}>
+    <section className={`jm-card-depth border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-[2px] sm:p-6 ${className}`}>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-heading text-sm font-semibold tracking-tight">{title}</h2>
