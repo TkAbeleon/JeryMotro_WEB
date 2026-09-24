@@ -79,7 +79,7 @@ export const translations = {
     "nav.chat": "JeryMotro AI",
     "nav.zones": "Zones Prioritaires",
     "nav.alerts": "Mes Alertes",
-    "nav.subscriptions": "Abonnements",
+    "nav.subscriptions": "Demander un accès étendu",
     "nav.profile": "Profil",
     "nav.map": "Carte Interactive",
     "nav.section.map": "Carte",
@@ -374,15 +374,15 @@ export const translations = {
     "alerts.filter.medium": "Moyen",
 
     // --- Subscriptions ---
-    "subscriptions.title": "Abonnements",
-    "subscriptions.subtitle": "Choisissez le plan adapté à vos besoins",
-    "subscriptions.plan.free": "Gratuit",
-    "subscriptions.plan.premium": "Premium",
-    "subscriptions.plan.enterprise": "Enterprise",
-    "subscriptions.cta.free": "Plan actuel",
-    "subscriptions.cta.premium": "Passer à Premium",
-    "subscriptions.cta.enterprise": "Contacter l'équipe",
-    "subscriptions.faq.title": "Questions fréquentes",
+    "subscriptions.title": "Demander un accès étendu",
+    "subscriptions.subtitle": "Présentez votre besoin pour qu’un administrateur puisse examiner votre demande.",
+    "subscriptions.plan.free": "Compte Standard",
+    "subscriptions.plan.premium": "Accès étendu",
+    "subscriptions.plan.enterprise": "Accès institutionnel",
+    "subscriptions.cta.free": "Accès actuel",
+    "subscriptions.cta.premium": "Demander un accès étendu",
+    "subscriptions.cta.enterprise": "Contacter l’équipe",
+    "subscriptions.faq.title": "Questions fréquentes sur l’accès",
 
     // --- Profile ---
     "profile.title": "Mon profil",
@@ -606,7 +606,7 @@ export const translations = {
     "nav.chat": "JeryMotro AI",
     "nav.zones": "Faritra Voamarika",
     "nav.alerts": "Ny Fampitandremanako",
-    "nav.subscriptions": "Fanomezana",
+    "nav.subscriptions": "Mangataka fidirana miitatra",
     "nav.profile": "Mombamomba ahy",
     "nav.map": "Sarintany Interaktiva",
     "nav.section.map": "Sarintany",
@@ -900,7 +900,7 @@ export const translations = {
     "alerts.filter.medium": "Antonony",
 
     // --- Subscriptions ---
-    "subscriptions.title": "Fanomezana",
+    "subscriptions.title": "Mangataka fidirana miitatra",
     "subscriptions.subtitle": "Misafidiana ny drafitry ny tenanao",
     "subscriptions.plan.free": "Maimaim-poana",
     "subscriptions.plan.premium": "Premium",
@@ -1126,7 +1126,7 @@ export const translations = {
     "nav.chat": "JeryMotro AI",
     "nav.zones": "Priority Zones",
     "nav.alerts": "My Alerts",
-    "nav.subscriptions": "Subscriptions",
+    "nav.subscriptions": "Request extended access",
     "nav.profile": "Profile",
     "nav.map": "Interactive Map",
     "nav.section.map": "Map",
@@ -1420,7 +1420,7 @@ export const translations = {
     "alerts.filter.medium": "Medium",
 
     // --- Subscriptions ---
-    "subscriptions.title": "Subscriptions",
+    "subscriptions.title": "Request extended access",
     "subscriptions.subtitle": "Choose the plan that fits your needs",
     "subscriptions.plan.free": "Free",
     "subscriptions.plan.premium": "Premium",

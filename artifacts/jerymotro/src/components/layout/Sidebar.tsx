@@ -78,7 +78,7 @@ const navGroups: NavGroup[] = [
     authOnly: true,
     items: [
       { labelKey: "nav.profile", href: "/profile", icon: User },
-      { labelKey: "nav.subscriptions", href: "/subscriptions", icon: CreditCard },
+      { labelKey: "nav.subscriptions", href: "/subscriptions", icon: ShieldCheck },
       { labelKey: "nav.export", href: "/export", icon: Download },
     ],
   },
