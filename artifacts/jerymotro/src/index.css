@@ -880,3 +880,46 @@
       border-color 220ms ease-out;
   }
 }
+
+
+@layer components {
+  /* Login/Register share one visual family while keeping their different flows. */
+  .jm-auth-sidebar {
+    box-shadow:
+      6px 0 18px var(--jm-card-shadow-dark),
+      inset -1px 0 0 var(--jm-card-shadow-light);
+  }
+
+  .jm-auth-column {
+    width: 100%;
+  }
+
+  .jm-auth-tabs {
+    border-radius: 12px;
+    box-shadow:
+      inset 2px 2px 5px var(--jm-card-shadow-dark),
+      inset -2px -2px 5px var(--jm-card-shadow-light);
+  }
+
+  .jm-auth-info {
+    border-radius: 12px;
+  }
+
+  .jm-auth-option {
+    border-radius: 10px;
+    transition:
+      background-color 180ms ease-out,
+      border-color 180ms ease-out;
+  }
+
+  .jm-auth-action {
+    border-radius: 10px;
+  }
+
+  .jm-auth-control {
+    border-radius: 10px !important;
+    box-shadow:
+      inset 2px 2px 4px var(--jm-card-shadow-dark),
+      inset -2px -2px 4px var(--jm-card-shadow-light);
+  }
+}
