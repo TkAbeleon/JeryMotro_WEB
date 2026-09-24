@@ -621,3 +621,23 @@
       -5px -5px 10px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-cluster-mini-stat {
+    border-radius: 12px;
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-cluster-footer {
+    border-radius: 10px;
+  }
+
+  .jm-cluster-risk-dot {
+    box-shadow:
+      2px 2px 4px var(--jm-card-shadow-dark),
+      -2px -2px 4px var(--jm-card-shadow-light);
+  }
+}
