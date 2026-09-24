@@ -57,7 +57,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <header>
-        <nav aria-label="Navigation principale" className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/88 backdrop-blur-xl h-[58px] flex items-center justify-between px-4 sm:px-8">
+        <nav aria-label="Navigation principale" className="jm-landing-nav fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-4 sm:px-8">
           <Link href="/" className="flex items-center gap-3" aria-label="JeryMotro — accueil">
             <img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" />
             <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
@@ -73,7 +73,7 @@ export default function LandingPage() {
               <Link href="/cv" className="text-sm text-muted-foreground hover:text-foreground transition-colors">CV</Link>
             </div>
             <div className="hidden md:block w-px h-5 bg-border" />
-            <button onClick={toggleTheme} aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"} className="p-2 rounded-md hover:bg-secondary transition-colors">
+            <button onClick={toggleTheme} aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"} className="jm-landing-icon-button flex h-11 w-11 items-center justify-center rounded-2xl transition-colors">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <div className="flex items-center gap-1 sm:gap-2">
@@ -84,46 +84,44 @@ export default function LandingPage() {
               </select>
             </div>
             <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">{t("auth.login.title")}</Link>
-            <Link href="/register" className="text-sm bg-primary text-primary-foreground px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:opacity-90 transition-opacity font-medium">{t("auth.register.title")}</Link>
+            <Link href="/register" className="jm-landing-primary-button inline-flex min-h-11 items-center justify-center rounded-2xl bg-primary px-4 sm:px-5 py-2.5 text-sm font-semibold text-primary-foreground">{t("auth.register.title")}</Link>
           </div>
         </nav>
       </header>
 
       <main>
-        <section aria-labelledby="hero-title" className="relative overflow-hidden border-b border-border/50 bg-[radial-gradient(circle_at_50%_15%,hsl(var(--primary)/0.10),transparent_38%)] pt-[58px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <section aria-labelledby="hero-title" className="jm-landing-hero relative overflow-hidden pt-[64px]">
           <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 text-center relative sm:px-8 sm:pb-20 sm:pt-20">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1.5 text-xs font-medium text-primary shadow-sm mb-6"><Zap className="w-3 h-3" /><span>{t("landing.tagline")}</span></div>
+            <div className="jm-landing-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-primary mb-7"><Zap className="w-3 h-3" /><span>{t("landing.tagline")}</span></div>
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6" aria-label="Technologies et données utilisées">
-              <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground"><span aria-hidden="true" className="text-base">🛰️</span> Données NASA FIRMS</span>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground"><span aria-hidden="true" className="text-base">🤖</span> XGBoost v2.1 — 89% de précision</span>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-secondary/70 border border-border px-2.5 py-1 rounded-full text-muted-foreground"><span aria-hidden="true" className="text-base">🎓</span> Mémoire L3 Génie Logiciel 2026</span>
+              <span className="jm-landing-pill inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-2 text-muted-foreground"><span aria-hidden="true" className="text-base">🛰️</span> Données NASA FIRMS</span>
+              <span className="jm-landing-pill inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-2 text-muted-foreground"><span aria-hidden="true" className="text-base">🤖</span> XGBoost v2.1 — 89% de précision</span>
+              <span className="jm-landing-pill inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-2 text-muted-foreground"><span aria-hidden="true" className="text-base">🎓</span> Mémoire L3 Génie Logiciel 2026</span>
             </div>
             <h1 id="hero-title" className="mx-auto max-w-5xl font-heading text-4xl font-bold leading-[1.05] tracking-tight mb-6 sm:text-5xl md:text-6xl lg:text-7xl">{t("landing.hero.title")}<br /><span className="text-primary">{t("landing.hero.subtitle")}</span></h1>
             <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">{t("landing.hero.description")}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/map" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-[0_12px_35px_hsl(var(--primary)/0.18)]"><Map className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.map")}</Link>
-              <Link href="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border bg-card px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-colors"><Activity className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.dashboard")}</Link>
+              <Link href="/map" className="jm-landing-primary-button w-full sm:w-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground px-6 py-3.5 font-semibold"><Map className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.map")}</Link>
+              <Link href="/dashboard" className="jm-landing-secondary-button w-full sm:w-auto inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 py-3.5 font-semibold"><Activity className="w-4 h-4" aria-hidden="true" />{t("landing.hero.cta.dashboard")}</Link>
             </div>
-            <aside aria-label="Compte de démonstration" className="mt-6 inline-flex items-center gap-2 border border-border bg-card/80 px-4 py-2.5 rounded-lg text-sm"><span className="text-accent font-semibold">Demo :</span><code className="text-xs font-mono text-muted-foreground">demo@jerymotro.mg</code><span className="text-muted-foreground/50" aria-hidden="true">/</span><code className="text-xs font-mono text-muted-foreground">demo1234</code><Link href="/login" className="ml-1 text-xs text-primary hover:underline">Essayer →</Link></aside>
+            <aside aria-label="Compte de démonstration" className="jm-landing-inset mt-7 inline-flex items-center gap-2 px-4 py-3 rounded-2xl text-sm"><span className="text-accent font-semibold">Demo :</span><code className="text-xs font-mono text-muted-foreground">demo@jerymotro.mg</code><span className="text-muted-foreground/50" aria-hidden="true">/</span><code className="text-xs font-mono text-muted-foreground">demo1234</code><Link href="/login" className="ml-1 text-xs text-primary hover:underline">Essayer →</Link></aside>
           </div>
           <figure className="max-w-5xl mx-auto px-4 sm:px-8 pb-20" aria-label="Aperçu du tableau de bord JeryMotro">
-            <div className="rounded-2xl border border-border/70 bg-card/70 overflow-hidden shadow-lg">
-              <div className="border-b border-border/60 bg-muted/20 px-4 py-3 flex items-center gap-2"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive" /><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b]" /><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent" /><span className="text-xs text-muted-foreground ml-2 font-mono truncate">jerymotro.duckdns.org</span></div>
-              <div className="p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:p-6">
+            <div className="jm-landing-preview overflow-hidden">
+              <div className="jm-landing-preview-bar px-4 py-3 flex items-center gap-2"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive" /><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b]" /><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent" /><span className="text-xs text-muted-foreground ml-2 font-mono truncate">jerymotro.duckdns.org</span></div>
+              <div className="p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:p-6 md:gap-5">
                 {[
                   { label: t("landing.mock.detectionsToday"), value: "127", sub: t("landing.mock.sub") },
                   { label: t("landing.mock.activeClusters"), value: "23", sub: t("landing.mock.sub.critical") },
                   { label: t("landing.mock.alertsSent"), value: "8", sub: t("landing.mock.sub.last24h") },
                   { label: t("landing.mock.precision"), value: "89%", sub: t("landing.mock.sub.xgboost") },
-                ].map(s => <div key={s.label} className="bg-background/50 rounded-lg p-4 border border-border"><div className="font-heading text-2xl font-bold text-primary">{s.value}</div><div className="text-xs text-muted-foreground mt-1">{s.label}</div><div className="text-xs text-muted-foreground/70 mt-1">{s.sub}</div></div>)}
+                ].map(s => <div key={s.label} className="jm-landing-mini-card p-4 sm:p-5"><div className="font-heading text-2xl font-bold text-primary">{s.value}</div><div className="text-xs text-muted-foreground mt-1">{s.label}</div><div className="text-xs text-muted-foreground/70 mt-1">{s.sub}</div></div>)}
               </div>
             </div>
           </figure>
         </section>
 
-        <section aria-labelledby="stats-title" className="border-y border-border/60 bg-secondary/15 py-10 sm:py-12">
+        <section aria-labelledby="stats-title" className="jm-landing-stat-strip py-10 sm:py-14">
           <div className="mx-auto max-w-5xl px-4 sm:px-8"><h2 id="stats-title" className="sr-only">Indicateurs de la plateforme</h2><dl className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map(s => <div key={s.label} className="text-center"><dt className="text-sm text-muted-foreground mt-1">{s.label}</dt><dd className="font-heading text-3xl font-bold text-primary order-first">{s.value}</dd></div>)}
           </dl></div>
@@ -132,11 +130,11 @@ export default function LandingPage() {
         <section id="features" aria-labelledby="features-title" className="mx-auto max-w-6xl px-4 py-20 scroll-mt-16 sm:px-8 sm:py-24">
           <div className="text-center mb-16"><h2 id="features-title" className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2><p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-landing-card border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 sm:p-6"><div className="jm-icon-well w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
+            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-landing-card border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 sm:p-6"><div className="jm-landing-icon-well mb-4 flex h-11 w-11 items-center justify-center rounded-2xl"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
           </div>
         </section>
 
-        <section id="how-it-works" aria-labelledby="workflow-title" className="border-y border-border/60 bg-secondary/8 scroll-mt-16">
+        <section id="how-it-works" aria-labelledby="workflow-title" className="jm-landing-section scroll-mt-16">
           <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-24">
             <div className="mb-12 max-w-2xl">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{lang === "mg" ? "Fomba tsotra" : lang === "en" ? "Simple workflow" : "Un parcours simple"}</span>
@@ -145,7 +143,7 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="jm-landing-card relative border border-border/70 bg-card/55 p-5 shadow-sm sm:p-6">
-                <div className="flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div><span className="font-heading text-2xl font-bold text-muted-foreground/25">{String(index + 1).padStart(2, "0")}</span></div>
+                <div className="flex items-center justify-between"><div className="jm-landing-icon-well flex h-10 w-10 items-center justify-center rounded-2xl text-primary"><Icon className="h-5 w-5" /></div><span className="font-heading text-2xl font-bold text-muted-foreground/25">{String(index + 1).padStart(2, "0")}</span></div>
                 <h3 className="mt-5 font-heading font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{step.desc}</p>
                 {index < workflowSteps.length - 1 ? <ChevronRight className="absolute -right-2 top-9 z-10 hidden h-4 w-4 rounded-full bg-background text-muted-foreground xl:block" aria-hidden="true" /> : null}
               </article>; })}
@@ -153,9 +151,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="coverage" aria-labelledby="coverage-title" className="max-w-5xl mx-auto px-8 pb-24 scroll-mt-16">
+        <section id="coverage" aria-labelledby="coverage-title" className="max-w-5xl mx-auto px-4 pb-24 scroll-mt-16 sm:px-8">
           <article className="jm-landing-card border border-border/70 bg-card/55 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:p-8">
-            <div className="w-16 h-16 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><Globe className="w-8 h-8 text-accent" aria-hidden="true" /></div>
+            <div className="jm-landing-icon-well flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl"><Globe className="w-8 h-8 text-accent" aria-hidden="true" /></div>
             <div className="flex-1"><h2 id="coverage-title" className="font-heading text-xl font-bold mb-2">{t("landing.coverage.title")}</h2><p className="text-muted-foreground text-sm leading-relaxed">{t("landing.coverage.description")}</p></div>
             <div className="flex-shrink-0" aria-label="Niveaux de risque"><div className="flex items-center gap-3 text-sm"><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive inline-block" /> {t("landing.coverage.legends.critical")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-primary inline-block" /> {t("landing.coverage.legends.high")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> {t("landing.coverage.legends.medium")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent inline-block" /> {t("landing.coverage.legends.low")}</span></div></div>
           </article>
@@ -171,31 +169,31 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="jm-landing-card border border-border/70 bg-card/45 p-5 shadow-sm sm:p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Icon className="h-5 w-5" /></div>
+              <div className="jm-landing-icon-well flex h-10 w-10 items-center justify-center rounded-2xl text-muted-foreground"><Icon className="h-5 w-5" /></div>
               <h3 className="mt-5 font-heading font-semibold">{card.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{card.desc}</p>
             </article>; })}
           </div>
         </section>
 
         <section id="access" aria-labelledby="access-title" className="mx-auto max-w-5xl px-4 pb-20 scroll-mt-16 sm:px-8 sm:pb-24">
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm sm:p-8">
+          <div className="jm-landing-featured-card p-6 sm:p-8">
             <div className="max-w-2xl">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">{lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"}</span>
               <h2 id="access-title" className="mt-2 font-heading text-3xl font-bold">{lang === "mg" ? "Fidirana mifanaraka amin'ny filànao" : lang === "en" ? "Access adapted to your needs" : "Un accès adapté à vos besoins"}</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "Ny kaonty Standard dia ahafahanao mahita ny sehatra. Ho an'ny fampiasana miasa na andrim-panjakana, mandefasa fangatahana mba ho dinihin'ny mpitantana." : lang === "en" ? "A Standard account lets you discover the platform. For operational or institutional use, submit a request for an administrator to review." : "Le compte Standard permet de découvrir la plateforme. Pour un usage opérationnel ou institutionnel, envoyez une demande à un administrateur."}</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link href="/register" className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-5 py-3 text-sm font-semibold hover:bg-secondary">{lang === "mg" ? "Mamorona kaonty Standard" : lang === "en" ? "Create a Standard account" : "Créer un compte Standard"}</Link>
-                <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">{lang === "mg" ? "Efa manana kaonty" : lang === "en" ? "I already have an account" : "J’ai déjà un compte"} <ChevronRight className="h-4 w-4"/></Link>
+                <Link href="/register" className="jm-landing-secondary-button inline-flex min-h-11 items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold">{lang === "mg" ? "Mamorona kaonty Standard" : lang === "en" ? "Create a Standard account" : "Créer un compte Standard"}</Link>
+                <Link href="/login" className="jm-landing-primary-button inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">{lang === "mg" ? "Efa manana kaonty" : lang === "en" ? "I already have an account" : "J’ai déjà un compte"} <ChevronRight className="h-4 w-4"/></Link>
               </div>
             </div>
             <div className="mt-7 grid gap-3 border-t border-primary/15 pt-6 sm:grid-cols-3">
-              {[lang === "mg" ? "Mandefa fangatahana" : lang === "en" ? "Submit a request" : "Envoyer une demande", lang === "mg" ? "Dinihin'ny admin" : lang === "en" ? "Administrative review" : "Examen administratif", lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"].map((label,index)=><div key={label} className="jm-landing-mini-card border border-border/60 bg-card/60 p-4"><div className="text-xs font-bold text-primary">0{index+1}</div><div className="mt-2 text-sm font-semibold">{label}</div></div>)}
+              {[lang === "mg" ? "Mandefa fangatahana" : lang === "en" ? "Submit a request" : "Envoyer une demande", lang === "mg" ? "Dinihin'ny admin" : lang === "en" ? "Administrative review" : "Examen administratif", lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"].map((label,index)=><div key={label} className="jm-landing-mini-card p-4"><div className="text-xs font-bold text-primary">0{index+1}</div><div className="mt-2 text-sm font-semibold">{label}</div></div>)}
             </div>
           </div>
         </section>
 
         <section aria-labelledby="final-cta-title" className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-24">
-          <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm sm:p-8 lg:p-10">
+          <div className="jm-landing-featured-card relative overflow-hidden p-6 sm:p-8 lg:p-10">
             <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
@@ -204,8 +202,8 @@ export default function LandingPage() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "Midira amin'ny sarintany ary fantaro ny fomba fiasan'ny JeryMotro." : lang === "en" ? "Open the map and explore how JeryMotro can support your monitoring workflow." : "Ouvrez la carte et découvrez comment JeryMotro peut soutenir votre surveillance."}</p>
               </div>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-                <Link href="/map" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90">{lang === "mg" ? "Hijery ny sarintany" : lang === "en" ? "Open live map" : "Ouvrir la carte"} <Map className="h-4 w-4" /></Link>
-                <Link href="/register" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-5 py-3 text-sm font-semibold hover:bg-secondary">{lang === "mg" ? "Misoratra anarana" : lang === "en" ? "Create account" : "Créer un compte"}</Link>
+                <Link href="/map" className="jm-landing-primary-button inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">{lang === "mg" ? "Hijery ny sarintany" : lang === "en" ? "Open live map" : "Ouvrir la carte"} <Map className="h-4 w-4" /></Link>
+                <Link href="/register" className="jm-landing-secondary-button inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold">{lang === "mg" ? "Misoratra anarana" : lang === "en" ? "Create account" : "Créer un compte"}</Link>
               </div>
             </div>
           </div>
