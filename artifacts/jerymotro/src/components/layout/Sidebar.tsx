@@ -220,9 +220,9 @@ export function Sidebar() {
                         }
                         aria-current={active ? "page" : undefined}
                         className={[
-                          "group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none transition-[background-color,color,transform] duration-150 hover:translate-x-px focus-visible:ring-2 focus-visible:ring-primary",
+                          "jm-sidebar-item group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary",
                           active
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-black/10"
+                            ? "jm-sidebar-item-active bg-sidebar-primary text-sidebar-primary-foreground"
                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
                           collapsed
                             ? "mx-auto w-11 justify-center"
@@ -286,7 +286,7 @@ export function Sidebar() {
                 className={[
                   "group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none transition-[background-color,color,transform] duration-150 hover:translate-x-px focus-visible:ring-2 focus-visible:ring-primary",
                   isActive("/admin")
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    ? "jm-sidebar-item-active bg-sidebar-primary text-sidebar-primary-foreground"
                     : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   collapsed
                     ? "mx-auto w-11 justify-center"
@@ -324,12 +324,12 @@ export function Sidebar() {
         {isAuthenticated && (
           <div className={collapsed ? "space-y-2" : "space-y-2.5"}>
             <div
-              className={`flex items-center rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 ${
+              className={`jm-sidebar-user flex items-center rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 ${
                 collapsed ? "mx-auto h-11 w-11 justify-center" : "gap-3 px-2.5 py-2"
               }`}
               title={collapsed ? (user?.full_name || user?.email || "Utilisateur") : undefined}
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 font-heading text-xs font-bold text-primary">
+              <div className="jm-sidebar-avatar flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 font-heading text-xs font-bold text-primary">
                 {(user?.full_name || user?.email || "U").charAt(0).toUpperCase()}
               </div>
               {!collapsed && (
