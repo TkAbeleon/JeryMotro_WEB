@@ -479,3 +479,33 @@
       -4px -4px 8px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-map-list-item {
+    border-radius: 14px;
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-map-list-item:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-map-list-item-active {
+    box-shadow:
+      inset 3px 3px 7px var(--jm-card-shadow-dark),
+      inset -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-map-risk-dot {
+    box-shadow:
+      2px 2px 4px var(--jm-card-shadow-dark),
+      -2px -2px 4px var(--jm-card-shadow-light);
+  }
+}
