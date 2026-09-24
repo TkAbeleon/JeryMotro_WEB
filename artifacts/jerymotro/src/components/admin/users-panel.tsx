@@ -219,13 +219,13 @@ export function UsersPanel() {
 
   return (
     <section className="space-y-5">
-      {error && <div className="flex items-center justify-between rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"><span>{error}</span><button onClick={() => setError(null)}><X className="h-4 w-4" /></button></div>}
+      {error && <div className="jm-access-mini flex items-center justify-between border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"><span>{error}</span><button onClick={() => setError(null)}><X className="h-4 w-4" /></button></div>}
       <div className="grid gap-3 sm:grid-cols-3">
         {[
           ["admin.user.stats.total", total, UsersRound],
           ["admin.user.stats.active", stats.active, UserCheck],
           ["admin.user.stats.extended", stats.extended, Shield],
-        ].map(([key, value, Icon]) => <div key={key as string} className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><Icon className="h-4 w-4 text-primary" /><p className="mt-3 text-xl font-bold">{value as number}</p><p className="text-xs text-muted-foreground">{t(key as string)}</p></div>)}
+        ].map(([key, value, Icon]) => <div key={key as string} className="jm-admin-card border border-border/70 bg-card/60 p-4 shadow-sm"><Icon className="h-4 w-4 text-primary" /><p className="mt-3 text-xl font-bold">{value as number}</p><p className="text-xs text-muted-foreground">{t(key as string)}</p></div>)}
       </div>
       <div className="rounded-2xl border border-border/70 bg-card/60 p-3 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
