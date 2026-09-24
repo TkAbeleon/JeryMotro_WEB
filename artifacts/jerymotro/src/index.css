@@ -641,3 +641,37 @@
       -2px -2px 4px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-stats-filter {
+    border-color: transparent !important;
+    box-shadow:
+      8px 8px 16px var(--jm-card-shadow-dark),
+      -8px -8px 16px var(--jm-card-shadow-light);
+  }
+
+  .jm-stats-tablist {
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-stats-tab-active {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-stats-table-row {
+    transition:
+      background-color 250ms ease-out,
+      box-shadow 250ms ease-out;
+  }
+
+  .jm-stats-table-row:hover {
+    box-shadow:
+      2px 2px 5px var(--jm-card-shadow-dark),
+      -2px -2px 5px var(--jm-card-shadow-light);
+  }
+}
