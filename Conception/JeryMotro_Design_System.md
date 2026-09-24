@@ -231,13 +231,20 @@ font-family: 'Space Grotesk', sans-serif;
 
 #### Système de rayons (border-radius)
 
+Le rayon est proportionnel à la taille de la surface et à son padding. On évite les valeurs arbitraires afin que les coins restent cohérents d’un écran à l’autre.
+
 | Token | Valeur | Usage |
 |-------|--------|-------|
-| `--radius-sm` | `8px` | Boutons, inputs, badges larges, code blocks |
-| `--radius` | `12px` | Cards, filtres, stat-cards, map-wrap, modales secondaires |
-| `--radius-lg` | `18px` | Modales principales, pricing-cards |
-| Circulaire | `50%` | Avatars, points live, toggles (plaque) |
-| `20px` | valeur directe | Badges pill, live-chip, sidebar-pill |
+| `--radius-xs` | `6px` | Micro-contrôles et éléments très compacts |
+| `--radius-sm` | `8px` | Petits contrôles |
+| `--radius-md` | `10px` | Éléments compacts interactifs |
+| `--radius-lg` | `12px` | Boutons, inputs, selects et contrôles standards |
+| `--radius-xl` | `16px` | Cards et panneaux intermédiaires |
+| `--radius-2xl` | `20px` | Cards importantes, popovers |
+| `--radius-3xl` | `24px` | Grands panneaux flottants |
+| Circulaire | `9999px` / `50%` | Pills, badges, avatars et indicateurs circulaires |
+
+**Règle visuelle :** le rayon doit rester inférieur ou égal au padding visuel dominant de la surface + une petite marge ; on évite les grands rayons sur les petits contrôles.
 
 #### Espacements principaux
 
