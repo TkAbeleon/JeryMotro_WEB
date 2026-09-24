@@ -34,7 +34,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             <img src="/logo.png" alt="JeryMotro" className="h-8 w-8 shrink-0 rounded-lg object-contain" />
             <span className="truncate font-heading text-base font-bold sm:text-lg">JeryMotro</span>
           </Link>
-          <nav className="hidden items-center gap-4 md:flex">
+          <nav className="hidden items-center gap-4 lg:flex">
             <Link href="/about" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("landing.nav.about")}</Link>
             <Link href="/map" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.map")}</Link>
             <Link href="/dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.dashboard")}</Link>
