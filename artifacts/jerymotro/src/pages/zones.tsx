@@ -327,7 +327,7 @@ export default function ZonesPage() {
       {/* Zone cards */}
       {/* Main Content Layout */}
       {zones.length === 0 ? (
-        <div className="jm-card-depth rounded-xl border border-dashed border-border/70 bg-card/45 p-10 text-center shadow-sm sm:p-12">
+        <div className="jm-card-depth border border-dashed border-border/70 bg-card/45 p-10 text-center shadow-sm sm:p-12">
           <Target className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">{t("zones.empty")}</p>
         </div>
