@@ -1,4 +1,4 @@
-import "leaflet/dist/leaflet.css";
+import "leaflet/dist/leaflet.css";\nimport "react-leaflet-cluster/dist/assets/MarkerCluster.css";\nimport "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import { Search, Filter, LocateFixed, X, Layers, ChevronDown, Check, List, SlidersHorizontal, Loader2, MapPin } from "lucide-react";
@@ -9,7 +9,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { format, subDays, subMonths } from "date-fns";
-import { useListDetections } from "@workspace/api-client-react";
+import { useListDetections, type ListDetectionsParams } from "@workspace/api-client-react";
 import { AsyncStateInline } from "@/components/ui/async-state";
 
 type RiskLevel = "critical" | "high" | "medium" | "low";
@@ -114,7 +114,7 @@ export default function MapRedesignPage() {
   const queryParams = useMemo(() => {
     const days = Math.max(1, Math.ceil((activeRange.to.getTime() - activeRange.from.getTime()) / 86400000));
     const limit = Math.min(3000, Math.max(500, days * 60));
-    const params: Record<string, unknown> = { limit, offset: 0, date_from: apiDateFrom, date_to: apiDateTo };
+    const params: ListDetectionsParams = { limit, offset: 0, date_from: apiDateFrom, date_to: apiDateTo };
     if (selectedRegion !== "all") params.region = selectedRegion;
     if (selectedSource === "MODIS") params.source = "MODIS";
     if (selectedRisks.size > 0 && selectedRisks.size < 4) {
