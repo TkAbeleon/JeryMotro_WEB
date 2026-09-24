@@ -488,7 +488,7 @@ export const SubscriptionVerificationModal: React.FC<SubscriptionVerificationMod
   padding: 36px 30px;
   position: relative;
   color: #f8fafc;
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: 'Sora', 'Inter', sans-serif;
   text-align: center;
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
