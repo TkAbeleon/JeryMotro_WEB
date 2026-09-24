@@ -6,6 +6,7 @@ import L from "leaflet";
 // @ts-ignore
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useI18n } from "@/hooks/use-i18n";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { format, subDays, subMonths } from "date-fns";
 import { useListDetections } from "@workspace/api-client-react";
@@ -95,7 +96,8 @@ function MapAutoResize() {
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 export default function MapRedesignPage() {
-  const { t } = useI18n(); const { toast } = useToast();
+  const { t } = useI18n(); const { toast } = useToast(); const { isAuthenticated } = useAuth();
+  const mapHeightClass = isAuthenticated ? "{mapHeightClass}" : "h-[calc(100dvh-64px)]";
   const [controlsOpen, setControlsOpen] = useState(false); const [tab, setTab] = useState<"list" | "filters">("list");
   const [searchOpen, setSearchOpen] = useState(false); const [searchQuery, setSearchQuery] = useState(""); const [searchResults, setSearchResults] = useState<SearchResult[]>([]); const [searching, setSearching] = useState(false);
   const [locating, setLocating] = useState(false); const [target, setTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null); const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -190,10 +192,10 @@ export default function MapRedesignPage() {
   const periodLabel = (p: Period) => t(`map.filter.period.${p}` as any); const riskLabel = (r: RiskLevel) => t(`map.legend.${r}` as any);
   const mapTile = mapStyle === "satellite" ? { url: `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${GOOGLE_KEY}`, attribution: "&copy; Google Maps", maxZoom: 20 } : mapStyle === "roadmap" ? { url: `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${GOOGLE_KEY}`, attribution: "&copy; Google Maps", maxZoom: 20 } : { url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", attribution: "&copy; OpenStreetMap &copy; CARTO", maxZoom: 19, subdomains: "abcd" };
 
-  if (detectionsQuery.isLoading) return <div className="relative isolate h-[calc(100dvh-58px)] w-full overflow-hidden"><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%" }} zoomControl={false}><TileLayer {...mapTile} /></MapContainer><div className="absolute inset-x-4 top-4 z-20"><AsyncStateInline type="loading" title={t("common.loading")} description="Chargement des détections cartographiques…" className="mx-auto max-w-sm rounded-2xl bg-card/90 shadow-xl backdrop-blur" /></div></div>;
+  if (detectionsQuery.isLoading) return <div className={`relative isolate ${mapHeightClass} w-full overflow-hidden`><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%" }} zoomControl={false}><TileLayer {...mapTile} /></MapContainer><div className="absolute inset-x-4 top-4 z-20"><AsyncStateInline type="loading" title={t("common.loading")} description="Chargement des détections cartographiques…" className="mx-auto max-w-sm rounded-2xl bg-card/90 shadow-xl backdrop-blur" /></div></div>;
   if (detectionsQuery.isError) return <AsyncStateInline type="error" title="Impossible de charger la carte" description="Les détections ne sont pas disponibles actuellement." onAction={() => detectionsQuery.refetch()} actionLabel="Réessayer" />;
 
-  return <div className="relative isolate h-[calc(100dvh-58px)] min-h-0 w-full overflow-hidden bg-background">
+  return <div className={`relative isolate ${mapHeightClass} min-h-0 w-full overflow-hidden bg-background`>
     <div className="absolute inset-0 z-0"><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%", background: "#111827" }} zoomControl={false} attributionControl>
       <ZoomControl position="bottomleft" /><MapViewportTracker onBoundsChange={setVisibleBounds} /><Recenter target={target} /><MapAutoResize /><TileLayer {...mapTile} />
       {userLocation && <CircleMarker center={[userLocation.lat, userLocation.lng]} radius={7} pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.9, weight: 2 }} />}
