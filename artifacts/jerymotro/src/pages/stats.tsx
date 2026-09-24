@@ -229,7 +229,7 @@ function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-[2px] sm:p-6 ${className}`}>
+    <section className={`jm-card-depth rounded-xl border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-[2px] sm:p-6 ${className}`}>
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-heading text-sm font-semibold tracking-tight">{title}</h2>
@@ -264,7 +264,7 @@ function DistributionTable({ title, rows, lang, c }: { title: string; rows: Dist
               {rows.map((row, index) => {
                 const risk = riskMeta(row.value);
                 return (
-                  <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                  <tr key={`${row.dimension}-${row.value}-${row.is_null}-${index}`} className="jm-stats-table-row border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">{isRisk && !row.is_null ? <RiskBadge value={row.value} /> : row.is_null ? c.notProvided : displayValue(row.value, lang, c)}</td>
                     <td className="text-right font-medium">{row.detections.toLocaleString()}</td>
                     <td className="min-w-[140px] text-right">
@@ -332,11 +332,11 @@ function MetricCard({
     <article
       className={
         emphasis === "primary"
-          ? "group flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-border3 hover:shadow-md sm:gap-4 sm:px-5 sm:py-4"
-          : "group flex min-w-0 items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 shadow-sm transition-colors hover:border-border3 sm:px-4"
+          ? "jm-card-depth group flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm transition-all hover:border-border3 sm:gap-4 sm:px-5 sm:py-4"
+          : "jm-card-depth group flex min-w-0 items-center gap-3 rounded-xl border border-border/70 bg-card px-3.5 py-3 shadow-sm transition-colors hover:border-border3 sm:px-4"
       }
     >
-      <div className={`flex shrink-0 items-center justify-center rounded-xl ${tone} ${emphasis === "primary" ? "h-11 w-11 sm:h-12 sm:w-12" : "h-9 w-9"}`}>
+      <div className={`jm-icon-well flex shrink-0 items-center justify-center rounded-xl ${tone} ${emphasis === "primary" ? "h-11 w-11 sm:h-12 sm:w-12" : "h-9 w-9"}`}>
         <Icon className={emphasis === "primary" ? "h-5 w-5" : "h-4 w-4"} />
       </div>
       <div className="min-w-0 flex-1">
@@ -472,7 +472,7 @@ export default function StatsPage() {
         </a>
       </header>
 
-      <section className="sticky top-3 z-30 rounded-2xl border border-border/70 bg-background/90 p-4 shadow-md shadow-black/5 backdrop-blur-xl sm:p-5 lg:top-4">
+      <section className="jm-stats-filter sticky top-3 z-30 rounded-2xl border border-border/70 bg-background/90 p-4 shadow-md shadow-black/5 backdrop-blur-xl sm:p-5 lg:top-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <CalendarRange className="h-4 w-4 text-primary" />
@@ -503,7 +503,7 @@ export default function StatsPage() {
               value={dateFrom}
               max={dateTo}
               onChange={e => setDateFrom(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border/70 bg-background px-3 text-xs outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring/30"
+              className="jm-control-inset h-10 w-full rounded-2xl border border-border/70 bg-background px-3 text-xs outline-none focus-visible:ring-0"
             />
           </label>
 
@@ -514,7 +514,7 @@ export default function StatsPage() {
               value={dateTo}
               min={dateFrom}
               onChange={e => setDateTo(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring/30"
+              className="jm-control-inset h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs outline-none focus-visible:ring-0"
             />
           </label>
 
@@ -537,14 +537,14 @@ export default function StatsPage() {
             <select
               value={region}
               onChange={e => setRegion(e.target.value)}
-              className="h-9 w-full rounded-md border border-border bg-background px-2.5 text-xs"
+              className="jm-control-inset h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs"
             >
               <option value="">{c.allRegions}</option>
               {regionOptions.map(value => <option key={value} value={value}>{value}</option>)}
             </select>
           </label>
 
-          <label className="flex min-h-10 items-center gap-2 rounded-xl border border-border bg-background px-3 text-xs transition-colors hover:bg-muted/40">
+          <label className="jm-control-inset flex min-h-10 items-center gap-2 rounded-2xl border border-border bg-background px-3 text-xs transition-colors hover:bg-muted/40">
             <input type="checkbox" checked={excludeNoise} onChange={e => setExcludeNoise(e.target.checked)} />
             <span>{c.excludeNoise}</span>
           </label>
@@ -552,14 +552,14 @@ export default function StatsPage() {
       </section>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl border border-border/70 bg-card/60 p-1 shadow-sm backdrop-blur-sm">
-          <TabsTrigger value="overview" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Globe2 className="h-3.5 w-3.5" />{c.overview}</TabsTrigger>
-          <TabsTrigger value="time" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><CalendarRange className="h-3.5 w-3.5" />{c.time}</TabsTrigger>
-          <TabsTrigger value="environment" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Trees className="h-3.5 w-3.5" />{c.environmentTab}</TabsTrigger>
-          <TabsTrigger value="risk" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><ShieldAlert className="h-3.5 w-3.5" />{c.riskSignals}</TabsTrigger>
-          <TabsTrigger value="numeric" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><BarChart3 className="h-3.5 w-3.5" />{c.numeric}</TabsTrigger>
-          <TabsTrigger value="cluster" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Layers3 className="h-3.5 w-3.5" />{c.cluster}</TabsTrigger>
-          <TabsTrigger value="quality" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none sm:px-3.5"><Database className="h-3.5 w-3.5" />{c.quality}</TabsTrigger>
+        <TabsList className="jm-stats-tablist flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-xl border border-border/70 bg-card/60 p-1 shadow-sm backdrop-blur-sm">
+          <TabsTrigger value="overview" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><Globe2 className="h-3.5 w-3.5" />{c.overview}</TabsTrigger>
+          <TabsTrigger value="time" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><CalendarRange className="h-3.5 w-3.5" />{c.time}</TabsTrigger>
+          <TabsTrigger value="environment" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><Trees className="h-3.5 w-3.5" />{c.environmentTab}</TabsTrigger>
+          <TabsTrigger value="risk" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><ShieldAlert className="h-3.5 w-3.5" />{c.riskSignals}</TabsTrigger>
+          <TabsTrigger value="numeric" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><BarChart3 className="h-3.5 w-3.5" />{c.numeric}</TabsTrigger>
+          <TabsTrigger value="cluster" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><Layers3 className="h-3.5 w-3.5" />{c.cluster}</TabsTrigger>
+          <TabsTrigger value="quality" className="shrink-0 gap-1.5 rounded-lg border-0 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors data-[state=active]:bg-primary/10 data-[state=active]:text-primary jm-stats-tab-active sm:px-3.5"><Database className="h-3.5 w-3.5" />{c.quality}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-5">
@@ -656,7 +656,7 @@ export default function StatsPage() {
                     </thead>
                     <tbody>
                       {hourly.map((row, index) => (
-                        <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                        <tr key={String(row.local_hour ?? "null") + "-" + row.is_null + "-" + index} className="jm-stats-table-row border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                           <td className="px-3 py-2.5 font-medium">{row.is_null ? c.notProvided : String(row.local_hour).padStart(2, "0") + "h"}</td>
                           <td className="px-3 py-2.5 text-right">{row.detections.toLocaleString()}</td>
                           <td className="px-3 py-2.5 text-right">{formatPercent(row.percentage)}</td>
@@ -696,7 +696,7 @@ export default function StatsPage() {
                     <th className="pb-2">{c.variable}</th><th className="pb-2 text-right">{c.detections}</th><th className="pb-2 text-right">{c.mean}</th><th className="pb-2 text-right">{c.median}</th><th className="pb-2 text-right">{c.variance}</th><th className="pb-2 text-right">{c.stdDev}</th>
                   </tr></thead>
                   <tbody>{advanced.context_composition.map(row => (
-                    <tr key={row.context} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                    <tr key={row.context} className="jm-stats-table-row border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{displayValue(row.context, lang, c)}</td>
                       <td className="text-right">{row.detections_with_context.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.mean_percentage)}</td>
@@ -737,7 +737,7 @@ export default function StatsPage() {
                     <th className="pb-3 text-right">{c.iqr}</th><th className="pb-3 text-right">{c.outliers}</th>
                   </tr></thead>
                   <tbody>{numeric.map(row => (
-                    <tr key={row.field} className="border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                    <tr key={row.field} className="jm-stats-table-row border-b border-border/40 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.field}</td>
                       <td className="text-muted-foreground">{numericUnits[row.field] ?? "—"}</td>
                       <td className="text-right">{row.valid_count.toLocaleString()}</td>
@@ -763,7 +763,7 @@ export default function StatsPage() {
                 <table className="w-full min-w-[720px] text-xs">
                   <thead><tr className="border-b border-border/50 text-left text-muted-foreground"><th className="pb-2">X</th><th className="pb-2">Y</th><th className="pb-2 text-right">{c.pairs}</th><th className="pb-2 text-right">{c.pearson}</th><th className="pb-2 text-right">{c.covariance}</th></tr></thead>
                   <tbody>{correlations.map(row => (
-                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                    <tr key={String(row.variable_x) + "-" + String(row.variable_y)} className="jm-stats-table-row border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.variable_x}</td><td>{row.variable_y}</td>
                       <td className="text-right">{row.pair_count.toLocaleString()}</td>
                       <td className="text-right font-medium">{formatNumber(row.pearson_correlation, 3)}</td>
@@ -785,7 +785,7 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_clusters.map(row => (
-                  <tr key={row.cluster_id} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                  <tr key={row.cluster_id} className="jm-stats-table-row border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">#{row.cluster_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td>{row.dominant_environment ? displayValue(row.dominant_environment, lang, c) : c.notProvided}</td>
                     <td className="text-right">{formatNumber(row.total_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
@@ -803,7 +803,7 @@ export default function StatsPage() {
                   <th className="pb-2 text-right">FRP</th><th className="pb-2 text-right">Max</th><th className="pb-2 text-right">Risk</th>
                 </tr></thead>
                 <tbody>{advanced.top_fire_events.map(row => (
-                  <tr key={row.fire_event_id} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                  <tr key={row.fire_event_id} className="jm-stats-table-row border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                     <td className="py-3 font-medium">#{row.fire_event_id}</td><td className="text-right">{row.detections.toLocaleString()}</td>
                     <td>{row.region ?? c.notProvided}</td><td className="text-right">{formatNumber(row.total_frp)}</td>
                     <td className="text-right">{formatNumber(row.max_frp)}</td><td className="text-right">{formatNumber(row.average_risk, 3)}</td>
@@ -824,7 +824,7 @@ export default function StatsPage() {
                     <th className="pb-2 text-right">{c.nullCount}</th><th className="pb-2 text-right">{c.nullPercent}</th>
                   </tr></thead>
                   <tbody>{advanced.null_analysis.map(row => (
-                    <tr key={row.field} className="border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
+                    <tr key={row.field} className="jm-stats-table-row border-b border-border/30 odd:bg-background/25 even:bg-muted/20 last:border-0 transition-colors hover:bg-muted/35">
                       <td className="py-3 font-medium">{row.field}</td><td className="text-right">{row.total_count.toLocaleString()}</td>
                       <td className="text-right">{row.non_null_count.toLocaleString()}</td><td className="text-right">{row.null_count.toLocaleString()}</td>
                       <td className="text-right">{formatPercent(row.null_percentage)}</td>
