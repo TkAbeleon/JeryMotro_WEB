@@ -12,13 +12,13 @@ export default function CvPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-8 sm:px-6 sm:py-10 lg:px-8 text-foreground print:bg-white print:text-black">
+      <div className="jm-info-page min-h-[calc(100vh-4rem)] px-3 py-6 sm:px-6 sm:py-10 lg:px-8 text-foreground print:bg-white print:text-black">
         <div className="mx-auto max-w-5xl">
           {/* Header Controls (Hidden on print) */}
-          <div className="flex justify-between items-center mb-8 print:hidden">
+          <div className="jm-info-page-header flex flex-wrap justify-between items-center gap-3 mb-8 print:hidden">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+              className="jm-info-back inline-flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               {t("common.back")}
@@ -26,7 +26,7 @@ export default function CvPage() {
 
             <button
               onClick={handlePrint}
-              className="jm-cv-action inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition-opacity shadow-md shadow-primary/10"
+              className="jm-cv-action inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold transition-opacity"
             >
               <FileDown className="w-4 h-4" />
               <span>{lang === "mg" ? "Hamoaka PDF / Hanonta" : lang === "en" ? "Print / Export PDF" : "Imprimer / Exporter PDF"}</span>
@@ -34,10 +34,10 @@ export default function CvPage() {
           </div>
 
           {/* Main CV Container */}
-          <div className="jm-cv-document bg-card/70 border border-border/70 overflow-hidden print:shadow-none print:border-none">
+          <div className="jm-cv-document bg-card/70 overflow-hidden print:shadow-none print:border-none">
             {/* Identity Hero Banner */}
-            <div className="bg-primary/8 border-b border-border/70 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 print:bg-green-50 print:border-b-2">
-              <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-primary/20 shadow-md flex-shrink-0">
+            <div className="bg-primary/8 border-b border-border/70 p-5 sm:p-8 flex flex-col md:flex-row items-center gap-5 sm:gap-6 print:bg-green-50 print:border-b-2">
+              <div className="jm-info-photo w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0">
                 <img
                   src="/profil.jpg"
                   alt="RANDRIAMANANTENA Tsiky Ny Antsa"
@@ -60,7 +60,7 @@ export default function CvPage() {
                 </div>
 
                 {/* Quick Contacts */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap justify-center md:justify-start gap-x-3 gap-y-2 mt-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Phone className="w-4 h-4 text-primary" />
                     <span className="font-mono">+261 34 86 046 17</span>
@@ -80,7 +80,7 @@ export default function CvPage() {
             {/* Grid Layout (Sidebar + Main) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 print:grid-cols-12">
               {/* Sidebar Section */}
-              <aside className="lg:col-span-4 bg-secondary/20 border-r border-border/70 p-6 space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
+              <aside className="lg:col-span-4 bg-secondary/20 border-b lg:border-b-0 lg:border-r border-border/70 p-5 sm:p-6 space-y-7 sm:space-y-8 print:col-span-4 print:bg-neutral-50 print:border-r-2">
                 {/* Profile Objective */}
                 <div>
                   <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
