@@ -128,7 +128,7 @@ export function Sidebar() {
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col bg-sidebar/95 text-sidebar-foreground">
-      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border/80 px-3 sm:h-[68px]">
+      <div className="jm-sidebar-header flex h-16 shrink-0 items-center border-b border-sidebar-border/70 px-3 sm:h-[68px]">
         {collapsed ? (
           <button
             type="button"
@@ -143,7 +143,7 @@ export function Sidebar() {
             />
           </button>
         ) : (
-          <div className="flex min-w-0 flex-1 items-center gap-3 px-2">
+          <div className="jm-sidebar-brand flex min-w-0 flex-1 items-center gap-3 px-2">
             <img
               src="/logo.png"
               alt="JeryMotro"
@@ -350,7 +350,7 @@ export function Sidebar() {
               type="button"
               onClick={logout}
               title={collapsed ? t("common.logout") : undefined}
-              className={`flex min-h-10 items-center rounded-xl text-[12px] font-semibold text-sidebar-foreground/65 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`jm-sidebar-logout flex min-h-10 items-center rounded-xl text-[12px] font-semibold text-sidebar-foreground/65 outline-none transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary ${
                 collapsed
                   ? "mx-auto w-11 justify-center"
                   : "w-full gap-3 px-3"
@@ -368,7 +368,7 @@ export function Sidebar() {
           type="button"
           onClick={toggle}
           aria-label={isCollapsed ? t("common.open") : t("common.close")}
-          className="absolute -right-3 top-[77px] z-20 flex h-7 w-7 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/55 shadow-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary"
+          className="jm-sidebar-collapse-toggle absolute -right-3 top-[77px] z-20 flex h-7 w-7 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/55 shadow-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-primary"
         >
           {isCollapsed ? (
             <ChevronRight className="h-3.5 w-3.5" />
