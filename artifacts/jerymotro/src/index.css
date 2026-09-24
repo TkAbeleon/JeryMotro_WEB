@@ -224,3 +224,25 @@
       inset -3px -3px 6px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-sidebar-item {
+    border: 1px solid transparent;
+    box-shadow: 3px 3px 7px var(--jm-card-shadow-dark), -3px -3px 7px var(--jm-card-shadow-light);
+    transition: transform 300ms ease-out, box-shadow 300ms ease-out, background-color 300ms ease-out, color 300ms ease-out;
+  }
+  .jm-sidebar-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-sidebar-item-active {
+    box-shadow: inset 3px 3px 7px var(--jm-card-shadow-dark), inset -3px -3px 7px var(--jm-card-shadow-light);
+  }
+  .jm-sidebar-user {
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-sidebar-avatar {
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+}
