@@ -61,7 +61,7 @@ export default function LandingPage() {
             <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden xl:flex items-center gap-4">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
               <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a><a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
               <a href="#access" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.access")}</a>
@@ -70,7 +70,7 @@ export default function LandingPage() {
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</Link>
               <Link href="/cv" className="text-sm text-muted-foreground hover:text-foreground transition-colors">CV</Link>
             </div>
-            <div className="hidden md:block w-px h-5 bg-border" />
+            <div className="hidden xl:block w-px h-5 bg-border" />
             <button onClick={toggleTheme} aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"} className="jm-landing-icon-button flex h-11 w-11 items-center justify-center rounded-2xl transition-colors">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -81,7 +81,7 @@ export default function LandingPage() {
                 {Object.entries(LANG_LABELS).map(([key]) => <option key={key} value={key}>{key.toUpperCase()}</option>)}
               </select>
             </div>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">{t("auth.login.title")}</Link>
+            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden lg:block">{t("auth.login.title")}</Link>
             <Link href="/register" className="jm-landing-primary-button inline-flex min-h-11 items-center justify-center rounded-2xl bg-primary px-4 sm:px-5 py-2.5 text-sm font-semibold text-primary-foreground">{t("auth.register.title")}</Link>
             <button
               type="button"
@@ -114,6 +114,7 @@ export default function LandingPage() {
       <main>
         <section aria-labelledby="hero-title" className="jm-landing-hero relative overflow-hidden pt-[64px]">
           <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 text-center relative sm:px-8 sm:pb-20 sm:pt-20">
+            <div className="jm-landing-brandline" aria-label="Identité JeryMotro"><Flame className="h-3.5 w-3.5" aria-hidden="true" /><span>JeryMotro · Fire intelligence</span></div>
             <div className="jm-landing-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-primary mb-7"><Zap className="w-3 h-3" /><span>{t("landing.tagline")}</span></div>
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6" aria-label="Technologies et données utilisées">
               <span className="jm-landing-pill inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-2 text-muted-foreground"><span aria-hidden="true" className="text-base">🛰️</span> Données NASA FIRMS</span>
