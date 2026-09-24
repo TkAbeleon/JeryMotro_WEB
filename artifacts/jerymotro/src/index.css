@@ -293,3 +293,21 @@
       inset -3px -3px 6px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-list-item-depth {
+    border-radius: 12px;
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-list-item-depth:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+}
