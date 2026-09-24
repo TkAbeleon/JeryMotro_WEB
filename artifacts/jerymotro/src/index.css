@@ -952,6 +952,53 @@
     box-shadow: inset 0 5px 12px var(--jm-card-shadow-dark), inset 0 -5px 12px var(--jm-card-shadow-light);
   }
 
+  /* Public shell — shared Soft UI surface for all public routes. */
+  .jm-public-nav {
+    background: color-mix(in srgb, var(--background) 90%, transparent);
+    box-shadow: 0 6px 18px var(--jm-card-shadow-dark), inset 0 -1px 0 var(--jm-card-shadow-light);
+    backdrop-filter: blur(18px);
+  }
+  .jm-public-logo,
+  .jm-public-control,
+  .jm-public-lang,
+  .jm-public-login {
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-public-logo { background: var(--background); }
+  .jm-public-nav-link {
+    box-shadow: none;
+    transition: box-shadow 200ms ease-out, transform 200ms ease-out, color 200ms ease-out;
+  }
+  .jm-public-nav-link:hover {
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+  .jm-public-control,
+  .jm-public-login,
+  .jm-public-lang {
+    transition: box-shadow 200ms ease-out, transform 200ms ease-out, opacity 200ms ease-out;
+  }
+  .jm-public-control:active,
+  .jm-public-login:active,
+  .jm-public-lang-option:active {
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+    transform: translateY(0.5px);
+  }
+  .jm-public-lang { background: var(--background); }
+  .jm-public-lang-active,
+  .jm-public-lang-option:hover {
+    background: var(--background);
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+  .jm-public-login {
+    border: 0;
+    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
+  }
+  .jm-public-login:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 8px 8px 16px var(--jm-card-shadow-dark), -8px -8px 16px var(--jm-card-shadow-light);
+  }
+
   /* Landing informational cards share one proportional radius and restrained depth. */
   .jm-landing-card {
     border-radius: 16px;
