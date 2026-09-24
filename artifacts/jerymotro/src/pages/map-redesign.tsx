@@ -205,7 +205,7 @@ export default function MapRedesignPage() {
 
     <div className="pointer-events-none absolute inset-0 z-10">
       <div className="pointer-events-auto absolute inset-x-3 top-3 sm:inset-x-4 sm:top-4">
-        <div className="relative w-[min(420px,42vw)]">
+        <div className="relative w-[min(420px,calc(100vw-8rem))] sm:w-[min(420px,42vw)]">
           <form onSubmit={e => { e.preventDefault(); searchLocation(); }} className="jm-map-float flex h-11 items-center gap-2 rounded-2xl border border-border/70 bg-card/95 px-3 backdrop-blur"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t("map.search.placeholder")} className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60" />{searching ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" /> : searchQuery && <button type="button" onClick={() => { setSearchQuery(""); setSearchResults([]); }} aria-label={t("common.close")} className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"><X className="h-4 w-4" /></button>}</form>
           {!searching && searchResults.length > 0 && <div className="absolute left-0 right-0 top-12 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"><div className="max-h-72 overflow-y-auto p-1.5">{searchResults.map((result, index) => <button key={`${result.lat}-${index}`} type="button" onClick={() => selectSearchResult(result)} className="jm-map-result flex w-full items-start gap-3 rounded-xl p-3 text-left text-sm transition hover:bg-secondary"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{result.formatted_address}</span></button>)}</div></div>}
         </div>
