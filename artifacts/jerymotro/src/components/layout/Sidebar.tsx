@@ -196,7 +196,7 @@ export function Sidebar() {
                 }
               >
                 {!collapsed ? (
-                  <h2 className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.16em] text-sidebar-foreground/40">
+                  <h2 className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-sidebar-foreground/40">
                     {t(group.sectionKey)}
                   </h2>
                 ) : (
@@ -220,9 +220,9 @@ export function Sidebar() {
                         }
                         aria-current={active ? "page" : undefined}
                         className={[
-                          "jm-sidebar-item group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                          "jm-sidebar-item group relative flex min-h-10 items-center rounded-lg text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary",
                           active
-                            ? "jm-sidebar-item-active bg-sidebar-primary text-sidebar-primary-foreground"
+                            ? "jm-sidebar-item-active"
                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
                           collapsed
                             ? "mx-auto w-11 justify-center"
@@ -230,11 +230,7 @@ export function Sidebar() {
                         ].join(" ")}
                       >
                         {active && !collapsed && (
-                          <span
-                            aria-hidden
-                            className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary-foreground/85"
-                          />
-                        )}
+      
 
                         <Icon className="h-[18px] w-[18px] shrink-0" />
 
@@ -245,13 +241,13 @@ export function Sidebar() {
                             </span>
 
                             {item.locked && (
-                              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
+                              <span className="rounded-lg bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.04em] text-primary">
                                 ACCÈS
                               </span>
                             )}
 
                             {item.badge && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-primary/12 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.04em] text-primary">
                                 <Sparkles className="h-2.5 w-2.5" />
                                 {item.badge}
                               </span>
@@ -284,9 +280,9 @@ export function Sidebar() {
                 title={collapsed ? "Administration" : undefined}
                 aria-current={isActive("/admin") ? "page" : undefined}
                 className={[
-                  "jm-sidebar-item group relative flex min-h-11 items-center rounded-xl text-[13px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  "jm-sidebar-item group relative flex min-h-10 items-center rounded-lg text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary",
                   isActive("/admin")
-                    ? "jm-sidebar-item-active bg-sidebar-primary text-sidebar-primary-foreground"
+                    ? "jm-sidebar-item-active"
                     : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   collapsed
                     ? "mx-auto w-11 justify-center"
@@ -340,7 +336,7 @@ export function Sidebar() {
                   <div className="truncate text-[10px] text-sidebar-foreground/45">
                     {user?.email || ""}
                   </div>
-                  <span className="mt-1 inline-flex rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-primary">
+                  <span className="mt-1 inline-flex rounded-lg bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.04em] text-primary">
                     {user?.role === "premium" ? "Accès étendu" : user?.role === "admin" ? "Administrateur" : "Compte Standard"}
                   </span>
                 </div>
