@@ -110,14 +110,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="jm-auth-page min-h-screen bg-background flex">
-      <div className="jm-auth-sidebar hidden lg:flex flex-col w-[480px] bg-sidebar/75 border-r border-border/70 p-10 justify-between">
+    <div className="jm-auth-page min-h-screen flex">
+      <div className="jm-auth-sidebar hidden lg:flex flex-col w-[480px] p-10 justify-between">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="JeryMotro" className="h-9 rounded" />
           <span className="font-heading font-bold text-xl">JeryMotro</span>
         </div>
         <div>
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+          <div className="jm-auth-icon-well w-12 h-12 rounded-2xl flex items-center justify-center mb-6">
             <Flame className="w-6 h-6 text-primary" />
           </div>
           <h2 className="font-heading text-2xl font-bold mb-4">{t("landing.hero.title")}</h2>
@@ -142,17 +142,17 @@ export default function RegisterPage() {
               <img src="/logo.png" alt="JeryMotro" className="h-8 rounded" />
               <span className="font-heading font-bold text-lg">JeryMotro</span>
             </div>
-            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+            <Link href="/" className="jm-auth-home flex h-10 w-10 items-center justify-center rounded-2xl transition-colors">
               <Home className="w-4 h-4" />
             </Link>
           </div>
 
           {/* Top Controls */}
-          <div className="flex items-center justify-end gap-2 mb-6">
+          <div className="flex items-center justify-end gap-2 mb-7">
             {/* Theme Toggle (icon only always) */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-secondary transition-colors"
+              className="jm-auth-home flex h-10 w-10 items-center justify-center rounded-2xl transition-colors"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -172,7 +172,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Home Button */}
-            <Link href="/" className="p-2 rounded-md hover:bg-secondary transition-colors">
+            <Link href="/" className="jm-auth-home flex h-10 w-10 items-center justify-center rounded-2xl transition-colors">
               <Home className="w-4 h-4" />
             </Link>
           </div>
@@ -186,7 +186,7 @@ export default function RegisterPage() {
               </p>
 
               {error && (
-                <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive shadow-sm">{error}</div>
+                <div className="jm-auth-error mb-4 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>
               )}
 
               <Form {...registerForm}>
@@ -195,7 +195,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("profile.info.fullName")}</FormLabel>
                       <FormControl>
-                        <input {...field} data-testid="input-name" placeholder="Rakoto Andriamahefa" className="jm-auth-control w-full h-10 border border-input bg-secondary px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/50" />
+                        <input {...field} data-testid="input-name" placeholder="Rakoto Andriamahefa" className="jm-auth-control w-full h-11 px-3 text-sm outline-none transition-all focus:ring-2 focus:ring-primary/50" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("auth.login.email")}</FormLabel>
                       <FormControl>
-                        <input {...field} type="email" data-testid="input-email" placeholder={t("auth.login.emailPlaceholder")} className="jm-auth-control w-full h-10 px-3 bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                        <input {...field} type="email" data-testid="input-email" placeholder={t("auth.login.emailPlaceholder")} className="jm-auth-control w-full h-11 px-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -213,7 +213,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("profile.info.organization")} ({t("common.optional")})</FormLabel>
                       <FormControl>
-                        <input {...field} data-testid="input-org" placeholder={t("profile.info.orgPlaceholder")} className="jm-auth-control w-full h-10 px-3 bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                        <input {...field} data-testid="input-org" placeholder={t("profile.info.orgPlaceholder")} className="jm-auth-control w-full h-11 px-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -222,7 +222,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>{t("auth.login.password")}</FormLabel>
                       <FormControl>
-                        <input {...field} type="password" data-testid="input-password" placeholder="••••••••" className="jm-auth-control w-full h-10 px-3 bg-secondary border border-input text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
+                        <input {...field} type="password" data-testid="input-password" placeholder="••••••••" className="jm-auth-control w-full h-11 px-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -232,7 +232,7 @@ export default function RegisterPage() {
                     type="submit"
                     data-testid="button-submit"
                     disabled={registerMutation.isPending}
-                    className="jm-auth-action w-full h-10 bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+                    className="jm-auth-action w-full h-11 bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                   >
                     {registerMutation.isPending ? t("auth.register.submitting") : t("auth.register.submit")}
                   </button>
@@ -245,7 +245,7 @@ export default function RegisterPage() {
               <p className="text-muted-foreground text-sm mb-8">{t("auth.otp.subtitle")}</p>
 
               {error && (
-                <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">{error}</div>
+                <div className="jm-auth-error mb-4 p-4 text-sm text-destructive">{error}</div>
               )}
 
               <form onSubmit={onVerifyOtpSubmit} className="space-y-4">
@@ -266,7 +266,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={verifyOtpMutation.isPending || otpCode.length < 6}
-                  className="jm-auth-action w-full h-10 bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+                  className="jm-auth-action w-full h-11 bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                 >
                   {verifyOtpMutation.isPending ? t("auth.otp.verifying") : t("auth.otp.verify")}
                 </button>
@@ -274,7 +274,7 @@ export default function RegisterPage() {
                   type="button"
                   onClick={resendOtp}
                   disabled={requestOtpMutation.isPending}
-                  className="jm-auth-action w-full h-10 bg-transparent border border-border text-foreground font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
+                  className="jm-auth-action w-full h-11 bg-transparent border border-border text-foreground font-semibold text-sm hover:bg-secondary/50 transition-colors disabled:opacity-50"
                 >
                   {requestOtpMutation.isPending ? t("auth.otp.resending") : t("auth.otp.resend")}
                 </button>
