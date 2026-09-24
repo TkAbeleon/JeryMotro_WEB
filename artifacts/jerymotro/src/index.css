@@ -240,21 +240,34 @@
 
 
 @layer components {
+  .jm-sidebar-shell {
+    box-shadow:
+      8px 0 22px var(--jm-card-shadow-dark),
+      inset -1px 0 0 var(--jm-card-shadow-light);
+  }
+
   .jm-sidebar-item {
     border: 1px solid transparent;
-    box-shadow: 3px 3px 7px var(--jm-card-shadow-dark), -3px -3px 7px var(--jm-card-shadow-light);
-    transition: transform 300ms ease-out, box-shadow 300ms ease-out, background-color 300ms ease-out, color 300ms ease-out;
+    box-shadow: none;
+    transform: none;
+    transition:
+      background-color 220ms ease-out,
+      color 220ms ease-out,
+      border-color 220ms ease-out;
   }
+
   .jm-sidebar-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+    transform: none;
+    box-shadow: none;
   }
+
   .jm-sidebar-item-active {
-    box-shadow: inset 3px 3px 7px var(--jm-card-shadow-dark), inset -3px -3px 7px var(--jm-card-shadow-light);
+    box-shadow: none;
   }
+
   .jm-sidebar-user {
     border-radius: 12px;
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+    box-shadow: none;
   }
   .jm-sidebar-avatar {
     border-radius: 10px;
