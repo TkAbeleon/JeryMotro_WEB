@@ -185,7 +185,7 @@ export default function PrivacyPage() {
               return (
                 <div
                   key={idx}
-                  className="jm-standard-card bg-card/65 border border-border/70 p-5 shadow-sm backdrop-blur-[2px] hover:bg-card sm:p-6"
+                  className="jm-info-card bg-card/65 border border-border/70 p-5 shadow-sm backdrop-blur-[2px] hover:bg-card sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
