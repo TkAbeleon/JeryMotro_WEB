@@ -343,3 +343,26 @@
       -5px -5px 10px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-recent-row {
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-recent-row:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-risk-dot {
+    box-shadow:
+      2px 2px 4px var(--jm-card-shadow-dark),
+      -2px -2px 4px var(--jm-card-shadow-light);
+  }
+}
