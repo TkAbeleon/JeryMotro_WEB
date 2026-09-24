@@ -24,7 +24,9 @@
   --text-xs: .75rem; --text-xs--line-height: calc(1 / .75); --text-sm: .875rem; --text-sm--line-height: calc(1.25 / .875); --text-base: 1rem; --text-base--line-height: 1.5;
   --text-lg: 1.125rem; --text-lg--line-height: 1.75; --text-xl: 1.25rem; --text-xl--line-height: 1.75; --text-2xl: 1.5rem; --text-2xl--line-height: 2;
   --text-3xl: 1.875rem; --text-3xl--line-height: 2.25; --text-4xl: 2.25rem; --text-4xl--line-height: 2.5;
-  --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px);
+  /* Proportional radius scale: smaller controls stay tighter, larger surfaces get more room. */
+  --radius-xs: 0.375rem; --radius-sm: 0.5rem; --radius-md: 0.625rem; --radius-lg: 0.75rem;
+  --radius-xl: 1rem; --radius-2xl: 1.25rem; --radius-3xl: 1.5rem; --radius-4xl: 1.75rem; --radius-full: 9999px;
 }
 
 :root {
@@ -86,7 +88,7 @@
 @layer components {
   .jm-card-depth {
     border-color: transparent !important;
-    border-radius: 24px !important;
+    border-radius: 20px !important;
     box-shadow:
       9px 9px 18px var(--jm-card-shadow-dark),
       -9px -9px 18px var(--jm-card-shadow-light) !important;
@@ -111,7 +113,7 @@
   }
 
   .jm-icon-well {
-    border-radius: 14px;
+    border-radius: 12px;
     box-shadow:
       inset 5px 5px 10px var(--jm-card-shadow-dark),
       inset -5px -5px 10px var(--jm-card-shadow-light);
@@ -121,7 +123,7 @@
 
 @layer components {
   .jm-button-depth {
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow:
       5px 5px 10px var(--jm-card-shadow-dark),
       -5px -5px 10px var(--jm-card-shadow-light);
@@ -153,7 +155,7 @@
 
 @layer components {
   .jm-control-inset {
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow:
       inset 4px 4px 8px var(--jm-card-shadow-dark),
       inset -4px -4px 8px var(--jm-card-shadow-light);
@@ -240,9 +242,11 @@
     box-shadow: inset 3px 3px 7px var(--jm-card-shadow-dark), inset -3px -3px 7px var(--jm-card-shadow-light);
   }
   .jm-sidebar-user {
+    border-radius: 12px;
     box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
   }
   .jm-sidebar-avatar {
+    border-radius: 10px;
     box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
   }
 }
@@ -250,6 +254,7 @@
 
 @layer components {
   .jm-topbar-control {
+    border-radius: 12px;
     border-color: transparent !important;
     box-shadow:
       4px 4px 8px var(--jm-card-shadow-dark),
@@ -392,7 +397,7 @@
 
 @layer components {
   .jm-detection-row {
-    border-radius: 14px;
+    border-radius: 12px;
     transition:
       transform 300ms ease-out,
       box-shadow 300ms ease-out,
@@ -483,7 +488,7 @@
 
 @layer components {
   .jm-map-list-item {
-    border-radius: 14px;
+    border-radius: 12px;
     transition:
       transform 300ms ease-out,
       box-shadow 300ms ease-out,
