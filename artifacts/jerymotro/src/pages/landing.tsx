@@ -1,10 +1,12 @@
 import { Link } from "wouter";
-import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail } from "lucide-react";
+import { useState } from "react";
+import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail, Menu, X } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function LandingPage() {
   const { t, lang, setLang } = useI18n();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const features = [
     { icon: Activity, title: t("landing.features.1.title"), desc: t("landing.features.1.desc") },
     { icon: Brain, title: t("landing.features.2.title"), desc: t("landing.features.2.desc") },
@@ -58,7 +60,7 @@ export default function LandingPage() {
             <img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" />
             <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="hidden md:flex items-center gap-4">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
               <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a><a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
@@ -81,8 +83,32 @@ export default function LandingPage() {
             </div>
             <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">{t("auth.login.title")}</Link>
             <Link href="/register" className="jm-landing-primary-button inline-flex min-h-11 items-center justify-center rounded-2xl bg-primary px-4 sm:px-5 py-2.5 text-sm font-semibold text-primary-foreground">{t("auth.register.title")}</Link>
+            <button
+              type="button"
+              aria-label={mobileNavOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={mobileNavOpen}
+              onClick={() => setMobileNavOpen(v => !v)}
+              className="jm-public-menu-trigger flex h-11 w-11 items-center justify-center rounded-2xl md:hidden"
+            >
+              {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </nav>
+        {mobileNavOpen && (
+          <div className="jm-public-mobile-menu fixed left-3 right-3 top-[72px] z-40 md:hidden" role="dialog" aria-label="Navigation mobile">
+            <nav className="grid gap-2 p-3">
+              <a href="#features" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.features")}</a>
+              <a href="#how-it-works" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a>
+              <a href="#coverage" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.coverage")}</a>
+              <a href="#access" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{lang === "mg" ? "Fidirana" : lang === "en" ? "Access" : "Accès"}</a>
+              <Link href="/map" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("nav.map")}</Link>
+              <Link href="/dashboard" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("nav.dashboard")}</Link>
+              <Link href="/about" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.about")}</Link>
+              <Link href="/cv" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">CV</Link>
+              <Link href="/login" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-action inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground"><span>{t("auth.login.title")}</span></Link>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main>
