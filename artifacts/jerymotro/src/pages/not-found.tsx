@@ -1,12 +1,13 @@
 import { Link } from "wouter";
 import { Home, Search, ArrowRight } from "lucide-react";
+import { AppShell } from "@/components/layout/AppShell";
 import { useI18n } from "@/hooks/use-i18n";
 
 export default function NotFound() {
   const { t } = useI18n();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 sm:p-8">
+    <AppShell isPublic><div className="jm-notfound-page min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8 sm:p-8">
       <div className="text-center max-w-lg">
         {/* Logo */}
         <div className="relative mb-8 flex justify-center">
@@ -14,12 +15,12 @@ export default function NotFound() {
           <img
             src="/logo.png"
             alt="JeryMotro Logo"
-            className="relative w-24 h-24 object-contain animate-bounce"
+            className="jm-notfound-logo relative w-24 h-24 object-contain"
           />
         </div>
 
         {/* 404 Title */}
-        <div className="font-heading text-7xl font-bold sm:text-8xl text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/60 mb-4">
+        <div className="jm-notfound-number font-heading text-7xl font-bold sm:text-8xl mb-4">
           404
         </div>
 
@@ -33,7 +34,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
           <Link
             href="/"
-            className="group flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-all shadow-sm"
+            className="jm-notfound-primary group flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-medium text-sm"
           >
             <Home className="w-4 h-4" />
             {t("common.back")}
@@ -41,7 +42,7 @@ export default function NotFound() {
           </Link>
           <Link
             href="/dashboard"
-            className="flex items-center justify-center gap-2 border border-border/70 bg-card/60 px-5 py-2.5 rounded-xl font-medium text-sm hover:bg-secondary hover:border-primary/30 transition-all"
+            className="jm-notfound-secondary flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-medium text-sm"
           >
             <Search className="w-4 h-4" />
             {t("notfound.cta")}
@@ -49,12 +50,12 @@ export default function NotFound() {
         </div>
 
         {/* Additional info */}
-        <div className="mt-12 pt-8 border-t border-border/50">
+        <div className="jm-notfound-footer mt-12 pt-8">
           <p className="text-xs text-muted-foreground">
             JeryMotro — Surveillance des feux de brousse à Madagascar
           </p>
         </div>
       </div>
-    </div>
+    </div></AppShell>
   );
 }
