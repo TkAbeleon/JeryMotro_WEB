@@ -15,7 +15,7 @@ export default function LoadingPage({ message }: LoadingPageProps) {
         <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.035] blur-3xl" />
       </div>
 
-      <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border/60 bg-card/90 p-7 shadow-2xl backdrop-blur-xl sm:p-8">
+      <div className="jm-loading-surface relative w-full max-w-sm overflow-hidden border border-border/60 bg-card/90 p-7 shadow-2xl backdrop-blur-xl sm:p-8">
         <div className="mb-6 flex items-center gap-3">
           <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
             <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-primary/15 to-accent/10" />
