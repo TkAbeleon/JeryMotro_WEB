@@ -733,3 +733,31 @@
       -12px -12px 24px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-profile-avatar {
+    box-shadow:
+      inset 4px 4px 8px var(--jm-card-shadow-dark),
+      inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-profile-preference-row {
+    border-radius: 12px;
+    transition:
+      background-color 220ms ease-out,
+      box-shadow 220ms ease-out;
+  }
+
+  .jm-profile-preference-row:hover {
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-profile-danger {
+    box-shadow:
+      7px 7px 14px var(--jm-card-shadow-dark),
+      -7px -7px 14px var(--jm-card-shadow-light);
+  }
+}
