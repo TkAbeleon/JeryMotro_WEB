@@ -130,7 +130,7 @@ export default function LandingPage() {
         <section id="features" aria-labelledby="features-title" className="mx-auto max-w-6xl px-4 py-20 scroll-mt-16 sm:px-8 sm:py-24">
           <div className="text-center mb-16"><h2 id="features-title" className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2><p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-landing-card border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 sm:p-6"><div className="jm-landing-icon-well mb-4 flex h-11 w-11 items-center justify-center rounded-2xl"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
+            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-landing-card p-5 sm:p-6"><div className="jm-landing-icon-well mb-4 flex h-11 w-11 items-center justify-center rounded-2xl"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
           </div>
         </section>
 
@@ -142,7 +142,7 @@ export default function LandingPage() {
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "JeryMotro dia mampifandray ny angona, ny famakafakana ary ny fanaraha-maso ao anatin'ny workflow tokana." : lang === "en" ? "JeryMotro connects data, analysis and monitoring in one operational workflow." : "JeryMotro relie les données, l’analyse et la surveillance dans un seul parcours opérationnel."}</p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="jm-landing-card relative border border-border/70 bg-card/55 p-5 shadow-sm sm:p-6">
+              {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="jm-landing-card relative p-5 sm:p-6">
                 <div className="flex items-center justify-between"><div className="jm-landing-icon-well flex h-10 w-10 items-center justify-center rounded-2xl text-primary"><Icon className="h-5 w-5" /></div><span className="font-heading text-2xl font-bold text-muted-foreground/25">{String(index + 1).padStart(2, "0")}</span></div>
                 <h3 className="mt-5 font-heading font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{step.desc}</p>
                 {index < workflowSteps.length - 1 ? <ChevronRight className="absolute -right-2 top-9 z-10 hidden h-4 w-4 rounded-full bg-background text-muted-foreground xl:block" aria-hidden="true" /> : null}
@@ -152,7 +152,7 @@ export default function LandingPage() {
         </section>
 
         <section id="coverage" aria-labelledby="coverage-title" className="max-w-5xl mx-auto px-4 pb-24 scroll-mt-16 sm:px-8">
-          <article className="jm-landing-card border border-border/70 bg-card/55 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:p-8">
+          <article className="jm-landing-card p-6 flex flex-col md:flex-row items-center gap-8 sm:p-8">
             <div className="jm-landing-icon-well flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl"><Globe className="w-8 h-8 text-accent" aria-hidden="true" /></div>
             <div className="flex-1"><h2 id="coverage-title" className="font-heading text-xl font-bold mb-2">{t("landing.coverage.title")}</h2><p className="text-muted-foreground text-sm leading-relaxed">{t("landing.coverage.description")}</p></div>
             <div className="flex-shrink-0" aria-label="Niveaux de risque"><div className="flex items-center gap-3 text-sm"><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive inline-block" /> {t("landing.coverage.legends.critical")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-primary inline-block" /> {t("landing.coverage.legends.high")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> {t("landing.coverage.legends.medium")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent inline-block" /> {t("landing.coverage.legends.low")}</span></div></div>
@@ -168,7 +168,7 @@ export default function LandingPage() {
             <Link href="/register" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">{lang === "mg" ? "Hanomboka" : lang === "en" ? "Get started" : "Commencer"} <ChevronRight className="h-4 w-4" /></Link>
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="jm-landing-card border border-border/70 bg-card/45 p-5 shadow-sm sm:p-6">
+            {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="jm-landing-card p-5 sm:p-6">
               <div className="jm-landing-icon-well flex h-10 w-10 items-center justify-center rounded-2xl text-muted-foreground"><Icon className="h-5 w-5" /></div>
               <h3 className="mt-5 font-heading font-semibold">{card.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{card.desc}</p>
             </article>; })}
@@ -211,14 +211,14 @@ export default function LandingPage() {
 
       </main>
 
-      <footer id="about" className="border-t border-border/60 bg-secondary/8 scroll-mt-16">
+      <footer id="about" className="jm-landing-footer scroll-mt-16">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10">
             <section aria-labelledby="footer-about-title"><div className="flex items-center gap-3 mb-4"><img src="/logo.png" alt="Logo JeryMotro" className="h-8 rounded" /><span id="footer-about-title" className="font-heading font-bold text-lg text-foreground">JeryMotro</span></div><p className="text-sm text-muted-foreground leading-relaxed">{t("landing.footer.about.desc")}</p></section>
             <nav aria-labelledby="footer-links-title"><h2 id="footer-links-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.links")}</h2><ul className="space-y-2 text-sm"><li><a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a></li><li><a href="#coverage" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a></li><li><a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.pricing")}</a></li><li><Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.login.title")}</Link></li><li><Link href="/register" className="text-muted-foreground hover:text-foreground transition-colors">{t("auth.register.title")}</Link></li></ul></nav>
             <section aria-labelledby="footer-contact-title"><h2 id="footer-contact-title" className="font-heading font-semibold text-foreground mb-4">{t("landing.footer.contact")}</h2><address className="not-italic"><ul className="space-y-2 text-sm"><li className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" aria-hidden="true" /><a href="mailto:randriamanantenatsikynyantsa@gmail.com" className="hover:text-foreground transition-colors">{t("landing.footer.contact.email")}</a></li><li className="text-muted-foreground">{t("landing.footer.data")}</li><li className="text-muted-foreground">{t("landing.footer.ai")}</li></ul></address></section>
           </div>
-          <div className="mt-10 border-t border-border/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground"><span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span><nav aria-label="Liens juridiques" className="flex items-center gap-4"><Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link><Link href="/cv" className="hover:text-foreground cursor-pointer transition-colors">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link><Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link><Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link></nav></div>
+          <div className="mt-10 border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground"><span>© 2026 JeryMotro — {t("landing.footer.surveillance")}</span><nav aria-label="Liens juridiques" className="flex items-center gap-4"><Link href="/about" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.nav.about")}</Link><Link href="/cv" className="hover:text-foreground cursor-pointer transition-colors">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link><Link href="/legal" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.legal")}</Link><Link href="/privacy" className="hover:text-foreground cursor-pointer transition-colors">{t("landing.footer.privacy")}</Link></nav></div>
         </div>
       </footer>
     </div>
