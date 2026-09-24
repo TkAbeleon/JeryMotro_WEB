@@ -222,7 +222,8 @@ export default function MapRedesignPage() {
     );
   }
 
-  return <div className={`relative isolate ${mapHeightClass} min-h-0 w-full overflow-hidden bg-background`>
+  return (
+    <div className={`relative isolate ${mapHeightClass} min-h-0 w-full overflow-hidden bg-background`}
     <div className="absolute inset-0 z-0"><MapContainer center={[-18.766947, 46.869107]} zoom={6} style={{ height: "100%", width: "100%", background: "#111827" }} zoomControl={false} attributionControl>
       <ZoomControl position="bottomleft" /><MapViewportTracker onBoundsChange={setVisibleBounds} /><Recenter target={target} /><MapAutoResize /><TileLayer {...mapTile} />
       {userLocation && <CircleMarker center={[userLocation.lat, userLocation.lng]} radius={7} pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.9, weight: 2 }} />}
@@ -262,5 +263,6 @@ export default function MapRedesignPage() {
         </div></div>}
       </aside></>}
     </div>
-  </div>;
+    </div>
+  );
 }
