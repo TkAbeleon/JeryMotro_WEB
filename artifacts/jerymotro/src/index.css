@@ -366,3 +366,25 @@
       -2px -2px 4px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-view-toggle {
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-view-toggle-active {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-filter-shell {
+    border-color: transparent !important;
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+}
