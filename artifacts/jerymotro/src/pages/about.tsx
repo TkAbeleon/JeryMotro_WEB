@@ -299,7 +299,7 @@ export default function AboutPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-card/65 border border-border/70 rounded-xl p-5 shadow-sm backdrop-blur-[2px] transition-colors hover:bg-card sm:p-6"
+                  className="jm-standard-card bg-card/65 border border-border/70 p-5 shadow-sm backdrop-blur-[2px] hover:bg-card sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
@@ -315,7 +315,7 @@ export default function AboutPage() {
             })}
 
             {/* Developer profile section */}
-            <div className="bg-card/65 border border-primary/20 rounded-xl p-5 shadow-sm backdrop-blur-[2px] relative overflow-hidden sm:p-6">
+            <div className="jm-standard-card bg-card/65 border border-primary/20 p-5 shadow-sm backdrop-blur-[2px] relative overflow-hidden sm:p-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
               <h2 className="font-heading text-xl font-bold text-foreground mb-6 pb-2 border-b border-border/60">
                 {lang === "mg" ? "Mpamorona ny Tetikasa" : lang === "en" ? "About the Developer" : "À propos du développeur"}
