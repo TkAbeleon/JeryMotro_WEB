@@ -1041,46 +1041,113 @@
 
 
 @layer components {
-  /* Login/Register share one visual family while keeping their different flows. */
-  .jm-auth-sidebar {
-    box-shadow:
-      6px 0 18px var(--jm-card-shadow-dark),
-      inset -1px 0 0 var(--jm-card-shadow-light);
+  /* Login/Register — one complete tactile Soft UI family. */
+  .jm-auth-page {
+    background: var(--background);
   }
-
+  .jm-auth-sidebar {
+    background: var(--sidebar);
+    border-right: 0 !important;
+    box-shadow: 10px 0 24px var(--jm-card-shadow-dark), inset -1px 0 0 var(--jm-card-shadow-light);
+  }
   .jm-auth-column {
     width: 100%;
+    padding: 2rem;
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: 10px 10px 20px var(--jm-card-shadow-dark), -10px -10px 20px var(--jm-card-shadow-light);
   }
-
+  .jm-auth-icon-well {
+    background: var(--background);
+    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
+  }
+  .jm-auth-stat {
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-auth-top-control,
+  .jm-auth-home {
+    background: var(--card);
+    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out;
+  }
+  .jm-auth-top-control:hover,
+  .jm-auth-home:hover {
+    transform: translateY(-1px);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-auth-top-control:active,
+  .jm-auth-home:active {
+    transform: translateY(0.5px);
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
   .jm-auth-tabs {
-    border-radius: 12px;
-    box-shadow:
-      inset 2px 2px 5px var(--jm-card-shadow-dark),
-      inset -2px -2px 5px var(--jm-card-shadow-light);
+    border: 0 !important;
+    background: var(--background);
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
   }
-
+  .jm-auth-tab {
+    border-radius: 12px;
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
+  }
+  .jm-auth-tab-active {
+    background: var(--card);
+    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
+  }
   .jm-auth-info {
-    border-radius: 12px;
+    border: 0 !important;
+    border-radius: 16px;
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
   }
-
   .jm-auth-option {
-    border-radius: 10px;
-    transition:
-      background-color 180ms ease-out,
-      border-color 180ms ease-out;
+    border-color: transparent !important;
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
+    transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
   }
-
+  .jm-auth-option:hover {
+    transform: translateY(-1px);
+  }
+  .jm-auth-option-active {
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
   .jm-auth-action {
-    border-radius: 10px;
+    border: 0 !important;
+    border-radius: 16px;
+    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out, background-color 200ms ease-out;
+  }
+  .jm-auth-action:hover:not(:disabled) {
+    transform: translateY(-1px);
+    opacity: 1;
+    box-shadow: 8px 8px 16px var(--jm-card-shadow-dark), -8px -8px 16px var(--jm-card-shadow-light);
+  }
+  .jm-auth-action:active:not(:disabled) {
+    transform: translateY(0.5px);
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+  .jm-auth-control {
+    border: 0 !important;
+    border-radius: 12px !important;
+    background: var(--background) !important;
+    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
+  }
+  .jm-auth-error {
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
+  }
+  .jm-auth-secondary-action {
+    border: 0 !important;
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-auth-secondary-action:active {
+    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
   }
 
-  .jm-auth-control {
-    border-radius: 10px !important;
-    box-shadow:
-      inset 2px 2px 4px var(--jm-card-shadow-dark),
-      inset -2px -2px 4px var(--jm-card-shadow-light);
-  }
-}
 
 
 @layer components {
