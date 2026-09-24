@@ -49,7 +49,7 @@ export default function AboutPage() {
                 <strong className="text-foreground">Précision globale : 89%</strong> sur le jeu de test (validation croisée 5-fold).
                 Cette précision varie selon la région et la saison. Elle est plus élevée pendant la saison sèche (avril–octobre).
               </p>
-              <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-500/80 text-xs">
+              <div className="jm-info-note mt-3 p-4 bg-yellow-500/10 text-yellow-500/80 text-xs">
                 <strong>⚠️ Limite</strong> : les prédictions J+1 sont des estimations statistiques.
                 Elles ne remplacent pas les observations terrain des agents de protection forestière.
               </div>
@@ -141,7 +141,7 @@ export default function AboutPage() {
                 ho an'i Madagasikara (2021–2024), angona toetr'andro, NDVI, ary fanasokajiana ny tany.
               </p>
               <p><strong className="text-foreground">Fahamarinan'ny ankapobeny: 89%</strong>.</p>
-              <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-500/80 text-xs">
+              <div className="jm-info-note mt-3 p-4 bg-yellow-500/10 text-yellow-500/80 text-xs">
                 <strong>⚠️ Fetra</strong>: Ny faminaniana dia tsy novaliana ny fanarahamaso any an-tsaha.
               </div>
             </div>
@@ -201,7 +201,7 @@ export default function AboutPage() {
                 3 years of FIRMS historical data for Madagascar (2021–2024), weather data, NDVI, and land classification.
               </p>
               <p><strong className="text-foreground">Overall accuracy: 89%</strong> on the test set (5-fold cross-validation).</p>
-              <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-500/80 text-xs">
+              <div className="jm-info-note mt-3 p-4 bg-yellow-500/10 text-yellow-500/80 text-xs">
                 <strong>⚠️ Limitation</strong>: Predictions are statistical estimates and do not replace on-ground observations.
               </div>
             </div>
@@ -263,12 +263,12 @@ export default function AboutPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <div className="jm-info-page min-h-[calc(100vh-4rem)] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <div className="mb-10 border-b border-border/60 pb-7">
+          <div className="jm-info-page-header">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
+              className="jm-info-back mb-6 inline-flex items-center gap-2 px-3.5 py-2.5 text-sm text-muted-foreground group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               {t("common.back")}
@@ -276,13 +276,13 @@ export default function AboutPage() {
 
             {/* NASA FIRMS badge */}
             <div className="flex flex-wrap gap-2 mb-6">
-              <span className="inline-flex items-center gap-1.5 text-xs bg-muted/40 border border-border/60 text-muted-foreground px-2.5 py-1 rounded-full">
+              <span className="jm-info-mini inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground">
                 🛰️ Données NASA FIRMS
               </span>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-primary/10 border border-primary/30 text-primary px-2.5 py-1 rounded-full">
+              <span className="jm-info-mini inline-flex items-center gap-1.5 px-3 py-2 text-xs text-primary">
                 🤖 XGBoost v2.1
               </span>
-              <span className="inline-flex items-center gap-1.5 text-xs bg-secondary border border-border text-muted-foreground px-2.5 py-1 rounded-full">
+              <span className="jm-info-mini inline-flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground">
                 🎓 Mémoire L3 Génie Logiciel 2026
               </span>
             </div>
@@ -299,10 +299,10 @@ export default function AboutPage() {
               return (
                 <div
                   key={idx}
-                  className="jm-info-card bg-card/65 border border-border/70 p-5 shadow-sm backdrop-blur-[2px] hover:bg-card sm:p-6"
+                  className="jm-info-card p-5 sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                    <div className="jm-info-icon-well p-2.5 rounded-2xl text-primary">
                       <Icon className="w-5 h-5" />
                     </div>
                     <h2 className="font-heading text-xl font-semibold text-foreground">
@@ -315,14 +315,14 @@ export default function AboutPage() {
             })}
 
             {/* Developer profile section */}
-            <div className="jm-info-card bg-card/65 border border-primary/20 p-5 shadow-sm backdrop-blur-[2px] relative overflow-hidden sm:p-6">
+            <div className="jm-info-card relative overflow-hidden p-5 sm:p-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
               <h2 className="font-heading text-xl font-bold text-foreground mb-6 pb-2 border-b border-border/60">
                 {lang === "mg" ? "Mpamorona ny Tetikasa" : lang === "en" ? "About the Developer" : "À propos du développeur"}
               </h2>
 
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <div className="w-28 h-28 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md flex-shrink-0">
+                <div className="jm-info-photo w-28 h-28 flex-shrink-0">
                   <img
                     src="/profil.jpg"
                     alt="RANDRIAMANANTENA Tsiky Ny Antsa"
@@ -358,7 +358,7 @@ export default function AboutPage() {
                   <div className="flex flex-wrap justify-center md:justify-start gap-3">
                     <a
                       href="mailto:randriamanantenatsikynyantsa@gmail.com"
-                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-primary hover:text-primary-foreground text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                      className="jm-info-action inline-flex items-center gap-2 text-foreground text-xs font-medium px-3 py-2"
                       title="Envoyer un e-mail"
                     >
                       <Mail className="w-3.5 h-3.5" />
@@ -369,7 +369,7 @@ export default function AboutPage() {
                       href="https://github.com/TkAbeleon"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-foreground hover:text-background text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                      className="jm-info-action inline-flex items-center gap-2 text-foreground text-xs font-medium px-3 py-2"
                     >
                       <Github className="w-3.5 h-3.5" />
                       <span>GitHub</span>
@@ -379,7 +379,7 @@ export default function AboutPage() {
                       href="https://www.linkedin.com/in/tsiky-ny-antsa-randriamanantena-7451b328a/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-blue-600 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                      className="jm-info-action inline-flex items-center gap-2 text-foreground text-xs font-medium px-3 py-2"
                     >
                       <Linkedin className="w-3.5 h-3.5" />
                       <span>LinkedIn</span>
@@ -389,7 +389,7 @@ export default function AboutPage() {
                       href="https://www.facebook.com/abeleon.tk/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-secondary border border-border text-foreground hover:bg-blue-700 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                      className="jm-info-action inline-flex items-center gap-2 text-foreground text-xs font-medium px-3 py-2"
                     >
                       <Facebook className="w-3.5 h-3.5" />
                       <span>Facebook</span>
