@@ -819,3 +819,36 @@
       -5px -5px 10px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  /* Chat surfaces follow the same card family: visible depth on containers, restrained controls. */
+  .jm-chat-suggestion {
+    border-radius: 12px;
+    transition:
+      transform 220ms ease-out,
+      box-shadow 220ms ease-out,
+      background-color 220ms ease-out,
+      border-color 220ms ease-out;
+  }
+
+  .jm-chat-suggestion:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-chat-composer {
+    border-radius: 16px;
+    box-shadow:
+      7px 7px 14px var(--jm-card-shadow-dark),
+      -7px -7px 14px var(--jm-card-shadow-light);
+  }
+
+  .jm-chat-return {
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+}
