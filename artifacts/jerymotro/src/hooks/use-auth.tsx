@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { UserProfile, AuthToken } from "@workspace/api-client-react";
+import LoadingPage from "@/components/ui/loading";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -32,6 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(typeof window === "undefined" ? false : true);
+  const [authLoadStartedAt] = useState(() =>
+    typeof performance !== "undefined" ? performance.now() : 0,
+  );
 
   useEffect(() => {
     const storedToken = localStorage.getItem("jerymotro_token");
@@ -42,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (isTokenExpired(storedToken)) {
         localStorage.removeItem("jerymotro_token");
         localStorage.removeItem("jerymotro_user");
-        setIsLoading(false);
         return;
       }
 
@@ -54,8 +57,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("jerymotro_user");
       }
     }
-    setIsLoading(false);
-  }, []);
+    const elapsed =
+      typeof performance !== "undefined"
+        ? performance.now() - authLoadStartedAt
+        : 0;
+    const remaining = Math.max(0, 750 - elapsed);
+    const timer = window.setTimeout(() => setIsLoading(false), remaining);
+
+    return () => window.clearTimeout(timer);
+  }, [authLoadStartedAt]);
 
   const login = (data: AuthToken) => {
     setToken(data.access_token);
@@ -92,11 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isPremium = user?.role === "admin" || user?.role === "premium";
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <LoadingPage message="Initialisation de JeryMotro" />;
   }
 
   return (
