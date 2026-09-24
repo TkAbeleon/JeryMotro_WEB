@@ -243,1004 +243,135 @@
   .jm-sidebar-shell {
     position: relative;
     z-index: 1;
+    background: hsl(var(--sidebar));
     box-shadow:
-      6px 0 18px var(--jm-card-shadow-dark),
+      7px 0 18px var(--jm-card-shadow-dark),
       inset -1px 0 0 var(--jm-card-shadow-light);
   }
 
+  .jm-sidebar-header {
+    border-bottom-color: transparent;
+    box-shadow:
+      0 2px 8px color-mix(in srgb, var(--jm-card-shadow-dark) 45%, transparent),
+      inset 0 -1px 0 color-mix(in srgb, var(--jm-card-shadow-light) 55%, transparent);
+  }
+
+  .jm-sidebar-brand {
+    border-radius: 16px;
+  }
+
   .jm-sidebar-item {
-    border: 1px solid transparent;
+    border: 0;
     box-shadow: none;
     transform: none;
     transition:
-      background-color 220ms ease-out,
-      color 220ms ease-out,
-      border-color 220ms ease-out;
+      transform 180ms ease-out,
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out;
   }
 
   .jm-sidebar-item:hover {
-    transform: none;
-    box-shadow: none;
+    transform: translateX(1px);
+    box-shadow: 3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-item-active {
-    box-shadow: none;
     position: relative;
+    background: color-mix(in srgb, hsl(var(--sidebar-primary)) 9%, hsl(var(--sidebar)) 91%) !important;
+    color: hsl(var(--sidebar-primary)) !important;
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
+  .jm-sidebar-item-active:hover {
+    transform: translateX(1px);
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
   }
 
   .jm-sidebar-item-active::before {
     content: "";
     position: absolute;
-    left: 0.125rem;
-    top: 0.5rem;
-    bottom: 0.5rem;
+    left: 0.2rem;
+    top: 0.55rem;
+    bottom: 0.55rem;
     width: 2px;
     border-radius: 9999px;
-    background: currentColor;
-    opacity: 0.8;
+    background: hsl(var(--sidebar-primary));
+    opacity: 0.9;
   }
 
   .jm-sidebar-user {
-    border-radius: 12px;
-    box-shadow: none;
+    border: 0 !important;
+    background: color-mix(in srgb, hsl(var(--sidebar-accent)) 58%, hsl(var(--sidebar)) 42%);
+    box-shadow:
+      4px 4px 9px var(--jm-card-shadow-dark),
+      -4px -4px 9px var(--jm-card-shadow-light);
+    transition:
+      transform 180ms ease-out,
+      box-shadow 180ms ease-out,
+      background-color 180ms ease-out;
   }
+
+  .jm-sidebar-user:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+
   .jm-sidebar-avatar {
-    border-radius: 10px;
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+    border-radius: 11px;
+    background: hsl(var(--sidebar));
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
   }
-}
 
+  .jm-sidebar-logout {
+    transition:
+      transform 180ms ease-out,
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      box-shadow 180ms ease-out;
+  }
 
-@layer components {
-  .jm-topbar-control {
-    border-radius: 12px;
-    border-color: transparent !important;
+  .jm-sidebar-logout:hover {
+    transform: translateX(1px);
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+  }
+
+  .jm-sidebar-collapse-toggle {
+    border-color: transparent;
     box-shadow:
       4px 4px 8px var(--jm-card-shadow-dark),
       -4px -4px 8px var(--jm-card-shadow-light);
     transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out,
-      color 300ms ease-out;
+      transform 180ms ease-out,
+      box-shadow 180ms ease-out,
+      background-color 180ms ease-out;
   }
 
-  .jm-topbar-control:hover {
+  .jm-sidebar-collapse-toggle:hover {
     transform: translateY(-1px);
     box-shadow:
       5px 5px 10px var(--jm-card-shadow-dark),
       -5px -5px 10px var(--jm-card-shadow-light);
   }
 
-  .jm-topbar-control:active {
+  .jm-sidebar-collapse-toggle:active {
     transform: translateY(0.5px);
     box-shadow:
       inset 3px 3px 6px var(--jm-card-shadow-dark),
       inset -3px -3px 6px var(--jm-card-shadow-light);
   }
-
-  .jm-topbar-segment {
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-topbar-segment-active {
-    box-shadow:
-      inset 2px 2px 5px var(--jm-card-shadow-dark),
-      inset -2px -2px 5px var(--jm-card-shadow-light);
-  }
-
-  .jm-topbar-avatar {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
 }
-
-
-@layer components {
-  .jm-list-item-depth {
-    border-radius: 12px;
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-list-item-depth:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-dashboard-header {
-    border-radius: 20px;
-    padding: 1rem 1.25rem;
-    background: var(--card);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-dashboard-status {
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-progress-track {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-progress-value {
-    box-shadow:
-      2px 2px 5px var(--jm-card-shadow-dark),
-      -2px -2px 5px var(--jm-card-shadow-light);
-  }
-
-  .jm-environment-row {
-    border-color: transparent !important;
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out;
-  }
-
-  .jm-environment-row:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-recent-row {
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-recent-row:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-risk-dot {
-    box-shadow:
-      2px 2px 4px var(--jm-card-shadow-dark),
-      -2px -2px 4px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-view-toggle {
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-  .jm-view-toggle-active {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-filter-shell {
-    border-color: transparent !important;
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-detection-row {
-    border-radius: 12px;
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-detection-row:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-detection-row-selected {
-    box-shadow:
-      inset 3px 3px 7px var(--jm-card-shadow-dark),
-      inset -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-detail-panel {
-    box-shadow:
-      9px 9px 18px var(--jm-card-shadow-dark),
-      -9px -9px 18px var(--jm-card-shadow-light);
-  }
-
-  .jm-detail-list {
-    box-shadow:
-      inset 4px 4px 8px var(--jm-card-shadow-dark),
-      inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-map-float {
-    border-color: transparent !important;
-    box-shadow:
-      7px 7px 14px var(--jm-card-shadow-dark),
-      -7px -7px 14px var(--jm-card-shadow-light);
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-map-float:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      9px 9px 18px var(--jm-card-shadow-dark),
-      -9px -9px 18px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-float:active {
-    transform: translateY(0.5px);
-    box-shadow:
-      inset 4px 4px 8px var(--jm-card-shadow-dark),
-      inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-result {
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-map-result:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-panel {
-    box-shadow:
-      10px 10px 20px var(--jm-card-shadow-dark),
-      -10px -10px 20px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-panel-section {
-    border-color: transparent !important;
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-map-list-item {
-    border-radius: 12px;
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-map-list-item:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-list-item-active {
-    box-shadow:
-      inset 3px 3px 7px var(--jm-card-shadow-dark),
-      inset -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-map-risk-dot {
-    box-shadow:
-      2px 2px 4px var(--jm-card-shadow-dark),
-      -2px -2px 4px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-map-popup .leaflet-popup-content-wrapper {
-    border: 0 !important;
-    border-radius: 20px !important;
-    box-shadow:
-      9px 9px 18px var(--jm-card-shadow-dark),
-      -9px -9px 18px var(--jm-card-shadow-light) !important;
-  }
-
-  .jm-map-popup .leaflet-popup-content {
-    margin: 14px 16px !important;
-  }
-
-  .jm-map-popup .leaflet-popup-tip {
-    border: 0 !important;
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light) !important;
-  }
-
-  .jm-map-tooltip {
-    border: 0 !important;
-    border-radius: 16px !important;
-    box-shadow:
-      7px 7px 14px var(--jm-card-shadow-dark),
-      -7px -7px 14px var(--jm-card-shadow-light) !important;
-  }
-
-  .jm-map-tooltip-inner {
-    border-radius: 16px;
-  }
-}
-
-
-@layer components {
-  .jm-prediction-kpi {
-    border-color: transparent !important;
-  }
-
-  .jm-prediction-kpi-icon {
-    box-shadow:
-      inset 4px 4px 8px var(--jm-card-shadow-dark),
-      inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-prediction-row {
-    border-radius: 12px;
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-prediction-row:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-prediction-risk-dot {
-    box-shadow:
-      2px 2px 4px var(--jm-card-shadow-dark),
-      -2px -2px 4px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-risk-distribution {
-    border-color: transparent !important;
-  }
-
-  .jm-risk-distribution-item {
-    border-radius: 12px;
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-risk-distribution-item:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-cluster-mini-stat {
-    border-radius: 12px;
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-cluster-footer {
-    border-radius: 10px;
-  }
-
-  .jm-cluster-risk-dot {
-    box-shadow:
-      2px 2px 4px var(--jm-card-shadow-dark),
-      -2px -2px 4px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-stats-filter {
-    border-color: transparent !important;
-    box-shadow:
-      8px 8px 16px var(--jm-card-shadow-dark),
-      -8px -8px 16px var(--jm-card-shadow-light);
-  }
-
-  .jm-stats-tablist {
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-  .jm-stats-tab-active {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-stats-table-row {
-    transition:
-      background-color 250ms ease-out,
-      box-shadow 250ms ease-out;
-  }
-
-  .jm-stats-table-row:hover {
-    box-shadow:
-      2px 2px 5px var(--jm-card-shadow-dark),
-      -2px -2px 5px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-alert-row {
-    border-radius: 12px;
-    transition:
-      transform 250ms ease-out,
-      box-shadow 250ms ease-out,
-      background-color 250ms ease-out;
-  }
-
-  .jm-alert-row:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-alert-icon {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-alert-modal {
-    box-shadow:
-      12px 12px 24px var(--jm-card-shadow-dark),
-      -12px -12px 24px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-profile-avatar {
-    box-shadow:
-      inset 4px 4px 8px var(--jm-card-shadow-dark),
-      inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-  .jm-profile-preference-row {
-    border-radius: 12px;
-    transition:
-      background-color 220ms ease-out,
-      box-shadow 220ms ease-out;
-  }
-
-  .jm-profile-preference-row:hover {
-    box-shadow:
-      3px 3px 7px var(--jm-card-shadow-dark),
-      -3px -3px 7px var(--jm-card-shadow-light);
-  }
-
-  .jm-profile-danger {
-    box-shadow:
-      7px 7px 14px var(--jm-card-shadow-dark),
-      -7px -7px 14px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  .jm-zone-map {
-    border-radius: 16px;
-    box-shadow:
-      8px 8px 16px var(--jm-card-shadow-dark),
-      -8px -8px 16px var(--jm-card-shadow-light);
-  }
-
-  .jm-zone-card {
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-zone-card:hover {
-    transform: translateY(-1px);
-  }
-
-  .jm-zone-icon {
-    box-shadow:
-      inset 3px 3px 6px var(--jm-card-shadow-dark),
-      inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-zone-modal {
-    box-shadow:
-      12px 12px 24px var(--jm-card-shadow-dark),
-      -12px -12px 24px var(--jm-card-shadow-light);
-  }
-
-  .jm-zone-delete-modal {
-    box-shadow:
-      10px 10px 20px var(--jm-card-shadow-dark),
-      -10px -10px 20px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  /* Shared family for informational cards: close visual behavior, no palette changes. */
-  .jm-standard-card {
-    border-radius: 16px;
-    transition:
-      transform 300ms ease-out,
-      box-shadow 300ms ease-out,
-      background-color 300ms ease-out;
-  }
-
-  .jm-standard-card:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  /* Chat surfaces follow the same card family: visible depth on containers, restrained controls. */
-  .jm-chat-suggestion {
-    border-radius: 12px;
-    transition:
-      transform 220ms ease-out,
-      box-shadow 220ms ease-out,
-      background-color 220ms ease-out,
-      border-color 220ms ease-out;
-  }
-
-  .jm-chat-suggestion:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-  .jm-chat-composer {
-    border-radius: 16px;
-    box-shadow:
-      7px 7px 14px var(--jm-card-shadow-dark),
-      -7px -7px 14px var(--jm-card-shadow-light);
-  }
-
-  .jm-chat-return {
-    box-shadow:
-      4px 4px 8px var(--jm-card-shadow-dark),
-      -4px -4px 8px var(--jm-card-shadow-light);
-  }
-}
-
-
-@layer components {
-  /* Brand mark — subtle ember glow so the flame logo reads as "alive" wherever it appears. */
-  .jm-logo-mark {
-    filter: drop-shadow(0 0 6px hsl(var(--primary) / 0.4)) drop-shadow(0 0 14px hsl(var(--primary) / 0.22));
-  }
-
-  /* Public landing — full Soft UI / neumorphic family. */
-  .jm-landing-nav {
-    background: color-mix(in srgb, var(--background) 88%, transparent);
-    border-bottom: 0;
-    box-shadow: 0 6px 18px var(--jm-card-shadow-dark), inset 0 -1px 0 var(--jm-card-shadow-light);
-    backdrop-filter: blur(18px);
-  }
-
-  .jm-landing-icon-button {
-    color: var(--foreground);
-    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
-    transition: transform 220ms ease-out, box-shadow 220ms ease-out, background-color 220ms ease-out;
-  }
-  .jm-landing-icon-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-landing-icon-button:active {
-    transform: translateY(0.5px);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-
-  .jm-landing-primary-button,
-  .jm-landing-secondary-button {
-    border: 0;
-    transition: transform 220ms ease-out, box-shadow 220ms ease-out, opacity 220ms ease-out, background-color 220ms ease-out;
-  }
-  .jm-landing-primary-button {
-    background-image: linear-gradient(135deg, hsl(32 92% 58%) 0%, hsl(var(--primary)) 55%, hsl(8 72% 42%) 100%);
-    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
-  }
-  .jm-landing-secondary-button {
-    background: var(--card);
-    color: var(--foreground);
-    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
-  }
-  .jm-landing-primary-button:hover,
-  .jm-landing-secondary-button:hover {
-    transform: translateY(-1px);
-    opacity: 1;
-    box-shadow: 9px 9px 18px var(--jm-card-shadow-dark), -9px -9px 18px var(--jm-card-shadow-light);
-  }
-  .jm-landing-primary-button:active,
-  .jm-landing-secondary-button:active {
-    transform: translateY(0.5px);
-    box-shadow: inset 5px 5px 10px var(--jm-card-shadow-dark), inset -5px -5px 10px var(--jm-card-shadow-light);
-  }
-
-  .jm-landing-hero {
-    background:
-      radial-gradient(circle at 50% 10%, hsl(var(--primary) / 0.075), transparent 34%),
-      var(--background);
-  }
-  .jm-landing-hero::before {
-    content: "";
-    position: absolute;
-    inset: 64px 0 auto;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.18), transparent);
-    pointer-events: none;
-  }
-  .jm-landing-brandline {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.4rem 0.75rem;
-    border-radius: 9999px;
-    color: var(--muted-foreground);
-    background: var(--background);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .jm-landing-brandline svg {
-    color: hsl(var(--primary));
-  }
-  .jm-landing-pill {
-    background: var(--background);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-  .jm-landing-inset {
-    background: var(--background);
-    box-shadow: inset 5px 5px 10px var(--jm-card-shadow-dark), inset -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-landing-preview,
-  .jm-landing-featured-card {
-    border-radius: 24px;
-    background: var(--card);
-    box-shadow: 10px 10px 20px var(--jm-card-shadow-dark), -10px -10px 20px var(--jm-card-shadow-light);
-  }
-  .jm-landing-preview-bar {
-    background: var(--card);
-    box-shadow: inset 0 -1px 0 var(--jm-card-shadow-dark);
-  }
-  .jm-landing-card {
-    border-radius: 16px;
-    background: var(--card);
-    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
-    transition: transform 220ms ease-out, box-shadow 220ms ease-out;
-  }
-  .jm-landing-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 9px 9px 18px var(--jm-card-shadow-dark), -9px -9px 18px var(--jm-card-shadow-light);
-  }
-  .jm-landing-mini-card {
-    border-radius: 12px;
-    background: var(--card);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-    transition: transform 220ms ease-out, box-shadow 220ms ease-out;
-  }
-  .jm-landing-mini-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
-  }
-  .jm-landing-icon-well {
-    background: var(--background);
-    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
-  }
-  .jm-landing-stat-strip {
-    background: var(--background);
-    box-shadow: inset 0 5px 12px var(--jm-card-shadow-dark), inset 0 -5px 12px var(--jm-card-shadow-light);
-  }
-  .jm-landing-stat {
-    padding: 1rem 0.85rem;
-    border-radius: 16px;
-    background: var(--background);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-    transition: transform 220ms ease-out, box-shadow 220ms ease-out;
-  }
-  .jm-landing-stat:hover {
-    transform: translateY(-1px);
-    box-shadow: 7px 7px 14px var(--jm-card-shadow-dark), -7px -7px 14px var(--jm-card-shadow-light);
-  }
-  .jm-landing-detail-grid {
-    border-top: 0;
-    box-shadow: inset 0 2px 5px var(--jm-card-shadow-dark), inset 0 1px 3px var(--jm-card-shadow-light);
-    border-radius: 18px;
-    padding: 1rem;
-  }
-  .jm-landing-footer-links {
-    border-top: 0;
-    box-shadow: inset 0 2px 5px var(--jm-card-shadow-dark);
-  }
-  .jm-landing-section {
-    background: var(--background);
-    box-shadow: inset 0 5px 12px var(--jm-card-shadow-dark), inset 0 -5px 12px var(--jm-card-shadow-light);
-  }
-  .jm-landing-footer {
-    background: var(--background);
-    box-shadow: inset 0 5px 12px var(--jm-card-shadow-dark);
-  }
-
-  /* Public shell — shared Soft UI surface for all public routes. */
-  .jm-public-nav {
-    background: color-mix(in srgb, var(--background) 90%, transparent);
-    box-shadow: 0 6px 18px var(--jm-card-shadow-dark), inset 0 -1px 0 var(--jm-card-shadow-light);
-    backdrop-filter: blur(18px);
-  }
-  .jm-public-logo,
-  .jm-public-control,
-  .jm-public-lang,
-  .jm-public-menu-trigger,
-  .jm-public-mobile-menu,
-  .jm-public-mobile-action {
-    background: var(--card);
-    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
-  }
-  .jm-public-menu-trigger {
-    border: 0;
-    color: var(--foreground);
-    transition: transform 180ms ease-out, box-shadow 180ms ease-out;
-  }
-  .jm-public-menu-trigger:active {
-    transform: translateY(0.5px);
-    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-  .jm-public-mobile-menu {
-    border-radius: 24px;
-    border: 0;
-  }
-  .jm-public-mobile-link {
-    color: var(--muted-foreground);
-    transition: color 180ms ease-out, box-shadow 180ms ease-out;
-  }
-  .jm-public-mobile-link:hover,
-  .jm-public-mobile-link:focus-visible {
-    color: var(--foreground);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-    outline: none;
-  }
-  .jm-public-mobile-action {
-    border: 0;
-  }
-  .jm-public-login {
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-public-logo { background: var(--background); }
-  .jm-public-nav-link {
-    box-shadow: none;
-    transition: box-shadow 200ms ease-out, transform 200ms ease-out, color 200ms ease-out;
-  }
-  .jm-public-nav-link:hover {
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-  .jm-public-control,
-  .jm-public-login,
-  .jm-public-lang {
-    transition: box-shadow 200ms ease-out, transform 200ms ease-out, opacity 200ms ease-out;
-  }
-  .jm-public-control:active,
-  .jm-public-login:active,
-  .jm-public-lang-option:active {
-    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
-    transform: translateY(0.5px);
-  }
-  .jm-public-lang { background: var(--background); }
-  .jm-public-lang-active,
-  .jm-public-lang-option:hover {
-    background: var(--background);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-  .jm-public-login {
-    border: 0;
-    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
-  }
-  .jm-public-login:hover {
-    opacity: 1;
-    transform: translateY(-1px);
-    box-shadow: 8px 8px 16px var(--jm-card-shadow-dark), -8px -8px 16px var(--jm-card-shadow-light);
-  }
-
-  /* Landing informational cards share one proportional radius and restrained depth. */
-  .jm-landing-card {
-    border-radius: 16px;
-    transition:
-      transform 240ms ease-out,
-      box-shadow 240ms ease-out,
-      background-color 240ms ease-out,
-      border-color 240ms ease-out;
-  }
-
-  .jm-landing-card:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      5px 5px 10px var(--jm-card-shadow-dark),
-      -5px -5px 10px var(--jm-card-shadow-light);
-  }
-
-  .jm-landing-mini-card {
-    border-radius: 12px;
-    transition:
-      box-shadow 220ms ease-out,
-      background-color 220ms ease-out,
-      border-color 220ms ease-out;
-  }
-}
-
-
-@layer components {
-  /* Login/Register — one complete tactile Soft UI family. */
-  .jm-auth-page {
-    background: var(--background);
-  }
-  .jm-auth-sidebar {
-    background: var(--sidebar);
-    border-right: 0 !important;
-    box-shadow: 10px 0 24px var(--jm-card-shadow-dark), inset -1px 0 0 var(--jm-card-shadow-light);
-  }
-  .jm-auth-column {
-    width: 100%;
-    padding: 2rem;
-    border-radius: 24px;
-    background: var(--card);
-    box-shadow: 10px 10px 20px var(--jm-card-shadow-dark), -10px -10px 20px var(--jm-card-shadow-light);
-  }
-  .jm-auth-icon-well {
-    background: var(--background);
-    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-stat {
-    border-radius: 16px;
-    background: var(--card);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-top-control,
-  .jm-auth-home {
-    background: var(--card);
-    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
-    transition: transform 200ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out;
-  }
-  .jm-auth-top-control:hover,
-  .jm-auth-home:hover {
-    transform: translateY(-1px);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-top-control:active,
-  .jm-auth-home:active {
-    transform: translateY(0.5px);
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-  .jm-auth-tabs {
-    border: 0 !important;
-    background: var(--background);
-    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-  .jm-auth-tab {
-    border-radius: 12px;
-    transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
-  }
-  .jm-auth-tab-active {
-    background: var(--card);
-    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
-  }
-  .jm-auth-info {
-    border: 0 !important;
-    border-radius: 16px;
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-option {
-    border-color: transparent !important;
-    border-radius: 12px;
-    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
-    transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
-  }
-  .jm-auth-option:hover {
-    transform: translateY(-1px);
-  }
-  .jm-auth-option-active {
-    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
-  }
-  .jm-auth-action {
-    border: 0 !important;
-    border-radius: 16px;
-    box-shadow: 6px 6px 12px var(--jm-card-shadow-dark), -6px -6px 12px var(--jm-card-shadow-light);
-    transition: transform 200ms ease-out, box-shadow 200ms ease-out, opacity 200ms ease-out, background-color 200ms ease-out;
-  }
-  .jm-auth-action:hover:not(:disabled) {
-    transform: translateY(-1px);
-    opacity: 1;
-    box-shadow: 8px 8px 16px var(--jm-card-shadow-dark), -8px -8px 16px var(--jm-card-shadow-light);
-  }
-  .jm-auth-action:active:not(:disabled) {
-    transform: translateY(0.5px);
-    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-  .jm-auth-control {
-    border: 0 !important;
-    border-radius: 12px !important;
-    background: var(--background) !important;
-    box-shadow: inset 6px 6px 10px var(--jm-card-shadow-dark), inset -6px -6px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-error {
-    border: 0;
-    border-radius: 16px;
-    box-shadow: 4px 4px 8px var(--jm-card-shadow-dark), -4px -4px 8px var(--jm-card-shadow-light);
-  }
-  .jm-auth-secondary-action {
-    border: 0 !important;
-    border-radius: 16px;
-    background: var(--card);
-    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
-  }
-  .jm-auth-secondary-action:active {
-    box-shadow: inset 4px 4px 8px var(--jm-card-shadow-dark), inset -4px -4px 8px var(--jm-card-shadow-light);
-  }
-
-}
-
 @layer components {
   /* Export uses the same family logic as other functional cards. */
   .jm-export-card {
