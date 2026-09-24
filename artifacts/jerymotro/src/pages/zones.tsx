@@ -711,7 +711,7 @@ export default function ZonesPage() {
       {/* Delete confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="jm-zone-delete-modal w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
+          <div className="jm-modal-shell jm-zone-delete-modal w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
             <h3 className="font-heading font-bold mb-2">{t("zones.delete.title")}</h3>
             <p className="text-sm text-muted-foreground mb-5">{t("zones.delete.confirm")}</p>
             <div className="flex gap-3">
