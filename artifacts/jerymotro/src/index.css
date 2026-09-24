@@ -182,3 +182,45 @@
       -9px -9px 18px var(--jm-card-shadow-light) !important;
   }
 }
+
+
+@layer components {
+  .jm-pill-depth {
+    border: 0 !important;
+    border-radius: 9999px !important;
+    box-shadow:
+      3px 3px 6px var(--jm-card-shadow-dark),
+      -3px -3px 6px var(--jm-card-shadow-light);
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out,
+      color 300ms ease-out;
+  }
+
+  .jm-pill-depth:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-pill-depth:active {
+    transform: translateY(0.5px);
+    box-shadow:
+      inset 2px 2px 4px var(--jm-card-shadow-dark),
+      inset -2px -2px 4px var(--jm-card-shadow-light);
+  }
+
+  .jm-filter-surface {
+    box-shadow:
+      4px 4px 8px var(--jm-card-shadow-dark),
+      -4px -4px 8px var(--jm-card-shadow-light);
+  }
+
+  .jm-filter-active {
+    box-shadow:
+      inset 3px 3px 6px var(--jm-card-shadow-dark),
+      inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+}
