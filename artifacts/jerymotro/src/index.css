@@ -1034,3 +1034,28 @@
       -9px -9px 18px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  /* Shared loading/empty/error surface: calm container depth, restrained inner icon. */
+  .jm-state-surface {
+    border-radius: 16px;
+    background: hsl(var(--card) / 0.56);
+    border: 1px solid hsl(var(--border) / 0.7);
+  }
+
+  .jm-state-icon {
+    border-radius: 10px;
+    box-shadow:
+      inset 2px 2px 4px var(--jm-card-shadow-dark),
+      inset -2px -2px 4px var(--jm-card-shadow-light);
+  }
+
+  .jm-state-action {
+    border-radius: 10px;
+  }
+
+  .jm-loading-surface {
+    border-radius: 20px;
+  }
+}
