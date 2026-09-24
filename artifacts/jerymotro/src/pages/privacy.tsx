@@ -159,13 +159,13 @@ export default function PrivacyPage() {
 
   return (
     <AppShell isPublic>
-      <div className="min-h-[calc(100vh-4rem)] bg-background px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <div className="jm-info-page min-h-[calc(100vh-4rem)] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
-          <div className="mb-10 border-b border-border/60 pb-7">
+          <div className="jm-info-page-header">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
+              className="jm-info-back mb-6 inline-flex items-center gap-2 px-3.5 py-2.5 text-sm text-muted-foreground group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               {t("common.back")}
@@ -185,10 +185,10 @@ export default function PrivacyPage() {
               return (
                 <div
                   key={idx}
-                  className="jm-info-card bg-card/65 border border-border/70 p-5 shadow-sm backdrop-blur-[2px] hover:bg-card sm:p-6"
+                  className="jm-info-card p-5 sm:p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                    <div className="jm-info-icon-well p-2.5 rounded-2xl text-primary">
                       <Icon className="w-5 h-5" />
                     </div>
                     <h2 className="font-heading text-xl font-semibold text-foreground">
