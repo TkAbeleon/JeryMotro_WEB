@@ -1027,11 +1027,11 @@ export const translations = {
 
     // --- Subscriptions ---
     "subscriptions.title": "Mangataka fidirana miitatra",
-    "subscriptions.subtitle": "Misafidiana ny drafitry ny tenanao",
-    "subscriptions.plan.free": "Maimaim-poana",
-    "subscriptions.plan.premium": "Premium",
-    "subscriptions.plan.enterprise": "Enterprise",
-    "subscriptions.cta.free": "Drafitra ankehitriny",
+    "subscriptions.subtitle": "Lazao ny zavatra ilainao mba hahafahan’ny mpitantana mandinika ny fangatahanao",
+    "subscriptions.plan.free": "Kaonty Standard",
+    "subscriptions.plan.premium": "Fidirana miitatra",
+    "subscriptions.plan.enterprise": "Accès institutionnel",
+    "subscriptions.cta.free": "Fidirana ankehitriny",
     "subscriptions.cta.premium": "Mangataka fidirana miitatra",
     "subscriptions.cta.enterprise": "Mifandraisa amin'ny ekipa",
     "subscriptions.faq.title": "Fanontaniana matetika",
@@ -1672,11 +1672,11 @@ export const translations = {
 
     // --- Subscriptions ---
     "subscriptions.title": "Request extended access",
-    "subscriptions.subtitle": "Choose the plan that fits your needs",
-    "subscriptions.plan.free": "Free",
-    "subscriptions.plan.premium": "Premium",
-    "subscriptions.plan.enterprise": "Enterprise",
-    "subscriptions.cta.free": "Current plan",
+    "subscriptions.subtitle": "Describe your needs so an administrator can review your request",
+    "subscriptions.plan.free": "Standard account",
+    "subscriptions.plan.premium": "Fidirana miitatra",
+    "subscriptions.plan.enterprise": "Accès institutionnel",
+    "subscriptions.cta.free": "Current access",
     "subscriptions.cta.premium": "Request extended access",
     "subscriptions.cta.enterprise": "Contact team",
     "subscriptions.faq.title": "Frequently asked questions",
