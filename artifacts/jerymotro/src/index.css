@@ -596,3 +596,28 @@
       -2px -2px 4px var(--jm-card-shadow-light);
   }
 }
+
+
+@layer components {
+  .jm-risk-distribution {
+    border-color: transparent !important;
+  }
+
+  .jm-risk-distribution-item {
+    border-radius: 12px;
+    box-shadow:
+      3px 3px 7px var(--jm-card-shadow-dark),
+      -3px -3px 7px var(--jm-card-shadow-light);
+    transition:
+      transform 300ms ease-out,
+      box-shadow 300ms ease-out,
+      background-color 300ms ease-out;
+  }
+
+  .jm-risk-distribution-item:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      5px 5px 10px var(--jm-card-shadow-dark),
+      -5px -5px 10px var(--jm-card-shadow-light);
+  }
+}
