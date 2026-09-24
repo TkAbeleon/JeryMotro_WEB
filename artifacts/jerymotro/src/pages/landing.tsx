@@ -132,7 +132,7 @@ export default function LandingPage() {
         <section id="features" aria-labelledby="features-title" className="mx-auto max-w-6xl px-4 py-20 scroll-mt-16 sm:px-8 sm:py-24">
           <div className="text-center mb-16"><h2 id="features-title" className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2><p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="rounded-xl border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 transition-colors sm:p-6"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
+            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-card-depth rounded-xl border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 transition-colors sm:p-6"><div className="jm-icon-well w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
           </div>
         </section>
 
