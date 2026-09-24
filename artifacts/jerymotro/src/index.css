@@ -543,3 +543,16 @@
     border-radius: 16px;
   }
 }
+
+
+@layer components {
+  .jm-prediction-kpi {
+    border-color: transparent !important;
+  }
+
+  .jm-prediction-kpi-icon {
+    box-shadow:
+      inset 4px 4px 8px var(--jm-card-shadow-dark),
+      inset -4px -4px 8px var(--jm-card-shadow-light);
+  }
+}
