@@ -1023,3 +1023,14 @@
     border-radius: 10px;
   }
 }
+
+
+@layer components {
+  /* Shared modal family: same major-surface depth, with page-specific sizing retained. */
+  .jm-modal-shell {
+    border-radius: 20px;
+    box-shadow:
+      9px 9px 18px var(--jm-card-shadow-dark),
+      -9px -9px 18px var(--jm-card-shadow-light);
+  }
+}
