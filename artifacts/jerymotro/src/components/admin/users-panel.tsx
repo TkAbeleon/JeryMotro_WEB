@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, Loader2, MoreHorizontal, Plus, RefreshCw, Search, Shield, ShieldCheck, Trash2, UserCheck, UserX, X } from "lucide-react";
+import { Edit3, Loader2, Plus, RefreshCw, Search, Shield, ShieldCheck, Trash2, UserCheck, UserX, X } from "lucide-react";
 import { AsyncStateInline } from "@/components/ui/async-state";
 import { useI18n } from "@/hooks/use-i18n";
 import {
