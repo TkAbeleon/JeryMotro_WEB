@@ -132,7 +132,7 @@ export default function LandingPage() {
         <section id="features" aria-labelledby="features-title" className="mx-auto max-w-6xl px-4 py-20 scroll-mt-16 sm:px-8 sm:py-24">
           <div className="text-center mb-16"><h2 id="features-title" className="font-heading text-3xl font-bold mb-4">{t("landing.features.title")}</h2><p className="text-muted-foreground max-w-xl mx-auto">{t("landing.features.subtitle")}</p></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-card-depth rounded-xl border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 transition-colors sm:p-6"><div className="jm-icon-well w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
+            {features.map(f => { const Icon = f.icon; return <article key={f.title} className="jm-landing-card border border-border/70 bg-card/55 p-5 shadow-sm hover:bg-card/70 hover:border-primary/25 sm:p-6"><div className="jm-icon-well w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-primary" aria-hidden="true" /></div><h3 className="font-heading font-semibold mb-2">{f.title}</h3><p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p></article>; })}
           </div>
         </section>
 
@@ -144,7 +144,7 @@ export default function LandingPage() {
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{lang === "mg" ? "JeryMotro dia mampifandray ny angona, ny famakafakana ary ny fanaraha-maso ao anatin'ny workflow tokana." : lang === "en" ? "JeryMotro connects data, analysis and monitoring in one operational workflow." : "JeryMotro relie les données, l’analyse et la surveillance dans un seul parcours opérationnel."}</p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="relative rounded-xl border border-border/70 bg-card/55 p-5 shadow-sm sm:p-6">
+              {workflowSteps.map((step, index) => { const Icon = step.icon; return <article key={step.title} className="jm-landing-card relative border border-border/70 bg-card/55 p-5 shadow-sm sm:p-6">
                 <div className="flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div><span className="font-heading text-2xl font-bold text-muted-foreground/25">{String(index + 1).padStart(2, "0")}</span></div>
                 <h3 className="mt-5 font-heading font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{step.desc}</p>
                 {index < workflowSteps.length - 1 ? <ChevronRight className="absolute -right-2 top-9 z-10 hidden h-4 w-4 rounded-full bg-background text-muted-foreground xl:block" aria-hidden="true" /> : null}
@@ -154,7 +154,7 @@ export default function LandingPage() {
         </section>
 
         <section id="coverage" aria-labelledby="coverage-title" className="max-w-5xl mx-auto px-8 pb-24 scroll-mt-16">
-          <article className="rounded-2xl border border-border/70 bg-card/55 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:p-8">
+          <article className="jm-landing-card border border-border/70 bg-card/55 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 sm:p-8">
             <div className="w-16 h-16 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0"><Globe className="w-8 h-8 text-accent" aria-hidden="true" /></div>
             <div className="flex-1"><h2 id="coverage-title" className="font-heading text-xl font-bold mb-2">{t("landing.coverage.title")}</h2><p className="text-muted-foreground text-sm leading-relaxed">{t("landing.coverage.description")}</p></div>
             <div className="flex-shrink-0" aria-label="Niveaux de risque"><div className="flex items-center gap-3 text-sm"><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-destructive inline-block" /> {t("landing.coverage.legends.critical")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-primary inline-block" /> {t("landing.coverage.legends.high")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> {t("landing.coverage.legends.medium")}</span><span className="flex items-center gap-1.5"><span aria-hidden="true" className="w-3 h-3 rounded-full bg-accent inline-block" /> {t("landing.coverage.legends.low")}</span></div></div>
@@ -170,7 +170,7 @@ export default function LandingPage() {
             <Link href="/register" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">{lang === "mg" ? "Hanomboka" : lang === "en" ? "Get started" : "Commencer"} <ChevronRight className="h-4 w-4" /></Link>
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="rounded-xl border border-border/70 bg-card/45 p-5 shadow-sm sm:p-6">
+            {audienceCards.map(card => { const Icon = card.icon; return <article key={card.title} className="jm-landing-card border border-border/70 bg-card/45 p-5 shadow-sm sm:p-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Icon className="h-5 w-5" /></div>
               <h3 className="mt-5 font-heading font-semibold">{card.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{card.desc}</p>
             </article>; })}
@@ -189,7 +189,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="mt-7 grid gap-3 border-t border-primary/15 pt-6 sm:grid-cols-3">
-              {[lang === "mg" ? "Mandefa fangatahana" : lang === "en" ? "Submit a request" : "Envoyer une demande", lang === "mg" ? "Dinihin'ny admin" : lang === "en" ? "Administrative review" : "Examen administratif", lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"].map((label,index)=><div key={label} className="rounded-xl border border-border/60 bg-card/60 p-4"><div className="text-xs font-bold text-primary">0{index+1}</div><div className="mt-2 text-sm font-semibold">{label}</div></div>)}
+              {[lang === "mg" ? "Mandefa fangatahana" : lang === "en" ? "Submit a request" : "Envoyer une demande", lang === "mg" ? "Dinihin'ny admin" : lang === "en" ? "Administrative review" : "Examen administratif", lang === "mg" ? "Fidirana miitatra" : lang === "en" ? "Extended access" : "Accès étendu"].map((label,index)=><div key={label} className="jm-landing-mini-card border border-border/60 bg-card/60 p-4"><div className="text-xs font-bold text-primary">0{index+1}</div><div className="mt-2 text-sm font-semibold">{label}</div></div>)}
             </div>
           </div>
         </section>
