@@ -358,6 +358,16 @@
 
 
 @layer components {
+  .jm-dashboard-header {
+    border-radius: 20px;
+    padding: 1rem 1.25rem;
+    background: var(--card);
+    box-shadow: 5px 5px 10px var(--jm-card-shadow-dark), -5px -5px 10px var(--jm-card-shadow-light);
+  }
+  .jm-dashboard-status {
+    box-shadow: inset 3px 3px 6px var(--jm-card-shadow-dark), inset -3px -3px 6px var(--jm-card-shadow-light);
+  }
+
   .jm-progress-track {
     box-shadow:
       inset 3px 3px 6px var(--jm-card-shadow-dark),
