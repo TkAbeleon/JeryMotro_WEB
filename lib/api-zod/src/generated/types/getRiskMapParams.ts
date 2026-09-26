@@ -3,13 +3,17 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 
 export type GetRiskMapParams = {
-date: string;
 /**
  * @nullable
  */
-min_risk?: number | null;
+prediction_date?: Date | null;
+/**
+ * @minimum 0
+ * @maximum 1
+ */
+min_risk?: number;
 };

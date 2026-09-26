@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { useGetEnvironmentalAdvancedStats } from "@workspace/api-client-react";
+import { getGetAdvancedEnvironmentalStatsQueryKey, useGetAdvancedEnvironmentalStats, type EnvironmentalStatsDistributionRow as DistributionRow } from "@workspace/api-client-react";
 import {
   AreaChart,
   Area,
@@ -41,17 +41,6 @@ const chartTooltip = {
   fontSize: 11,
 };
 
-type DistributionRow = {
-  dimension: string;
-  value?: string | null;
-  is_null: boolean;
-  detections: number;
-  percentage: number;
-  enriched_percentage: number;
-  average_frp?: number | null;
-  average_risk?: number | null;
-};
-
 type Copy = {
   filters: string; dateFrom: string; dateTo: string; environment: string; region: string;
   allEnvironments: string; allRegions: string; excludeNoise: string; reset: string;
@@ -71,7 +60,7 @@ type Copy = {
   topClusters: string; fireEventsTitle: string; geospatial: string; minLatitude: string;
   maxLatitude: string; minLongitude: string; maxLongitude: string; centroidLatitude: string;
   centroidLongitude: string; latitudeStd: string; longitudeStd: string; notProvided: string;
-  noData: string; enrichment: string; retry: string; category: string;
+  noData: string; enrichment: string; retry: string;   category: string; unit: string;
 };
 
 const copy: Record<Lang, Copy> = {
@@ -361,20 +350,22 @@ export default function StatsPage() {
   const [region, setRegion] = useState("");
   const [excludeNoise, setExcludeNoise] = useState(true);
 
-  const advancedQ = useGetEnvironmentalAdvancedStats(
-    {
-      date_from: dateFrom,
-      date_to: dateTo,
-      environment: environment || undefined,
-      region: region || undefined,
-      exclude_noise: excludeNoise,
-    },
-    { query: { staleTime: 60_000, refetchInterval: 5 * 60_000, keepPreviousData: true } },
+  const advancedParams = {
+    date_from: dateFrom,
+    date_to: dateTo,
+    environment: environment || undefined,
+    region: region || undefined,
+    exclude_noise: excludeNoise,
+  };
+  const optionsParams = { date_from: dateFrom, date_to: dateTo, exclude_noise: excludeNoise };
+  const advancedQ = useGetAdvancedEnvironmentalStats(
+    advancedParams,
+    { query: { queryKey: getGetAdvancedEnvironmentalStatsQueryKey(advancedParams), staleTime: 60_000, refetchInterval: 5 * 60_000, placeholderData: previousData => previousData } },
   );
 
-  const optionsQ = useGetEnvironmentalAdvancedStats(
-    { date_from: dateFrom, date_to: dateTo, exclude_noise: excludeNoise },
-    { query: { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000, keepPreviousData: true } },
+  const optionsQ = useGetAdvancedEnvironmentalStats(
+    optionsParams,
+    { query: { queryKey: getGetAdvancedEnvironmentalStatsQueryKey(optionsParams), staleTime: 5 * 60_000, refetchInterval: 10 * 60_000, placeholderData: previousData => previousData } },
   );
 
   const advanced = advancedQ.data;

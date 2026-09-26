@@ -3,13 +3,10 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 
 export interface HealthStatus {
   status: string;
-  /** @nullable */
-  version?: string | null;
-  /** @nullable */
-  uptime_seconds?: number | null;
+  message: string;
 }

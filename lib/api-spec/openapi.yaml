@@ -26,7 +26,7 @@ tags:
     description: JeryMotro AI (RAG)
 
 paths:
-  /healthz:
+  /health:
     get:
       operationId: healthCheck
       tags: [health]
@@ -346,22 +346,27 @@ paths:
       tags: [clusters]
       summary: List fire event clusters
       parameters:
-        - name: status
+        - name: cluster_status
           in: query
           schema:
             type: ["string", "null"]
+            enum: [ACTIVE, COOLING, LIKELY_OUT, UNKNOWN]
         - name: region
           in: query
           schema:
             type: ["string", "null"]
-        - name: active_only
-          in: query
-          schema:
-            type: ["boolean", "null"]
         - name: limit
           in: query
           schema:
-            type: ["integer", "null"]
+            type: integer
+            default: 500
+            maximum: 5000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         "200":
           description: OK
@@ -369,6 +374,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ClusterList"
+
+  /clusters/{id}:
+    get:
+      operationId: getCluster
+      tags: [clusters]
+      summary: Get a fire event cluster
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cluster"
+        "404":
+          description: Not found
 
   /clusters/{id}/detections:
     get:
@@ -387,32 +413,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClusterDetections"
+                $ref: "#/components/schemas/DetectionList"
         "404":
           description: Not found
 
-  /predictions:
+  /predictions/latest:
     get:
       operationId: listPredictions
       tags: [predictions]
-      summary: List ML predictions
+      summary: Get the latest ML predictions
       parameters:
-        - name: date
+        - name: prediction_date
           in: query
           schema:
             type: ["string", "null"]
-        - name: region
-          in: query
-          schema:
-            type: ["string", "null"]
-        - name: min_risk
-          in: query
-          schema:
-            type: ["number", "null"]
+            format: date
         - name: limit
           in: query
           schema:
-            type: ["integer", "null"]
+            type: integer
+            default: 5000
+            maximum: 50000
       responses:
         "200":
           description: OK
@@ -427,15 +448,18 @@ paths:
       tags: [predictions]
       summary: Get GeoJSON risk map for J+1
       parameters:
-        - name: date
+        - name: prediction_date
           in: query
-          required: true
           schema:
-            type: string
+            type: ["string", "null"]
+            format: date
         - name: min_risk
           in: query
           schema:
-            type: ["number", "null"]
+            type: number
+            default: 0.4
+            minimum: 0
+            maximum: 1
       responses:
         "200":
           description: OK
@@ -443,38 +467,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RiskMapResponse"
-
-  /alerts:
-    get:
-      operationId: listAlerts
-      tags: [alerts]
-      summary: List alerts history
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: level
-          in: query
-          schema:
-            type: ["string", "null"]
-        - name: status
-          in: query
-          schema:
-            type: ["string", "null"]
-        - name: channel
-          in: query
-          schema:
-            type: ["string", "null"]
-        - name: limit
-          in: query
-          schema:
-            type: ["integer", "null"]
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AlertList"
 
   /alerts/subscribe:
     post:
@@ -699,19 +691,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ChatResponse"
 
-  /dashboard/summary:
-    get:
-      operationId: getDashboardSummary
-      tags: [detections]
-      summary: Dashboard overview stats
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DashboardSummary"
-
 components:
   securitySchemes:
     bearerAuth:
@@ -722,15 +701,12 @@ components:
   schemas:
     HealthStatus:
       type: object
+      required: [status, message]
       properties:
         status:
           type: string
-        version:
-          type: ["string", "null"]
-        uptime_seconds:
-          type: ["number", "null"]
-      required:
-        - status
+        message:
+          type: string
 
     UserRegistration:
       type: object
@@ -804,21 +780,39 @@ components:
 
     OtpRequest:
       type: object
-      required: [email]
       properties:
-        email:
-          type: string
         via:
+          type: string
+          enum: [email, sms, whatsapp]
+          default: email
+        email:
+          type: ["string", "null"]
+          format: email
+        phone_number:
+          type: ["string", "null"]
+        whatsapp_number:
           type: ["string", "null"]
 
     OtpVerify:
       type: object
-      required: [email, code]
+      required: [code]
       properties:
-        email:
+        via:
           type: string
+          enum: [email, sms, whatsapp]
+          default: email
+        email:
+          type: ["string", "null"]
+          format: email
+        phone_number:
+          type: ["string", "null"]
+        whatsapp_number:
+          type: ["string", "null"]
         code:
           type: string
+          minLength: 6
+          maxLength: 6
+          pattern: "^\\d{6}$"
 
     Detection:
       type: object

@@ -3,24 +3,25 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
+import type { ListClustersClusterStatus } from './listClustersClusterStatus';
 
 export type ListClustersParams = {
 /**
  * @nullable
  */
-status?: string | null;
+cluster_status?: ListClustersClusterStatus;
 /**
  * @nullable
  */
 region?: string | null;
 /**
- * @nullable
+ * @maximum 5000
  */
-active_only?: boolean | null;
+limit?: number;
 /**
- * @nullable
+ * @minimum 0
  */
-limit?: number | null;
+offset?: number;
 };

@@ -26,6 +26,7 @@ node_modules
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/mcp.json
 
 # misc
 /.sass-cache
@@ -57,4 +58,3 @@ Thumbs.db
 .env.local
 .env.*.local
 !.env.example
-

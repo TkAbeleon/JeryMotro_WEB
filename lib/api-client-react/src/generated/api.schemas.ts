@@ -3,127 +3,858 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 export interface HealthStatus {
   status: string;
-  version?: string | null;
-  uptime_seconds?: number | null;
+  message: string;
 }
 
-export interface UserRegistration { email: string; password: string; full_name?: string | null; organization?: string | null; }
-export interface UserLogin { email: string; password: string; }
-export interface UserProfile { id: number; email: string; full_name?: string | null; organization?: string | null; role: string; is_active: boolean; phone_number?: string | null; whatsapp_number?: string | null; }
-export interface AuthToken { access_token: string; token_type: string; user: UserProfile; }
-export interface ProfileUpdate { full_name?: string | null; organization?: string | null; }
-export interface ContactUpdate { phone_number?: string | null; whatsapp_number?: string | null; }
+export interface UserRegistration {
+  email: string;
+  password: string;
+  /** @nullable */
+  full_name?: string | null;
+  /** @nullable */
+  organization?: string | null;
+}
+
+export interface UserLogin {
+  email: string;
+  password: string;
+}
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  /** @nullable */
+  full_name?: string | null;
+  /** @nullable */
+  organization?: string | null;
+  role: string;
+  is_active: boolean;
+  /** @nullable */
+  phone_number?: string | null;
+  /** @nullable */
+  whatsapp_number?: string | null;
+}
+
+export interface AuthToken {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+}
+
+export interface ProfileUpdate {
+  /** @nullable */
+  full_name?: string | null;
+  /** @nullable */
+  organization?: string | null;
+}
+
+export interface ContactUpdate {
+  /** @nullable */
+  phone_number?: string | null;
+  /** @nullable */
+  whatsapp_number?: string | null;
+}
+
+export type OtpRequestVia = typeof OtpRequestVia[keyof typeof OtpRequestVia];
+
+
+export const OtpRequestVia = {
+  email: 'email',
+  sms: 'sms',
+  whatsapp: 'whatsapp',
+} as const;
 
 export interface OtpRequest {
-  via?: "email" | "sms" | "whatsapp" | null;
+  via?: OtpRequestVia;
+  /** @nullable */
   email?: string | null;
+  /** @nullable */
   phone_number?: string | null;
+  /** @nullable */
   whatsapp_number?: string | null;
 }
 
+export type OtpVerifyVia = typeof OtpVerifyVia[keyof typeof OtpVerifyVia];
+
+
+export const OtpVerifyVia = {
+  email: 'email',
+  sms: 'sms',
+  whatsapp: 'whatsapp',
+} as const;
+
 export interface OtpVerify {
-  via?: "email" | "sms" | "whatsapp" | null;
+  via?: OtpVerifyVia;
+  /** @nullable */
   email?: string | null;
+  /** @nullable */
   phone_number?: string | null;
+  /** @nullable */
   whatsapp_number?: string | null;
+  /**
+     * @minLength 6
+     * @maxLength 6
+     * @pattern ^\d{6}$
+     */
   code: string;
 }
 
-export interface Detection { id: number; latitude: number; longitude: number; brightness?: number | null; frp?: number | null; frp_log?: number | null; confidence?: string | null; confidence_num?: number | null; acq_date: string; acq_time?: string | null; local_hour?: number | null; satellite?: string | null; instrument?: string | null; daynight?: string | null; source: string; risk_score?: number | null; fire_label?: number | null; cluster_id?: number | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; is_noise?: number | null; is_dry_season?: boolean | null; temperature_2m?: number | null; relative_humidity?: number | null; wind_speed?: number | null; landcover?: string | null; fire_context_type?: string | null; context_percentages?: { [key: string]: number } | null; ndvi_10m?: number | null; region?: string | null; inserted_at?: string | null; }
+/**
+ * Répartition en pourcentage des classes WorldCover autour de la détection.
+ * @nullable
+ */
+export type DetectionContextPercentages = {[key: string]: number} | null;
+
+export interface Detection {
+  id: number;
+  latitude: number;
+  longitude: number;
+  /** @nullable */
+  brightness?: number | null;
+  /** @nullable */
+  frp?: number | null;
+  /** @nullable */
+  frp_log?: number | null;
+  /** @nullable */
+  confidence?: string | null;
+  /** @nullable */
+  confidence_num?: number | null;
+  acq_date: string;
+  /** @nullable */
+  acq_time?: string | null;
+  /** @nullable */
+  local_hour?: number | null;
+  /** @nullable */
+  satellite?: string | null;
+  /** @nullable */
+  instrument?: string | null;
+  /** @nullable */
+  daynight?: string | null;
+  source: string;
+  /** @nullable */
+  risk_score?: number | null;
+  /** @nullable */
+  fire_label?: number | null;
+  /** @nullable */
+  cluster_id?: number | null;
+  /** @nullable */
+  cluster_size?: number | null;
+  /** @nullable */
+  cluster_frp_total?: number | null;
+  /** @nullable */
+  cluster_frp_max?: number | null;
+  /** @nullable */
+  is_noise?: number | null;
+  /** @nullable */
+  is_dry_season?: boolean | null;
+  /** @nullable */
+  temperature_2m?: number | null;
+  /** @nullable */
+  relative_humidity?: number | null;
+  /** @nullable */
+  wind_speed?: number | null;
+  /** @nullable */
+  landcover?: string | null;
+  /**
+     * Classe WorldCover dominante autour de la détection, issue de l'enrichissement asynchrone Google Earth Engine.
+     * @nullable
+     */
+  fire_context_type?: string | null;
+  /**
+     * Répartition en pourcentage des classes WorldCover autour de la détection.
+     * @nullable
+     */
+  context_percentages?: DetectionContextPercentages;
+  /** @nullable */
+  ndvi_10m?: number | null;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  inserted_at?: string | null;
+}
+
 export type DetectionListFiltersApplied = { [key: string]: unknown };
-export interface DetectionList { detections: Detection[]; count: number; total: number; limit: number; offset: number; filters_applied?: DetectionListFiltersApplied; }
-export interface DailyStats { date: string; total_detections: number; high_risk_count: number; avg_frp?: number | null; max_frp?: number | null; active_clusters: number; regions_affected: string[]; }
-export interface DailyStatsResponse { stats: DailyStats[]; }
-export interface EnvironmentalContextDistributionItem { context: string; detections: number; percentage: number; }
-export interface EnvironmentalContextStatsResponse { date: string; total_detections: number; enriched_detections: number; pending_detections: number; last_enriched_at?: string | null; distribution: EnvironmentalContextDistributionItem[]; }
-export type EnvironmentalStatsFilters = {
+
+export interface DetectionList {
+  detections: Detection[];
+  count: number;
+  total: number;
+  limit: number;
+  offset: number;
+  filters_applied?: DetectionListFiltersApplied;
+}
+
+export interface DailyStats {
+  date: string;
+  total_detections: number;
+  high_risk_count: number;
+  /** @nullable */
+  avg_frp?: number | null;
+  /** @nullable */
+  max_frp?: number | null;
+  active_clusters: number;
+  regions_affected: string[];
+}
+
+export interface DailyStatsResponse {
+  stats: DailyStats[];
+}
+
+export interface EnvironmentalContextDistributionItem {
+  context: string;
+  detections: number;
+  percentage: number;
+}
+
+export interface EnvironmentalStatsFilters {
   date_from: string;
   date_to: string;
+  /** @nullable */
   environment?: string | null;
+  /** @nullable */
   region?: string | null;
   exclude_noise: boolean;
-};
+}
+
 export interface EnvironmentalStatsSummary {
-  total_detections: number; enriched_detections: number; pending_detections: number; environmental_coverage_percent: number;
-  total_regions: number; total_sources: number; total_satellites: number; total_instruments: number; total_clusters: number; total_fire_events: number; total_collection_runs: number;
-  total_frp: number; total_frp_valid_detections: number; average_frp?: number | null; median_frp?: number | null; average_risk?: number | null; median_risk?: number | null;
-  critical_detections: number; high_risk_detections: number; medium_risk_detections: number; low_risk_detections: number; unknown_risk_detections: number;
-  daytime_detections: number; nighttime_detections: number; dry_season_detections: number; recent_loss_detections: number;
+  total_detections: number;
+  enriched_detections: number;
+  pending_detections: number;
+  environmental_coverage_percent: number;
+  total_regions: number;
+  total_sources: number;
+  total_satellites: number;
+  total_instruments: number;
+  total_clusters: number;
+  total_fire_events: number;
+  total_collection_runs: number;
+  total_frp: number;
+  total_frp_valid_detections: number;
+  /** @nullable */
+  average_frp?: number | null;
+  /** @nullable */
+  median_frp?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+  /** @nullable */
+  median_risk?: number | null;
+  critical_detections: number;
+  high_risk_detections: number;
+  medium_risk_detections: number;
+  low_risk_detections: number;
+  unknown_risk_detections: number;
+  daytime_detections: number;
+  nighttime_detections: number;
+  dry_season_detections: number;
+  recent_loss_detections: number;
 }
+
 export interface EnvironmentalStatsNumeric {
-  field: string; valid_count: number; missing_count: number; missing_percentage: number; total?: number | null; mean?: number | null; median?: number | null;
-  variance?: number | null; std_dev?: number | null; min?: number | null; p05?: number | null; q1?: number | null; q3?: number | null; p95?: number | null;
-  iqr?: number | null; max?: number | null; coefficient_of_variation_percent?: number | null; skewness?: number | null; kurtosis?: number | null;
-  outlier_count: number; outlier_percentage: number;
+  field: string;
+  valid_count: number;
+  missing_count: number;
+  missing_percentage: number;
+  /** @nullable */
+  total?: number | null;
+  /** @nullable */
+  mean?: number | null;
+  /** @nullable */
+  median?: number | null;
+  /** @nullable */
+  variance?: number | null;
+  /** @nullable */
+  std_dev?: number | null;
+  /** @nullable */
+  min?: number | null;
+  /** @nullable */
+  p05?: number | null;
+  /** @nullable */
+  q1?: number | null;
+  /** @nullable */
+  q3?: number | null;
+  /** @nullable */
+  p95?: number | null;
+  /** @nullable */
+  iqr?: number | null;
+  /** @nullable */
+  max?: number | null;
+  /** @nullable */
+  coefficient_of_variation_percent?: number | null;
+  /** @nullable */
+  skewness?: number | null;
+  /** @nullable */
+  kurtosis?: number | null;
+  outlier_count?: number;
+  outlier_percentage?: number;
 }
-export interface EnvironmentalStatsNullRow { field: string; total_count: number; non_null_count: number; null_count: number; null_percentage: number; }
+
+export interface EnvironmentalStatsNullRow {
+  field: string;
+  total_count: number;
+  non_null_count: number;
+  null_count: number;
+  null_percentage: number;
+}
+
 export interface EnvironmentalStatsDistributionRow {
-  dimension: string; value?: string | null; is_null: boolean; detections: number; percentage: number; enriched_detections: number; enriched_percentage: number;
-  total_frp: number; average_frp?: number | null; average_risk?: number | null; average_brightness?: number | null; average_confidence?: number | null;
+  dimension: string;
+  /** @nullable */
+  value?: string | null;
+  is_null: boolean;
+  detections: number;
+  percentage: number;
+  enriched_detections?: number;
+  enriched_percentage?: number;
+  total_frp?: number;
+  /** @nullable */
+  average_frp?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+  /** @nullable */
+  average_brightness?: number | null;
+  /** @nullable */
+  average_confidence?: number | null;
 }
+
 export interface EnvironmentalStatsDailyRow {
-  date: string; detections: number; enriched_detections: number; pending_detections: number; total_frp: number;
-  average_frp?: number | null; average_brightness?: number | null; average_confidence?: number | null; average_risk?: number | null;
-  critical_detections: number; high_risk_detections: number; clusters: number; regions: number;
+  date: string;
+  detections: number;
+  enriched_detections: number;
+  pending_detections: number;
+  total_frp: number;
+  /** @nullable */
+  average_frp?: number | null;
+  /** @nullable */
+  average_brightness?: number | null;
+  /** @nullable */
+  average_confidence?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+  critical_detections: number;
+  high_risk_detections: number;
+  clusters: number;
+  regions: number;
 }
-export interface EnvironmentalStatsHourlyRow { local_hour?: number | null; is_null: boolean; detections: number; percentage: number; average_frp?: number | null; average_risk?: number | null; }
+
+export interface EnvironmentalStatsHourlyRow {
+  /** @nullable */
+  local_hour?: number | null;
+  is_null: boolean;
+  detections: number;
+  percentage: number;
+  /** @nullable */
+  average_frp?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+}
+
 export interface EnvironmentalStatsContextCompositionRow {
-  context: string; detections_with_context: number; mean_percentage?: number | null; median_percentage?: number | null; variance?: number | null; std_dev?: number | null;
-  min_percentage?: number | null; q1?: number | null; q3?: number | null; max_percentage?: number | null;
+  context: string;
+  detections_with_context: number;
+  /** @nullable */
+  mean_percentage?: number | null;
+  /** @nullable */
+  median_percentage?: number | null;
+  /** @nullable */
+  variance?: number | null;
+  /** @nullable */
+  std_dev?: number | null;
+  /** @nullable */
+  min_percentage?: number | null;
+  /** @nullable */
+  q1?: number | null;
+  /** @nullable */
+  q3?: number | null;
+  /** @nullable */
+  max_percentage?: number | null;
 }
-export interface EnvironmentalStatsCorrelationRow { variable_x: string; variable_y: string; pair_count: number; pearson_correlation?: number | null; covariance?: number | null; }
+
+export interface EnvironmentalStatsCorrelationRow {
+  variable_x: string;
+  variable_y: string;
+  pair_count: number;
+  /** @nullable */
+  pearson_correlation?: number | null;
+  /** @nullable */
+  covariance?: number | null;
+}
+
 export interface EnvironmentalStatsClusterRow {
-  cluster_id: number; detections: number; region?: string | null; dominant_environment?: string | null; total_frp?: number | null; max_frp?: number | null; average_risk?: number | null; cluster_size?: number | null;
+  cluster_id: number;
+  detections: number;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  dominant_environment?: string | null;
+  /** @nullable */
+  total_frp?: number | null;
+  /** @nullable */
+  max_frp?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+  /** @nullable */
+  cluster_size?: number | null;
 }
+
 export interface EnvironmentalStatsClusterSummary {
-  total_clusters: number; clustered_detections: number; unclustered_detections: number; average_cluster_size?: number | null; median_cluster_size?: number | null;
-  maximum_cluster_size?: number | null; total_cluster_frp: number; average_cluster_frp?: number | null; maximum_cluster_frp?: number | null;
+  total_clusters: number;
+  clustered_detections: number;
+  unclustered_detections: number;
+  /** @nullable */
+  average_cluster_size?: number | null;
+  /** @nullable */
+  median_cluster_size?: number | null;
+  /** @nullable */
+  maximum_cluster_size?: number | null;
+  total_cluster_frp: number;
+  /** @nullable */
+  average_cluster_frp?: number | null;
+  /** @nullable */
+  maximum_cluster_frp?: number | null;
 }
-export interface EnvironmentalStatsEventRow { fire_event_id: number; detections: number; region?: string | null; total_frp?: number | null; max_frp?: number | null; average_risk?: number | null; }
+
+export interface EnvironmentalStatsEventRow {
+  fire_event_id: number;
+  detections: number;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  total_frp?: number | null;
+  /** @nullable */
+  max_frp?: number | null;
+  /** @nullable */
+  average_risk?: number | null;
+}
+
 export interface EnvironmentalStatsGeospatialSummary {
-  min_latitude?: number | null; max_latitude?: number | null; min_longitude?: number | null; max_longitude?: number | null;
-  centroid_latitude?: number | null; centroid_longitude?: number | null; latitude_std_dev?: number | null; longitude_std_dev?: number | null;
+  /** @nullable */
+  min_latitude?: number | null;
+  /** @nullable */
+  max_latitude?: number | null;
+  /** @nullable */
+  min_longitude?: number | null;
+  /** @nullable */
+  max_longitude?: number | null;
+  /** @nullable */
+  centroid_latitude?: number | null;
+  /** @nullable */
+  centroid_longitude?: number | null;
+  /** @nullable */
+  latitude_std_dev?: number | null;
+  /** @nullable */
+  longitude_std_dev?: number | null;
 }
+
 export interface EnvironmentalAdvancedStatsResponse {
-  filters: EnvironmentalStatsFilters; summary: EnvironmentalStatsSummary; geospatial_summary: EnvironmentalStatsGeospatialSummary;
-  numeric_statistics: EnvironmentalStatsNumeric[]; null_analysis: EnvironmentalStatsNullRow[]; environment_distribution: EnvironmentalStatsDistributionRow[];
-  context_composition: EnvironmentalStatsContextCompositionRow[]; region_distribution: EnvironmentalStatsDistributionRow[]; source_distribution: EnvironmentalStatsDistributionRow[];
-  satellite_distribution: EnvironmentalStatsDistributionRow[]; instrument_distribution: EnvironmentalStatsDistributionRow[]; confidence_distribution: EnvironmentalStatsDistributionRow[];
-  daynight_distribution: EnvironmentalStatsDistributionRow[]; season_distribution: EnvironmentalStatsDistributionRow[]; recent_loss_distribution: EnvironmentalStatsDistributionRow[];
-  fire_label_distribution: EnvironmentalStatsDistributionRow[]; noise_distribution: EnvironmentalStatsDistributionRow[]; landcover_distribution: EnvironmentalStatsDistributionRow[];
-  daily_evolution: EnvironmentalStatsDailyRow[]; hourly_distribution: EnvironmentalStatsHourlyRow[]; risk_distribution: EnvironmentalStatsDistributionRow[];
-  correlations: EnvironmentalStatsCorrelationRow[]; cluster_summary: EnvironmentalStatsClusterSummary; top_clusters: EnvironmentalStatsClusterRow[]; top_fire_events: EnvironmentalStatsEventRow[];
+  filters: EnvironmentalStatsFilters;
+  summary: EnvironmentalStatsSummary;
+  geospatial_summary: EnvironmentalStatsGeospatialSummary;
+  numeric_statistics: EnvironmentalStatsNumeric[];
+  null_analysis: EnvironmentalStatsNullRow[];
+  environment_distribution: EnvironmentalStatsDistributionRow[];
+  context_composition: EnvironmentalStatsContextCompositionRow[];
+  region_distribution: EnvironmentalStatsDistributionRow[];
+  source_distribution: EnvironmentalStatsDistributionRow[];
+  satellite_distribution: EnvironmentalStatsDistributionRow[];
+  instrument_distribution: EnvironmentalStatsDistributionRow[];
+  confidence_distribution: EnvironmentalStatsDistributionRow[];
+  daynight_distribution: EnvironmentalStatsDistributionRow[];
+  season_distribution: EnvironmentalStatsDistributionRow[];
+  recent_loss_distribution: EnvironmentalStatsDistributionRow[];
+  fire_label_distribution: EnvironmentalStatsDistributionRow[];
+  noise_distribution: EnvironmentalStatsDistributionRow[];
+  landcover_distribution: EnvironmentalStatsDistributionRow[];
+  daily_evolution: EnvironmentalStatsDailyRow[];
+  hourly_distribution: EnvironmentalStatsHourlyRow[];
+  risk_distribution: EnvironmentalStatsDistributionRow[];
+  correlations: EnvironmentalStatsCorrelationRow[];
+  cluster_summary: EnvironmentalStatsClusterSummary;
+  top_clusters: EnvironmentalStatsClusterRow[];
+  top_fire_events: EnvironmentalStatsEventRow[];
 }
-export interface Cluster { id: number; fire_id?: string | null; center_latitude: number; center_longitude: number; radius_km?: number | null; region?: string | null; cluster_size?: number | null; cluster_frp_total?: number | null; cluster_frp_max?: number | null; risk_score_max?: number | null; risk_level?: string | null; first_seen: string; last_seen: string; duration_hours?: number | null; hours_since_last_seen?: number | null; cluster_status: string; status_reason?: string | null; reactivation_count?: number; }
-export interface ClusterList { clusters: Cluster[]; count: number; total: number; }
-export interface ClusterDetections { cluster_id: number; detections: Detection[]; count: number; }
-export interface Prediction { id: number; prediction_date: string; latitude: number; longitude: number; grid_cell_id?: string | null; risk_score_j1: number; confidence?: number | null; model_version?: string | null; input_window_days?: number | null; region?: string | null; created_at: string; }
+
+export interface EnvironmentalContextStatsResponse {
+  date: string;
+  total_detections: number;
+  enriched_detections: number;
+  pending_detections: number;
+  /** @nullable */
+  last_enriched_at?: string | null;
+  distribution: EnvironmentalContextDistributionItem[];
+}
+
+export interface Cluster {
+  id: number;
+  /** @nullable */
+  fire_id?: string | null;
+  center_latitude: number;
+  center_longitude: number;
+  /** @nullable */
+  radius_km?: number | null;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  cluster_size?: number | null;
+  /** @nullable */
+  cluster_frp_total?: number | null;
+  /** @nullable */
+  cluster_frp_max?: number | null;
+  /** @nullable */
+  risk_score_max?: number | null;
+  /** @nullable */
+  risk_level?: string | null;
+  first_seen: string;
+  last_seen: string;
+  /** @nullable */
+  duration_hours?: number | null;
+  /** @nullable */
+  hours_since_last_seen?: number | null;
+  cluster_status: string;
+  /** @nullable */
+  status_reason?: string | null;
+  reactivation_count?: number;
+}
+
+export interface ClusterList {
+  clusters: Cluster[];
+  count: number;
+  total: number;
+}
+
+export interface ClusterDetections {
+  cluster_id: number;
+  detections: Detection[];
+  count: number;
+}
+
+export interface Prediction {
+  id: number;
+  prediction_date: string;
+  latitude: number;
+  longitude: number;
+  /** @nullable */
+  grid_cell_id?: string | null;
+  risk_score_j1: number;
+  /** @nullable */
+  confidence?: number | null;
+  /** @nullable */
+  model_version?: string | null;
+  /** @nullable */
+  input_window_days?: number | null;
+  /** @nullable */
+  region?: string | null;
+  created_at: string;
+}
+
+/**
+ * @nullable
+ */
 export type PredictionListModelInfo = { [key: string]: unknown } | null;
-export interface PredictionList { predictions: Prediction[]; count: number; prediction_date?: string | null; model_info?: PredictionListModelInfo; }
-export interface RiskMapFeatureProps { risk_score_j1?: number | null; grid_cell_id?: string | null; region?: string | null; prediction_date?: string | null; }
-export interface RiskMapMetadata { prediction_date: string; total_cells: number; high_risk_cells: number; model_version?: string | null; }
+
+export interface PredictionList {
+  predictions: Prediction[];
+  count: number;
+  /** @nullable */
+  prediction_date?: string | null;
+  /** @nullable */
+  model_info?: PredictionListModelInfo;
+}
+
+export interface RiskMapFeatureProps {
+  /** @nullable */
+  risk_score_j1?: number | null;
+  /** @nullable */
+  grid_cell_id?: string | null;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  prediction_date?: string | null;
+}
+
+export interface RiskMapMetadata {
+  prediction_date: string;
+  total_cells: number;
+  high_risk_cells: number;
+  /** @nullable */
+  model_version?: string | null;
+}
+
 export type RiskMapResponseFeaturesItem = { [key: string]: unknown };
-export interface RiskMapResponse { type: string; features: RiskMapResponseFeaturesItem[]; metadata: RiskMapMetadata; }
-export interface Alert { id: number; alert_level: string; region?: string | null; latitude?: number | null; longitude?: number | null; risk_score?: number | null; frp?: number | null; message?: string | null; images?: string[] | null; channel: string; destination?: string | null; status: string; sent_at?: string | null; created_at: string; }
-export interface AlertList { alerts: Alert[]; count: number; total: number; }
-export interface AlertSubscription { channel: string; destination: string; min_risk?: number | null; min_frp?: number | null; }
-export interface Subscription { id: number; channel: string; destination: string; enabled: boolean; is_verified: boolean; min_risk?: number; min_frp?: number; }
-export interface MyAlerts { subscriptions: Subscription[]; alerts_history: Alert[]; }
-export interface AlertTrigger { fire_event_id?: number | null; risk_score: number; frp: number; region: string; latitude: number; longitude: number; force_send?: boolean; }
-export interface Zone { id: number; user_id: number; name: string; latitude: number; longitude: number; radius_km: number; min_risk?: number | null; min_frp?: number | null; custom_ai_prompt?: string | null; created_at: string; }
-export interface ZoneInput { name: string; latitude: number; longitude: number; radius_km: number; min_risk?: number | null; min_frp?: number | null; custom_ai_prompt?: string | null; }
-export interface ChatMessage { message: string; conversation_id?: string | null; temperature?: number | null; zone_id?: number | null; }
+
+export interface RiskMapResponse {
+  type: string;
+  features: RiskMapResponseFeaturesItem[];
+  metadata: RiskMapMetadata;
+}
+
+export interface Alert {
+  id: number;
+  alert_level: string;
+  /** @nullable */
+  region?: string | null;
+  /** @nullable */
+  latitude?: number | null;
+  /** @nullable */
+  longitude?: number | null;
+  /** @nullable */
+  risk_score?: number | null;
+  /** @nullable */
+  frp?: number | null;
+  /** @nullable */
+  message?: string | null;
+  /** @nullable */
+  images?: string[] | null;
+  channel: string;
+  /** @nullable */
+  destination?: string | null;
+  status: string;
+  /** @nullable */
+  sent_at?: string | null;
+  created_at: string;
+}
+
+export interface AlertList {
+  alerts: Alert[];
+  count: number;
+  total: number;
+}
+
+export interface AlertSubscription {
+  channel: string;
+  destination: string;
+  /** @nullable */
+  min_risk?: number | null;
+  /** @nullable */
+  min_frp?: number | null;
+}
+
+export interface Subscription {
+  id: number;
+  channel: string;
+  destination: string;
+  enabled: boolean;
+  is_verified: boolean;
+  min_risk?: number;
+  min_frp?: number;
+}
+
+export interface MyAlerts {
+  subscriptions: Subscription[];
+  alerts_history: Alert[];
+}
+
+export interface AlertTrigger {
+  /** @nullable */
+  fire_event_id?: number | null;
+  risk_score: number;
+  frp: number;
+  region: string;
+  latitude: number;
+  longitude: number;
+  force_send?: boolean;
+}
+
+export interface Zone {
+  id: number;
+  user_id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius_km: number;
+  /** @nullable */
+  min_risk?: number | null;
+  /** @nullable */
+  min_frp?: number | null;
+  /** @nullable */
+  custom_ai_prompt?: string | null;
+  created_at: string;
+}
+
+export interface ZoneInput {
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius_km: number;
+  /** @nullable */
+  min_risk?: number | null;
+  /** @nullable */
+  min_frp?: number | null;
+  /** @nullable */
+  custom_ai_prompt?: string | null;
+}
+
+export interface ChatMessage {
+  message: string;
+  /** @nullable */
+  conversation_id?: string | null;
+  /** @nullable */
+  temperature?: number | null;
+  /** @nullable */
+  zone_id?: number | null;
+}
+
+/**
+ * @nullable
+ */
 export type ChatResponseDataContext = { [key: string]: unknown } | null;
-export interface ChatResponse { response: string; sources: string[]; data_context?: ChatResponseDataContext; model_used?: string | null; tokens_used?: number | null; response_time_ms?: number | null; }
-export interface DashboardSummary { total_detections_today: number; active_clusters: number; critical_alerts: number; ai_response_time_ms: number; xgboost_accuracy?: number | null; regions_affected_today?: string[]; pipeline_status?: string; }
-export type ListDetectionsParams = { date_from?: string | null; date_to?: string | null; min_frp?: number | null; max_frp?: number | null; min_risk?: number | null; max_risk?: number | null; source?: string | null; region?: string | null; exclude_noise?: boolean | null; limit?: number | null; offset?: number | null; };
-export type GetDailyStatsParams = { date_from?: string | null; date_to?: string | null; };
-export type ListClustersParams = { status?: string | null; region?: string | null; active_only?: boolean | null; limit?: number | null; };
-export type ListPredictionsParams = { date?: string | null; region?: string | null; min_risk?: number | null; limit?: number | null; };
-export type GetRiskMapParams = { date: string; min_risk?: number | null; };
-export type ListAlertsParams = { level?: string | null; status?: string | null; channel?: string | null; limit?: number | null; };
-export type VerifySubscriptionBody = { code: string; };
+
+export interface ChatResponse {
+  response: string;
+  sources: string[];
+  /** @nullable */
+  data_context?: ChatResponseDataContext;
+  /** @nullable */
+  model_used?: string | null;
+  /** @nullable */
+  tokens_used?: number | null;
+  /** @nullable */
+  response_time_ms?: number | null;
+}
+
+export interface DashboardSummary {
+  total_detections_today: number;
+  active_clusters: number;
+  critical_alerts: number;
+  ai_response_time_ms: number;
+  /** @nullable */
+  xgboost_accuracy?: number | null;
+  regions_affected_today?: string[];
+  pipeline_status?: string;
+}
+
+export type ListDetectionsParams = {
+/**
+ * @nullable
+ */
+date_from?: string | null;
+/**
+ * @nullable
+ */
+date_to?: string | null;
+/**
+ * @nullable
+ */
+min_frp?: number | null;
+/**
+ * @nullable
+ */
+max_frp?: number | null;
+/**
+ * @nullable
+ */
+min_risk?: number | null;
+/**
+ * @nullable
+ */
+max_risk?: number | null;
+/**
+ * @nullable
+ */
+source?: string | null;
+/**
+ * @nullable
+ */
+region?: string | null;
+/**
+ * @nullable
+ */
+exclude_noise?: boolean | null;
+/**
+ * @nullable
+ */
+limit?: number | null;
+/**
+ * @nullable
+ */
+offset?: number | null;
+};
+
+export type GetAdvancedEnvironmentalStatsParams = {
+date_from?: string;
+date_to?: string;
+environment?: string;
+region?: string;
+exclude_noise?: boolean;
+};
+
+export type GetEnvironmentalContextStatsParams = {
+/**
+ * @nullable
+ */
+date?: string | null;
+/**
+ * @nullable
+ */
+exclude_noise?: boolean | null;
+};
+
+export type GetDailyStatsParams = {
+/**
+ * @nullable
+ */
+date_from?: string | null;
+/**
+ * @nullable
+ */
+date_to?: string | null;
+};
+
+export type ListClustersParams = {
+/**
+ * @nullable
+ */
+cluster_status?: ListClustersClusterStatus;
+/**
+ * @nullable
+ */
+region?: string | null;
+/**
+ * @maximum 5000
+ */
+limit?: number;
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
+
+export type ListClustersClusterStatus = typeof ListClustersClusterStatus[keyof typeof ListClustersClusterStatus] | null;
+
+
+export const ListClustersClusterStatus = {
+  ACTIVE: 'ACTIVE',
+  COOLING: 'COOLING',
+  LIKELY_OUT: 'LIKELY_OUT',
+  UNKNOWN: 'UNKNOWN',
+} as const;
+
+export type ListPredictionsParams = {
+/**
+ * @nullable
+ */
+prediction_date?: string | null;
+/**
+ * @maximum 50000
+ */
+limit?: number;
+};
+
+export type GetRiskMapParams = {
+/**
+ * @nullable
+ */
+prediction_date?: string | null;
+/**
+ * @minimum 0
+ * @maximum 1
+ */
+min_risk?: number;
+};
+
+export type VerifySubscriptionBody = {
+  code: string;
+};
