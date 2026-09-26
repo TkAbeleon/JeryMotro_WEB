@@ -124,7 +124,6 @@ Il n'existe actuellement dans les manifests/configurations inspectés ni runner/
 
 ### Points connus à ne pas supposer résolus
 
-- Le bandeau et le README frontend vérifient `/health`; le contrat OpenAPI déclare `/healthz`.
 - OpenAPI déclare un serveur `/api`, tandis que le client généré expose des chemins tels que `/auth/login`; le préfixe effectif dépend de la base URL configurée.
 - L'exemple d'environnement est dans `artifacts/jerymotro/.env.example`, tandis que Vite configure `envDir` à la racine du workspace.
 - La CI produit des fichiers pré-rendus puis écrit des règles de réécriture d'hébergement. La compatibilité réelle de ces règles avec la distribution des pages SSG doit être vérifiée avant toute affirmation.

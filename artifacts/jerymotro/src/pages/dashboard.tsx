@@ -1,4 +1,4 @@
-import { useGetDailyStats, useGetEnvironmentalContextStats, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
+import { getGetEnvironmentalContextStatsQueryKey, useGetDailyStats, useGetEnvironmentalContextStats, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity, Flame, Bell, Cpu, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
@@ -16,9 +16,10 @@ const getRiskColor = (score: number | null | undefined) => {
 export default function DashboardPage() {
   const { t, lang } = useI18n();
   const dailyQ = useGetDailyStats();
-  const environmentalQ = useGetEnvironmentalContextStats({ exclude_noise: true }, { query: { refetchInterval: 60_000, staleTime: 30_000 } });
+  const environmentalParams = { exclude_noise: true };
+  const environmentalQ = useGetEnvironmentalContextStats(environmentalParams, { query: { queryKey: getGetEnvironmentalContextStatsQueryKey(environmentalParams), refetchInterval: 60_000, staleTime: 30_000 } });
   const detectionsQ = useListDetections({ limit: 10 });
-  const clustersQ = useListClusters({ active_only: true });
+  const clustersQ = useListClusters({ cluster_status: "ACTIVE" });
   const daily = dailyQ.data ?? { stats: [] };
   const detectionsData = detectionsQ.data ?? { detections: [] as Detection[] };
   const clustersData = clustersQ.data ?? { clusters: [] as Cluster[] };
@@ -95,4 +96,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 import * as zod from 'zod';
 
@@ -14,8 +14,7 @@ import * as zod from 'zod';
  */
 export const HealthCheckResponse = zod.object({
   "status": zod.string(),
-  "version": zod.string().nullish(),
-  "uptime_seconds": zod.number().nullish()
+  "message": zod.string()
 })
 
 
@@ -101,18 +100,33 @@ export const UpdateContactsBody = zod.object({
 /**
  * @summary Request OTP code
  */
+export const requestOtpBodyViaDefault = `email`;
+
 export const RequestOtpBody = zod.object({
-  "email": zod.string(),
-  "via": zod.string().nullish()
+  "via": zod.enum(['email', 'sms', 'whatsapp']).default(requestOtpBodyViaDefault),
+  "email": zod.string().email().nullish(),
+  "phone_number": zod.string().nullish(),
+  "whatsapp_number": zod.string().nullish()
 })
 
 
 /**
  * @summary Verify OTP code and get token
  */
+export const verifyOtpBodyViaDefault = `email`;
+export const verifyOtpBodyCodeMin = 6;
+export const verifyOtpBodyCodeMax = 6;
+
+
+export const verifyOtpBodyCodeRegExp = new RegExp('^\\d{6}$');
+
+
 export const VerifyOtpBody = zod.object({
-  "email": zod.string(),
-  "code": zod.string()
+  "via": zod.enum(['email', 'sms', 'whatsapp']).default(verifyOtpBodyViaDefault),
+  "email": zod.string().email().nullish(),
+  "phone_number": zod.string().nullish(),
+  "whatsapp_number": zod.string().nullish(),
+  "code": zod.string().min(verifyOtpBodyCodeMin).max(verifyOtpBodyCodeMax).regex(verifyOtpBodyCodeRegExp)
 })
 
 export const VerifyOtpResponse = zod.object({
@@ -177,6 +191,8 @@ export const ListDetectionsResponse = zod.object({
   "relative_humidity": zod.number().nullish(),
   "wind_speed": zod.number().nullish(),
   "landcover": zod.string().nullish(),
+  "fire_context_type": zod.string().nullish().describe('Classe WorldCover dominante autour de la détection, issue de l\'enrichissement asynchrone Google Earth Engine.'),
+  "context_percentages": zod.record(zod.string(), zod.number()).nullish().describe('Répartition en pourcentage des classes WorldCover autour de la détection.'),
   "ndvi_10m": zod.number().nullish(),
   "region": zod.string().nullish(),
   "inserted_at": zod.string().nullish()
@@ -186,6 +202,375 @@ export const ListDetectionsResponse = zod.object({
   "limit": zod.number(),
   "offset": zod.number(),
   "filters_applied": zod.record(zod.string(), zod.unknown()).optional()
+})
+
+
+/**
+ * @summary Advanced environmental statistics
+ */
+export const getAdvancedEnvironmentalStatsQueryExcludeNoiseDefault = true;
+
+export const GetAdvancedEnvironmentalStatsQueryParams = zod.object({
+  "date_from": zod.date().optional(),
+  "date_to": zod.date().optional(),
+  "environment": zod.coerce.string().optional(),
+  "region": zod.coerce.string().optional(),
+  "exclude_noise": zod.coerce.boolean().default(getAdvancedEnvironmentalStatsQueryExcludeNoiseDefault)
+})
+
+export const getAdvancedEnvironmentalStatsResponseFiltersExcludeNoiseDefault = true;
+
+export const GetAdvancedEnvironmentalStatsResponse = zod.object({
+  "filters": zod.object({
+  "date_from": zod.coerce.date(),
+  "date_to": zod.coerce.date(),
+  "environment": zod.string().nullish(),
+  "region": zod.string().nullish(),
+  "exclude_noise": zod.boolean().default(getAdvancedEnvironmentalStatsResponseFiltersExcludeNoiseDefault)
+}),
+  "summary": zod.object({
+  "total_detections": zod.number(),
+  "enriched_detections": zod.number(),
+  "pending_detections": zod.number(),
+  "environmental_coverage_percent": zod.number(),
+  "total_regions": zod.number(),
+  "total_sources": zod.number(),
+  "total_satellites": zod.number(),
+  "total_instruments": zod.number(),
+  "total_clusters": zod.number(),
+  "total_fire_events": zod.number(),
+  "total_collection_runs": zod.number(),
+  "total_frp": zod.number(),
+  "total_frp_valid_detections": zod.number(),
+  "average_frp": zod.number().nullish(),
+  "median_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "median_risk": zod.number().nullish(),
+  "critical_detections": zod.number(),
+  "high_risk_detections": zod.number(),
+  "medium_risk_detections": zod.number(),
+  "low_risk_detections": zod.number(),
+  "unknown_risk_detections": zod.number(),
+  "daytime_detections": zod.number(),
+  "nighttime_detections": zod.number(),
+  "dry_season_detections": zod.number(),
+  "recent_loss_detections": zod.number()
+}),
+  "geospatial_summary": zod.object({
+  "min_latitude": zod.number().nullish(),
+  "max_latitude": zod.number().nullish(),
+  "min_longitude": zod.number().nullish(),
+  "max_longitude": zod.number().nullish(),
+  "centroid_latitude": zod.number().nullish(),
+  "centroid_longitude": zod.number().nullish(),
+  "latitude_std_dev": zod.number().nullish(),
+  "longitude_std_dev": zod.number().nullish()
+}),
+  "numeric_statistics": zod.array(zod.object({
+  "field": zod.string(),
+  "valid_count": zod.number(),
+  "missing_count": zod.number(),
+  "missing_percentage": zod.number(),
+  "total": zod.number().nullish(),
+  "mean": zod.number().nullish(),
+  "median": zod.number().nullish(),
+  "variance": zod.number().nullish(),
+  "std_dev": zod.number().nullish(),
+  "min": zod.number().nullish(),
+  "p05": zod.number().nullish(),
+  "q1": zod.number().nullish(),
+  "q3": zod.number().nullish(),
+  "p95": zod.number().nullish(),
+  "iqr": zod.number().nullish(),
+  "max": zod.number().nullish(),
+  "coefficient_of_variation_percent": zod.number().nullish(),
+  "skewness": zod.number().nullish(),
+  "kurtosis": zod.number().nullish(),
+  "outlier_count": zod.number().optional(),
+  "outlier_percentage": zod.number().optional()
+})),
+  "null_analysis": zod.array(zod.object({
+  "field": zod.string(),
+  "total_count": zod.number(),
+  "non_null_count": zod.number(),
+  "null_count": zod.number(),
+  "null_percentage": zod.number()
+})),
+  "environment_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "context_composition": zod.array(zod.object({
+  "context": zod.string(),
+  "detections_with_context": zod.number(),
+  "mean_percentage": zod.number().nullish(),
+  "median_percentage": zod.number().nullish(),
+  "variance": zod.number().nullish(),
+  "std_dev": zod.number().nullish(),
+  "min_percentage": zod.number().nullish(),
+  "q1": zod.number().nullish(),
+  "q3": zod.number().nullish(),
+  "max_percentage": zod.number().nullish()
+})),
+  "region_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "source_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "satellite_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "instrument_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "confidence_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "daynight_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "season_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "recent_loss_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "fire_label_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "noise_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "landcover_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "daily_evolution": zod.array(zod.object({
+  "date": zod.coerce.date(),
+  "detections": zod.number(),
+  "enriched_detections": zod.number(),
+  "pending_detections": zod.number(),
+  "total_frp": zod.number(),
+  "average_frp": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "critical_detections": zod.number(),
+  "high_risk_detections": zod.number(),
+  "clusters": zod.number(),
+  "regions": zod.number()
+})),
+  "hourly_distribution": zod.array(zod.object({
+  "local_hour": zod.number().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish()
+})),
+  "risk_distribution": zod.array(zod.object({
+  "dimension": zod.string(),
+  "value": zod.string().nullish(),
+  "is_null": zod.boolean(),
+  "detections": zod.number(),
+  "percentage": zod.number(),
+  "enriched_detections": zod.number().optional(),
+  "enriched_percentage": zod.number().optional(),
+  "total_frp": zod.number().optional(),
+  "average_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "average_brightness": zod.number().nullish(),
+  "average_confidence": zod.number().nullish()
+})),
+  "correlations": zod.array(zod.object({
+  "variable_x": zod.string(),
+  "variable_y": zod.string(),
+  "pair_count": zod.number(),
+  "pearson_correlation": zod.number().nullish(),
+  "covariance": zod.number().nullish()
+})),
+  "cluster_summary": zod.object({
+  "total_clusters": zod.number(),
+  "clustered_detections": zod.number(),
+  "unclustered_detections": zod.number(),
+  "average_cluster_size": zod.number().nullish(),
+  "median_cluster_size": zod.number().nullish(),
+  "maximum_cluster_size": zod.number().nullish(),
+  "total_cluster_frp": zod.number(),
+  "average_cluster_frp": zod.number().nullish(),
+  "maximum_cluster_frp": zod.number().nullish()
+}),
+  "top_clusters": zod.array(zod.object({
+  "cluster_id": zod.number(),
+  "detections": zod.number(),
+  "region": zod.string().nullish(),
+  "dominant_environment": zod.string().nullish(),
+  "total_frp": zod.number().nullish(),
+  "max_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish(),
+  "cluster_size": zod.number().nullish()
+})),
+  "top_fire_events": zod.array(zod.object({
+  "fire_event_id": zod.number(),
+  "detections": zod.number(),
+  "region": zod.string().nullish(),
+  "total_frp": zod.number().nullish(),
+  "max_frp": zod.number().nullish(),
+  "average_risk": zod.number().nullish()
+}))
+})
+
+
+/**
+ * @summary Daily environmental context distribution
+ */
+export const GetEnvironmentalContextStatsQueryParams = zod.object({
+  "date": zod.coerce.string().nullish(),
+  "exclude_noise": zod.coerce.boolean().nullish()
+})
+
+export const GetEnvironmentalContextStatsResponse = zod.object({
+  "date": zod.string(),
+  "total_detections": zod.number(),
+  "enriched_detections": zod.number(),
+  "pending_detections": zod.number(),
+  "last_enriched_at": zod.coerce.date().nullish(),
+  "distribution": zod.array(zod.object({
+  "context": zod.string(),
+  "detections": zod.number(),
+  "percentage": zod.number()
+}))
 })
 
 
@@ -224,6 +609,8 @@ export const GetDetectionResponse = zod.object({
   "relative_humidity": zod.number().nullish(),
   "wind_speed": zod.number().nullish(),
   "landcover": zod.string().nullish(),
+  "fire_context_type": zod.string().nullish().describe('Classe WorldCover dominante autour de la détection, issue de l\'enrichissement asynchrone Google Earth Engine.'),
+  "context_percentages": zod.record(zod.string(), zod.number()).nullish().describe('Répartition en pourcentage des classes WorldCover autour de la détection.'),
   "ndvi_10m": zod.number().nullish(),
   "region": zod.string().nullish(),
   "inserted_at": zod.string().nullish()
@@ -254,11 +641,19 @@ export const GetDailyStatsResponse = zod.object({
 /**
  * @summary List fire event clusters
  */
+export const listClustersQueryLimitDefault = 500;
+export const listClustersQueryLimitMax = 5000;
+
+export const listClustersQueryOffsetDefault = 0;
+export const listClustersQueryOffsetMin = 0;
+
+
+
 export const ListClustersQueryParams = zod.object({
-  "status": zod.coerce.string().nullish(),
+  "cluster_status": zod.enum(['ACTIVE', 'COOLING', 'LIKELY_OUT', 'UNKNOWN']).nullish(),
   "region": zod.coerce.string().nullish(),
-  "active_only": zod.coerce.boolean().nullish(),
-  "limit": zod.coerce.number().nullish()
+  "limit": zod.coerce.number().max(listClustersQueryLimitMax).default(listClustersQueryLimitDefault),
+  "offset": zod.coerce.number().min(listClustersQueryOffsetMin).default(listClustersQueryOffsetDefault)
 })
 
 export const ListClustersResponse = zod.object({
@@ -288,6 +683,35 @@ export const ListClustersResponse = zod.object({
 
 
 /**
+ * @summary Get a fire event cluster
+ */
+export const GetClusterParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetClusterResponse = zod.object({
+  "id": zod.number(),
+  "fire_id": zod.string().nullish(),
+  "center_latitude": zod.number(),
+  "center_longitude": zod.number(),
+  "radius_km": zod.number().nullish(),
+  "region": zod.string().nullish(),
+  "cluster_size": zod.number().nullish(),
+  "cluster_frp_total": zod.number().nullish(),
+  "cluster_frp_max": zod.number().nullish(),
+  "risk_score_max": zod.number().nullish(),
+  "risk_level": zod.string().nullish(),
+  "first_seen": zod.string(),
+  "last_seen": zod.string(),
+  "duration_hours": zod.number().nullish(),
+  "hours_since_last_seen": zod.number().nullish(),
+  "cluster_status": zod.string(),
+  "status_reason": zod.string().nullish(),
+  "reactivation_count": zod.number().optional()
+})
+
+
+/**
  * @summary Get detections belonging to a cluster
  */
 export const GetClusterDetectionsParams = zod.object({
@@ -295,7 +719,6 @@ export const GetClusterDetectionsParams = zod.object({
 })
 
 export const GetClusterDetectionsResponse = zod.object({
-  "cluster_id": zod.number(),
   "detections": zod.array(zod.object({
   "id": zod.number(),
   "latitude": zod.number(),
@@ -324,22 +747,31 @@ export const GetClusterDetectionsResponse = zod.object({
   "relative_humidity": zod.number().nullish(),
   "wind_speed": zod.number().nullish(),
   "landcover": zod.string().nullish(),
+  "fire_context_type": zod.string().nullish().describe('Classe WorldCover dominante autour de la détection, issue de l\'enrichissement asynchrone Google Earth Engine.'),
+  "context_percentages": zod.record(zod.string(), zod.number()).nullish().describe('Répartition en pourcentage des classes WorldCover autour de la détection.'),
   "ndvi_10m": zod.number().nullish(),
   "region": zod.string().nullish(),
   "inserted_at": zod.string().nullish()
 })),
-  "count": zod.number()
+  "count": zod.number(),
+  "total": zod.number(),
+  "limit": zod.number(),
+  "offset": zod.number(),
+  "filters_applied": zod.record(zod.string(), zod.unknown()).optional()
 })
 
 
 /**
- * @summary List ML predictions
+ * @summary Get the latest ML predictions
  */
+export const listPredictionsQueryLimitDefault = 5000;
+export const listPredictionsQueryLimitMax = 50000;
+
+
+
 export const ListPredictionsQueryParams = zod.object({
-  "date": zod.coerce.string().nullish(),
-  "region": zod.coerce.string().nullish(),
-  "min_risk": zod.coerce.number().nullish(),
-  "limit": zod.coerce.number().nullish()
+  "prediction_date": zod.date().nullish(),
+  "limit": zod.coerce.number().max(listPredictionsQueryLimitMax).default(listPredictionsQueryLimitDefault)
 })
 
 export const ListPredictionsResponse = zod.object({
@@ -365,9 +797,15 @@ export const ListPredictionsResponse = zod.object({
 /**
  * @summary Get GeoJSON risk map for J+1
  */
+export const getRiskMapQueryMinRiskDefault = 0.4;
+export const getRiskMapQueryMinRiskMin = 0;
+export const getRiskMapQueryMinRiskMax = 1;
+
+
+
 export const GetRiskMapQueryParams = zod.object({
-  "date": zod.coerce.string(),
-  "min_risk": zod.coerce.number().nullish()
+  "prediction_date": zod.date().nullish(),
+  "min_risk": zod.coerce.number().min(getRiskMapQueryMinRiskMin).max(getRiskMapQueryMinRiskMax).default(getRiskMapQueryMinRiskDefault)
 })
 
 export const GetRiskMapResponse = zod.object({
@@ -379,38 +817,6 @@ export const GetRiskMapResponse = zod.object({
   "high_risk_cells": zod.number(),
   "model_version": zod.string().nullish()
 })
-})
-
-
-/**
- * @summary List alerts history
- */
-export const ListAlertsQueryParams = zod.object({
-  "level": zod.coerce.string().nullish(),
-  "status": zod.coerce.string().nullish(),
-  "channel": zod.coerce.string().nullish(),
-  "limit": zod.coerce.number().nullish()
-})
-
-export const ListAlertsResponse = zod.object({
-  "alerts": zod.array(zod.object({
-  "id": zod.number(),
-  "alert_level": zod.string(),
-  "region": zod.string().nullish(),
-  "latitude": zod.number().nullish(),
-  "longitude": zod.number().nullish(),
-  "risk_score": zod.number().nullish(),
-  "frp": zod.number().nullish(),
-  "message": zod.string().nullish(),
-  "images": zod.array(zod.string()).nullish(),
-  "channel": zod.string(),
-  "destination": zod.string().nullish(),
-  "status": zod.string(),
-  "sent_at": zod.string().nullish(),
-  "created_at": zod.string()
-})),
-  "count": zod.number(),
-  "total": zod.number()
 })
 
 
@@ -584,20 +990,6 @@ export const ChatWithAIResponse = zod.object({
   "model_used": zod.string().nullish(),
   "tokens_used": zod.number().nullish(),
   "response_time_ms": zod.number().nullish()
-})
-
-
-/**
- * @summary Dashboard overview stats
- */
-export const GetDashboardSummaryResponse = zod.object({
-  "total_detections_today": zod.number(),
-  "active_clusters": zod.number(),
-  "critical_alerts": zod.number(),
-  "ai_response_time_ms": zod.number(),
-  "xgboost_accuracy": zod.number().nullish(),
-  "regions_affected_today": zod.array(zod.string()).optional(),
-  "pipeline_status": zod.string().optional()
 })
 
 

@@ -19,14 +19,15 @@ function normalizeMgPhone(value:string){const digits=value.replace(/\D/g,"");if(
 function formatMgPhone(value:string){const n=normalizeMgPhone(value);if(!n)return value.replace(/[^\d+\s]/g,"");const d=n.slice(4);return `+261 ${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,7)} ${d.slice(7,9)}`;}
 function PhoneField({value,onChange,required,label,placeholder}:{value:string;onChange:(v:string)=>void;required?:boolean;label:string;placeholder:string}){return <label className="block"><span className="mb-1.5 flex items-center gap-2 text-xs font-semibold"><Phone className="h-3.5 w-3.5 text-primary"/>{label}{required&&<span className="text-destructive">*</span>}</span><div className="jm-access-mini flex items-center border bg-background px-3 shadow-sm focus-within:ring-2 focus-within:ring-primary/30"><span className="mr-2 text-xs font-semibold text-muted-foreground">+261</span><input value={value.replace(/^\+261\s*/,"")} onChange={e=>onChange(formatMgPhone("+261"+e.target.value.replace(/\D/g,"")))} placeholder={placeholder} inputMode="tel" className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none"/></div></label>}
 
-function StatusCard({request,t}:{request:AccessRequest;t:(key:string)=>string}){
+type Translate = ReturnType<typeof useI18n>["t"];
+function StatusCard({request,t}:{request:AccessRequest;t:Translate}){
  const Icon=request.status==="approved"?CheckCircle2:request.status==="rejected"?XCircle:Clock3;
  const title=request.status==="approved"?t("accessRequest.status.approved"):request.status==="rejected"?t("accessRequest.status.rejected"):request.status==="contact_required"?t("accessRequest.status.contactRequired"):request.status==="under_review"?t("accessRequest.status.underReview"):t("accessRequest.status.pending");
  return <section className="jm-standard-card border border-border/70 bg-card/60 p-5 shadow-sm"><div className="flex gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-5 w-5"/></div><div><h2 className="font-heading text-base font-semibold">{title}</h2><p className="mt-1 text-xs text-muted-foreground">{t("accessRequest.requestLabel",{id:request.id,organization:request.organization||"—"})}</p><p className="mt-2 text-sm text-muted-foreground">{request.status==="approved"?"Votre accès est maintenant actif. Vous pouvez continuer sans vous déconnecter.":"Créée le "+new Date(request.created_at).toLocaleString()}</p></div></div></section>
 }
 
 export default function AccessRequestPage(){
- const {user,hasExtendedAccess,refreshUser}=useAuth();
+ const {user,isPremium:hasExtendedAccess,refreshUser}=useAuth();
  const {t}=useI18n();
  const [requests,setRequests]=useState<AccessRequest[]>([]); const [loading,setLoading]=useState(true); const [busy,setBusy]=useState(false); const [refreshing,setRefreshing]=useState(false); const [error,setError]=useState<string|null>(null); const [success,setSuccess]=useState<string|null>(null);
  const [organization,setOrganization]=useState(user?.organization||""); const [position,setPosition]=useState(""); const [phone,setPhone]=useState(user?.phone_number||""); const [whatsapp,setWhatsapp]=useState(user?.whatsapp_number||""); const [area,setArea]=useState("Madagascar"); const [project,setProject]=useState(""); const [duration,setDuration]=useState(""); const [reason,setReason]=useState(""); const [purpose,setPurpose]=useState(""); const [extra,setExtra]=useState(""); const [selected,setSelected]=useState<AccessFeature[]>(["priority_zones","zone_alerts"]);

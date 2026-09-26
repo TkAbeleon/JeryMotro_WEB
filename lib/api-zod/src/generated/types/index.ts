@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 
 export * from './alert';
@@ -22,18 +22,39 @@ export * from './dailyStats';
 export * from './dailyStatsResponse';
 export * from './dashboardSummary';
 export * from './detection';
+export * from './detectionContextPercentages';
 export * from './detectionList';
 export * from './detectionListFiltersApplied';
+export * from './environmentalAdvancedStatsResponse';
+export * from './environmentalContextDistributionItem';
+export * from './environmentalContextStatsResponse';
+export * from './environmentalStatsClusterRow';
+export * from './environmentalStatsClusterSummary';
+export * from './environmentalStatsContextCompositionRow';
+export * from './environmentalStatsCorrelationRow';
+export * from './environmentalStatsDailyRow';
+export * from './environmentalStatsDistributionRow';
+export * from './environmentalStatsEventRow';
+export * from './environmentalStatsFilters';
+export * from './environmentalStatsGeospatialSummary';
+export * from './environmentalStatsHourlyRow';
+export * from './environmentalStatsNullRow';
+export * from './environmentalStatsNumeric';
+export * from './environmentalStatsSummary';
+export * from './getAdvancedEnvironmentalStatsParams';
 export * from './getDailyStatsParams';
+export * from './getEnvironmentalContextStatsParams';
 export * from './getRiskMapParams';
 export * from './healthStatus';
-export * from './listAlertsParams';
+export * from './listClustersClusterStatus';
 export * from './listClustersParams';
 export * from './listDetectionsParams';
 export * from './listPredictionsParams';
 export * from './myAlerts';
 export * from './otpRequest';
+export * from './otpRequestVia';
 export * from './otpVerify';
+export * from './otpVerifyVia';
 export * from './prediction';
 export * from './predictionList';
 export * from './predictionListModelInfo';

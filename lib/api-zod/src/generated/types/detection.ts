@@ -3,8 +3,9 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
+import type { DetectionContextPercentages } from './detectionContextPercentages';
 
 export interface Detection {
   id: number;
@@ -56,31 +57,20 @@ export interface Detection {
   wind_speed?: number | null;
   /** @nullable */
   landcover?: string | null;
-  /** @nullable */
+  /**
+     * Classe WorldCover dominante autour de la détection, issue de l'enrichissement asynchrone Google Earth Engine.
+     * @nullable
+     */
   fire_context_type?: string | null;
-  /** @nullable */
-  context_percentages?: { [key: string]: number } | null;
+  /**
+     * Répartition en pourcentage des classes WorldCover autour de la détection.
+     * @nullable
+     */
+  context_percentages?: DetectionContextPercentages;
   /** @nullable */
   ndvi_10m?: number | null;
   /** @nullable */
   region?: string | null;
   /** @nullable */
   inserted_at?: string | null;
-}
-
-
-export interface EnvironmentalContextDistributionItem {
-  context: string;
-  detections: number;
-  percentage: number;
-}
-
-export interface EnvironmentalContextStatsResponse {
-  date: string;
-  total_detections: number;
-  enriched_detections: number;
-  pending_detections: number;
-  /** @nullable */
-  last_enriched_at?: string | null;
-  distribution: EnvironmentalContextDistributionItem[];
 }

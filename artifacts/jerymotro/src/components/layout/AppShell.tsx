@@ -2,9 +2,9 @@ import { Sidebar, SIDEBAR_FULL, SIDEBAR_COLLAPSED } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
-import { Sun, Moon, Languages, LogIn, Menu, X } from "lucide-react";
+import { Sun, Moon, Languages, LogIn } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -24,7 +24,6 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
 
 function PublicShell({ children }: { children: React.ReactNode }) {
   const { t, lang, setLang } = useI18n();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const langs = ["fr", "mg", "en"] as const;
   return (
@@ -37,56 +36,41 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             </span>
             <span className="hidden truncate font-heading text-base font-bold sm:inline sm:text-lg">JeryMotro</span>
           </Link>
-          <nav className="hidden items-center gap-2 lg:flex">
-            <Link href="/about" className="jm-public-nav-link rounded-2xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{t("landing.nav.about")}</Link>
-            <Link href="/map" className="jm-public-nav-link rounded-2xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.map")}</Link>
-            <Link href="/dashboard" className="jm-public-nav-link rounded-2xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.dashboard")}</Link>
-            <Link href="/cv" className="jm-public-nav-link rounded-2xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link>
+          <nav className="hidden items-center gap-1 lg:flex">
+            <Link href="/about" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("landing.nav.about")}</Link>
+            <Link href="/map" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.map")}</Link>
+            <Link href="/dashboard" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.dashboard")}</Link>
+            <Link href="/cv" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"}</Link>
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <div className="jm-public-lang flex h-11 items-center gap-1 rounded-2xl px-2" aria-label="Language">
+          <label htmlFor="public-language-select" className="sr-only">Langue</label>
+          <select
+            id="public-language-select"
+            value={lang}
+            onChange={(event) => setLang(event.target.value as typeof lang)}
+            className="jm-public-lang h-10 max-w-12 rounded-xl px-1 text-xs font-bold uppercase text-foreground sm:hidden"
+            aria-label="Langue"
+          >
+            {langs.map((language) => <option key={language} value={language}>{language}</option>)}
+          </select>
+          <div className="jm-public-lang hidden h-11 items-center gap-1 rounded-2xl px-2 sm:flex" aria-label="Language">
             <Languages className="ml-1 mr-0.5 hidden h-3.5 w-3.5 text-muted-foreground sm:block" aria-hidden="true" />
             {langs.map((l) => (
               <button key={l} type="button" onClick={() => setLang(l)} title={LANG_LABELS[l]} aria-pressed={lang === l} className={`jm-public-lang-option min-h-8 min-w-8 rounded-xl px-1.5 text-[10px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${lang === l ? "jm-public-lang-active text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{l}</button>
             ))}
           </div>
-          <button type="button" onClick={toggleTheme} aria-label="Changer de thème" className="jm-public-control flex h-11 w-11 items-center justify-center rounded-2xl text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+          <button type="button" onClick={toggleTheme} aria-label="Changer de thème" className="jm-public-control hidden h-11 w-11 items-center justify-center rounded-2xl text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <Link href="/login" className="jm-public-login hidden min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-primary px-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:inline-flex">
-            <LogIn className="h-4 w-4" /><span className="hidden sm:inline">{t("auth.login.title")}</span>
+          <Link href="/login" className="jm-public-login inline-flex min-h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 text-xs font-semibold sm:min-h-11 sm:rounded-2xl sm:px-3.5 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            <LogIn className="hidden h-4 w-4 sm:block" /><span>{t("auth.login.title")}</span>
           </Link>
-          <button
-            type="button"
-            aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen(v => !v)}
-            className="jm-public-menu-trigger flex h-11 w-11 items-center justify-center rounded-2xl lg:hidden"
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <Link href="/register" className="jm-landing-primary-button inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-2.5 py-2 text-xs font-semibold text-primary-foreground sm:min-h-11 sm:rounded-2xl sm:px-3.5 sm:py-2.5 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            {t("auth.register.title")}
+          </Link>
         </div>
       </header>
-      {mobileMenuOpen && (
-        <div className="jm-public-mobile-menu fixed left-3 right-3 top-[72px] z-40 lg:hidden" role="dialog" aria-label="Navigation mobile">
-          <nav className="grid gap-2 p-3">
-            {[
-              ["/about", t("landing.nav.about")],
-              ["/map", t("nav.map")],
-              ["/dashboard", t("nav.dashboard")],
-              ["/cv", lang === "mg" ? "CV Mpamorona" : lang === "en" ? "Developer CV" : "CV Développeur"],
-            ].map(([href, label]) => (
-              <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">
-                {label}
-              </Link>
-            ))}
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="jm-public-mobile-action inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground">
-              <LogIn className="h-4 w-4" />{t("auth.login.title")}
-            </Link>
-          </nav>
-        </div>
-      )}
       <main className="flex-1 overflow-auto pt-[64px]">{children}</main>
     </div>
   );

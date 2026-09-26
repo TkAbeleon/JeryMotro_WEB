@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
 import {
   useMutation,
@@ -26,18 +26,19 @@ import type {
   AuthToken,
   ChatMessage,
   ChatResponse,
-  ClusterDetections,
+  Cluster,
   ClusterList,
   ContactUpdate,
   DailyStatsResponse,
-  DashboardSummary,
   Detection,
-  EnvironmentalAdvancedStatsResponse,
   DetectionList,
+  EnvironmentalAdvancedStatsResponse,
+  EnvironmentalContextStatsResponse,
+  GetAdvancedEnvironmentalStatsParams,
   GetDailyStatsParams,
+  GetEnvironmentalContextStatsParams,
   GetRiskMapParams,
   HealthStatus,
-  ListAlertsParams,
   ListClustersParams,
   ListDetectionsParams,
   ListPredictionsParams,
@@ -72,7 +73,7 @@ export const getHealthCheckUrl = () => {
 
 
 
-  return `/healthz`
+  return `/health`
 }
 
 /**
@@ -96,7 +97,7 @@ export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus>
 
 export const getHealthCheckQueryKey = () => {
     return [
-    `/healthz`
+    `/health`
     ] as const;
     }
 
@@ -802,6 +803,174 @@ export function useListDetections<TData = Awaited<ReturnType<typeof listDetectio
 
 
 
+export const getGetAdvancedEnvironmentalStatsUrl = (params?: GetAdvancedEnvironmentalStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/detections/stats/environment/advanced?${stringifiedParams}` : `/detections/stats/environment/advanced`
+}
+
+/**
+ * @summary Advanced environmental statistics
+ */
+export const getAdvancedEnvironmentalStats = async (params?: GetAdvancedEnvironmentalStatsParams, options?: RequestInit): Promise<EnvironmentalAdvancedStatsResponse> => {
+
+  return customFetch<EnvironmentalAdvancedStatsResponse>(getGetAdvancedEnvironmentalStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdvancedEnvironmentalStatsQueryKey = (params?: GetAdvancedEnvironmentalStatsParams,) => {
+    return [
+    `/detections/stats/environment/advanced`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdvancedEnvironmentalStatsQueryOptions = <TData = Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>, TError = ErrorType<void>>(params?: GetAdvancedEnvironmentalStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdvancedEnvironmentalStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>> = ({ signal }) => getAdvancedEnvironmentalStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdvancedEnvironmentalStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>>
+export type GetAdvancedEnvironmentalStatsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Advanced environmental statistics
+ */
+
+export function useGetAdvancedEnvironmentalStats<TData = Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>, TError = ErrorType<void>>(
+ params?: GetAdvancedEnvironmentalStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdvancedEnvironmentalStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdvancedEnvironmentalStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetEnvironmentalContextStatsUrl = (params?: GetEnvironmentalContextStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/detections/stats/environment?${stringifiedParams}` : `/detections/stats/environment`
+}
+
+/**
+ * @summary Daily environmental context distribution
+ */
+export const getEnvironmentalContextStats = async (params?: GetEnvironmentalContextStatsParams, options?: RequestInit): Promise<EnvironmentalContextStatsResponse> => {
+
+  return customFetch<EnvironmentalContextStatsResponse>(getGetEnvironmentalContextStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEnvironmentalContextStatsQueryKey = (params?: GetEnvironmentalContextStatsParams,) => {
+    return [
+    `/detections/stats/environment`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEnvironmentalContextStatsQueryOptions = <TData = Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError = ErrorType<unknown>>(params?: GetEnvironmentalContextStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEnvironmentalContextStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnvironmentalContextStats>>> = ({ signal }) => getEnvironmentalContextStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEnvironmentalContextStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getEnvironmentalContextStats>>>
+export type GetEnvironmentalContextStatsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Daily environmental context distribution
+ */
+
+export function useGetEnvironmentalContextStats<TData = Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError = ErrorType<unknown>>(
+ params?: GetEnvironmentalContextStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEnvironmentalContextStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getGetDetectionUrl = (id: number,) => {
 
 
@@ -878,78 +1047,6 @@ export function useGetDetection<TData = Awaited<ReturnType<typeof getDetection>>
 
 
 
-
-export const getGetEnvironmentalContextStatsUrl = (params?: { date?: string | null; exclude_noise?: boolean | null }) => {
-  const normalizedParams = new URLSearchParams();
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) normalizedParams.append(key, value === null ? 'null' : value.toString());
-  });
-  const stringifiedParams = normalizedParams.toString();
-  return stringifiedParams.length > 0 ? `/detections/stats/environment?${stringifiedParams}` : `/detections/stats/environment`;
-}
-
-export const getEnvironmentalAdvancedStatsUrl = (params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null }) => {
-  const normalizedParams = new URLSearchParams();
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) normalizedParams.append(key, value === null ? 'null' : value.toString());
-  });
-  const query = normalizedParams.toString();
-  return query.length > 0 ? `/detections/stats/environment/advanced?${query}` : `/detections/stats/environment/advanced`;
-};
-
-export const getEnvironmentalAdvancedStats = async (
-  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
-  options?: RequestInit
-): Promise<EnvironmentalAdvancedStatsResponse> => customFetch<EnvironmentalAdvancedStatsResponse>(getEnvironmentalAdvancedStatsUrl(params), { ...options, method: 'GET' });
-
-export const getGetEnvironmentalAdvancedStatsQueryKey = (params?: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null }) =>
-  [`/detections/stats/environment/advanced`, ...(params ? [params] : [])] as const;
-
-export const getGetEnvironmentalAdvancedStatsQueryOptions = <TData = Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError = ErrorType<unknown>>(
-  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
-  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetEnvironmentalAdvancedStatsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>> = ({ signal }) => getEnvironmentalAdvancedStats(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData> & { queryKey: QueryKey };
-};
-
-export function useGetEnvironmentalAdvancedStats<TData = Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError = ErrorType<unknown>>(
-  params: { date_from: string; date_to: string; environment?: string | null; region?: string | null; exclude_noise?: boolean | null },
-  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalAdvancedStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetEnvironmentalAdvancedStatsQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-export const getEnvironmentalContextStats = async (
-  params?: { date?: string | null; exclude_noise?: boolean | null },
-  options?: RequestInit
-): Promise<EnvironmentalContextStatsResponse> => customFetch<EnvironmentalContextStatsResponse>(getGetEnvironmentalContextStatsUrl(params), { ...options, method: 'GET' });
-
-export const getGetEnvironmentalContextStatsQueryKey = (params?: { date?: string | null; exclude_noise?: boolean | null }) =>
-  [`/detections/stats/environment`, ...(params ? [params] : [])] as const;
-
-export const getGetEnvironmentalContextStatsQueryOptions = <TData = Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError = ErrorType<unknown>>(
-  params?: { date?: string | null; exclude_noise?: boolean | null },
-  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetEnvironmentalContextStatsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEnvironmentalContextStats>>> = ({ signal }) => getEnvironmentalContextStats(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData> & { queryKey: QueryKey };
-}
-
-export function useGetEnvironmentalContextStats<TData = Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError = ErrorType<unknown>>(
-  params?: { date?: string | null; exclude_noise?: boolean | null },
-  options?: { query?: UseQueryOptions<Awaited<ReturnType<typeof getEnvironmentalContextStats>>, TError, TData>, request?: SecondParameter<typeof customFetch> }
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetEnvironmentalContextStatsQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
-  return { ...query, queryKey: queryOptions.queryKey };
-}
 
 export const getGetDailyStatsUrl = (params?: GetDailyStatsParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -1119,6 +1216,83 @@ export function useListClusters<TData = Awaited<ReturnType<typeof listClusters>>
 
 
 
+export const getGetClusterUrl = (id: number,) => {
+
+
+
+
+  return `/clusters/${id}`
+}
+
+/**
+ * @summary Get a fire event cluster
+ */
+export const getCluster = async (id: number, options?: RequestInit): Promise<Cluster> => {
+
+  return customFetch<Cluster>(getGetClusterUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetClusterQueryKey = (id: number,) => {
+    return [
+    `/clusters/${id}`
+    ] as const;
+    }
+
+
+export const getGetClusterQueryOptions = <TData = Awaited<ReturnType<typeof getCluster>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCluster>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetClusterQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCluster>>> = ({ signal }) => getCluster(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCluster>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetClusterQueryResult = NonNullable<Awaited<ReturnType<typeof getCluster>>>
+export type GetClusterQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a fire event cluster
+ */
+
+export function useGetCluster<TData = Awaited<ReturnType<typeof getCluster>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCluster>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetClusterQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getGetClusterDetectionsUrl = (id: number,) => {
 
 
@@ -1130,9 +1304,9 @@ export const getGetClusterDetectionsUrl = (id: number,) => {
 /**
  * @summary Get detections belonging to a cluster
  */
-export const getClusterDetections = async (id: number, options?: RequestInit): Promise<ClusterDetections> => {
+export const getClusterDetections = async (id: number, options?: RequestInit): Promise<DetectionList> => {
 
-  return customFetch<ClusterDetections>(getGetClusterDetectionsUrl(id),
+  return customFetch<DetectionList>(getGetClusterDetectionsUrl(id),
   {
     ...options,
     method: 'GET'
@@ -1208,11 +1382,11 @@ export const getListPredictionsUrl = (params?: ListPredictionsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/predictions?${stringifiedParams}` : `/predictions`
+  return stringifiedParams.length > 0 ? `/predictions/latest?${stringifiedParams}` : `/predictions/latest`
 }
 
 /**
- * @summary List ML predictions
+ * @summary Get the latest ML predictions
  */
 export const listPredictions = async (params?: ListPredictionsParams, options?: RequestInit): Promise<PredictionList> => {
 
@@ -1231,7 +1405,7 @@ export const listPredictions = async (params?: ListPredictionsParams, options?: 
 
 export const getListPredictionsQueryKey = (params?: ListPredictionsParams,) => {
     return [
-    `/predictions`, ...(params ? [params] : [])
+    `/predictions/latest`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1259,7 +1433,7 @@ export type ListPredictionsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List ML predictions
+ * @summary Get the latest ML predictions
  */
 
 export function useListPredictions<TData = Awaited<ReturnType<typeof listPredictions>>, TError = ErrorType<unknown>>(
@@ -1280,7 +1454,7 @@ export function useListPredictions<TData = Awaited<ReturnType<typeof listPredict
 
 
 
-export const getGetRiskMapUrl = (params: GetRiskMapParams,) => {
+export const getGetRiskMapUrl = (params?: GetRiskMapParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -1298,7 +1472,7 @@ export const getGetRiskMapUrl = (params: GetRiskMapParams,) => {
 /**
  * @summary Get GeoJSON risk map for J+1
  */
-export const getRiskMap = async (params: GetRiskMapParams, options?: RequestInit): Promise<RiskMapResponse> => {
+export const getRiskMap = async (params?: GetRiskMapParams, options?: RequestInit): Promise<RiskMapResponse> => {
 
   return customFetch<RiskMapResponse>(getGetRiskMapUrl(params),
   {
@@ -1320,7 +1494,7 @@ export const getGetRiskMapQueryKey = (params?: GetRiskMapParams,) => {
     }
 
 
-export const getGetRiskMapQueryOptions = <TData = Awaited<ReturnType<typeof getRiskMap>>, TError = ErrorType<unknown>>(params: GetRiskMapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskMap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetRiskMapQueryOptions = <TData = Awaited<ReturnType<typeof getRiskMap>>, TError = ErrorType<unknown>>(params?: GetRiskMapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskMap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -1347,95 +1521,11 @@ export type GetRiskMapQueryError = ErrorType<unknown>
  */
 
 export function useGetRiskMap<TData = Awaited<ReturnType<typeof getRiskMap>>, TError = ErrorType<unknown>>(
- params: GetRiskMapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskMap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetRiskMapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskMap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetRiskMapQueryOptions(params,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
-
-export const getListAlertsUrl = (params?: ListAlertsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/alerts?${stringifiedParams}` : `/alerts`
-}
-
-/**
- * @summary List alerts history
- */
-export const listAlerts = async (params?: ListAlertsParams, options?: RequestInit): Promise<AlertList> => {
-
-  return customFetch<AlertList>(getListAlertsUrl(params),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getListAlertsQueryKey = (params?: ListAlertsParams,) => {
-    return [
-    `/alerts`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getListAlertsQueryOptions = <TData = Awaited<ReturnType<typeof listAlerts>>, TError = ErrorType<unknown>>(params?: ListAlertsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlerts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getListAlertsQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAlerts>>> = ({ signal }) => listAlerts(params, { signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAlerts>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type ListAlertsQueryResult = NonNullable<Awaited<ReturnType<typeof listAlerts>>>
-export type ListAlertsQueryError = ErrorType<unknown>
-
-
-/**
- * @summary List alerts history
- */
-
-export function useListAlerts<TData = Awaited<ReturnType<typeof listAlerts>>, TError = ErrorType<unknown>>(
- params?: ListAlertsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAlerts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-
- ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-
-  const queryOptions = getListAlertsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -2244,81 +2334,4 @@ export const useChatWithAI = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getChatWithAIMutationOptions(options));
     }
-
-export const getGetDashboardSummaryUrl = () => {
-
-
-
-
-  return `/dashboard/summary`
-}
-
-/**
- * @summary Dashboard overview stats
- */
-export const getDashboardSummary = async ( options?: RequestInit): Promise<DashboardSummary> => {
-
-  return customFetch<DashboardSummary>(getGetDashboardSummaryUrl(),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getGetDashboardSummaryQueryKey = () => {
-    return [
-    `/dashboard/summary`
-    ] as const;
-    }
-
-
-export const getGetDashboardSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getDashboardSummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDashboardSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDashboardSummaryQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDashboardSummary>>> = ({ signal }) => getDashboardSummary({ signal, ...requestOptions });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDashboardSummary>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetDashboardSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getDashboardSummary>>>
-export type GetDashboardSummaryQueryError = ErrorType<unknown>
-
-
-/**
- * @summary Dashboard overview stats
- */
-
-export function useGetDashboardSummary<TData = Awaited<ReturnType<typeof getDashboardSummary>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDashboardSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-
- ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-
-  const queryOptions = getGetDashboardSummaryQueryOptions(options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
 

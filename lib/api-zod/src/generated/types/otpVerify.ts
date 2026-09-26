@@ -3,10 +3,22 @@
  * Do not edit manually.
  * Api
  * JeryMotro Platform API — Surveillance des feux de brousse à Madagascar
- * OpenAPI spec version: 2.3.0
+ * OpenAPI spec version: 2.4.0
  */
+import type { OtpVerifyVia } from './otpVerifyVia';
 
 export interface OtpVerify {
-  email: string;
+  via?: OtpVerifyVia;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  phone_number?: string | null;
+  /** @nullable */
+  whatsapp_number?: string | null;
+  /**
+     * @minLength 6
+     * @maxLength 6
+     * @pattern ^\d{6}$
+     */
   code: string;
 }

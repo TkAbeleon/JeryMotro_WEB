@@ -1,12 +1,10 @@
 import { Link } from "wouter";
-import { useState } from "react";
-import { Flame, Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail, Menu, X } from "lucide-react";
+import { Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function LandingPage() {
   const { t, lang, setLang } = useI18n();
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const features = [
     { icon: Activity, title: t("landing.features.1.title"), desc: t("landing.features.1.desc") },
     { icon: Brain, title: t("landing.features.2.title"), desc: t("landing.features.2.desc") },
@@ -55,23 +53,20 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <header>
-        <nav aria-label="Navigation principale" className="jm-landing-nav fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-4 sm:px-8">
+        <nav aria-label="Navigation principale" className="jm-landing-nav fixed top-0 left-0 right-0 z-50 h-[64px] flex items-center justify-between px-3 sm:px-5 lg:px-8">
           <Link href="/" className="flex items-center gap-3" aria-label="JeryMotro — accueil">
             <img src="/logo.png" alt="Logo JeryMotro" className="jm-logo-mark h-8 rounded" />
             <span className="font-heading font-bold text-base sm:text-lg hidden sm:block">JeryMotro</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden xl:flex items-center gap-4">
-              <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.features")}</a>
-              <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a><a href="#coverage" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.coverage")}</a>
-              <a href="#access" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.access")}</a>
-              <Link href="/map" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.map")}</Link>
-              <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.dashboard")}</Link>
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("landing.nav.about")}</Link>
-              <Link href="/cv" className="text-sm text-muted-foreground hover:text-foreground transition-colors">CV</Link>
+            <div className="hidden lg:flex items-center gap-3">
+              <a href="#features" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("landing.nav.features")}</a>
+              <Link href="/map" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("nav.map")}</Link>
+              <Link href="/dashboard" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("nav.dashboard")}</Link>
+              <Link href="/about" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("landing.nav.about")}</Link>
             </div>
             <div className="hidden xl:block w-px h-5 bg-border" />
-            <button onClick={toggleTheme} aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"} className="jm-landing-icon-button flex h-11 w-11 items-center justify-center rounded-2xl transition-colors">
+            <button onClick={toggleTheme} aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"} className="jm-landing-icon-button hidden min-[420px]:flex h-11 w-11 items-center justify-center rounded-2xl transition-colors">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <div className="flex items-center gap-1 sm:gap-2">
@@ -81,40 +76,15 @@ export default function LandingPage() {
                 {Object.entries(LANG_LABELS).map(([key]) => <option key={key} value={key}>{key.toUpperCase()}</option>)}
               </select>
             </div>
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden lg:block">{t("auth.login.title")}</Link>
-            <Link href="/register" className="jm-landing-primary-button inline-flex min-h-11 items-center justify-center rounded-2xl bg-primary px-4 sm:px-5 py-2.5 text-sm font-semibold text-primary-foreground">{t("auth.register.title")}</Link>
-            <button
-              type="button"
-              aria-label={mobileNavOpen ? "Fermer le menu" : "Ouvrir le menu"}
-              aria-expanded={mobileNavOpen}
-              onClick={() => setMobileNavOpen(v => !v)}
-              className="jm-public-menu-trigger flex h-11 w-11 items-center justify-center rounded-2xl md:hidden"
-            >
-              {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            <Link href="/login" className="jm-public-login inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl px-2.5 text-xs font-semibold sm:min-h-11 sm:rounded-2xl sm:px-3.5 sm:text-sm">{t("auth.login.title")}</Link>
+            <Link href="/register" className="jm-landing-primary-button inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-2.5 py-2 text-xs font-semibold text-primary-foreground sm:min-h-11 sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-sm">{t("auth.register.title")}</Link>
           </div>
         </nav>
-        {mobileNavOpen && (
-          <div className="jm-public-mobile-menu fixed left-3 right-3 top-[72px] z-40 md:hidden" role="dialog" aria-label="Navigation mobile">
-            <nav className="grid gap-2 p-3">
-              <a href="#features" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.features")}</a>
-              <a href="#how-it-works" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{lang === "mg" ? "Fomba fiasa" : lang === "en" ? "How it works" : "Fonctionnement"}</a>
-              <a href="#coverage" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.coverage")}</a>
-              <a href="#access" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{lang === "mg" ? "Fidirana" : lang === "en" ? "Access" : "Accès"}</a>
-              <Link href="/map" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("nav.map")}</Link>
-              <Link href="/dashboard" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("nav.dashboard")}</Link>
-              <Link href="/about" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">{t("landing.nav.about")}</Link>
-              <Link href="/cv" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-link rounded-2xl px-4 py-3 text-sm font-medium">CV</Link>
-              <Link href="/login" onClick={() => setMobileNavOpen(false)} className="jm-public-mobile-action inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground"><span>{t("auth.login.title")}</span></Link>
-            </nav>
-          </div>
-        )}
       </header>
 
       <main>
         <section aria-labelledby="hero-title" className="jm-landing-hero relative overflow-hidden pt-[64px]">
           <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 text-center relative sm:px-8 sm:pb-20 sm:pt-20">
-            <div className="jm-landing-brandline" aria-label="Identité JeryMotro"><Flame className="h-3.5 w-3.5" aria-hidden="true" /><span>JeryMotro · Fire intelligence</span></div>
             <div className="jm-landing-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-primary mb-7"><Zap className="w-3 h-3" /><span>{t("landing.tagline")}</span></div>
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6" aria-label="Technologies et données utilisées">
               <span className="jm-landing-pill inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-2 text-muted-foreground"><span aria-hidden="true" className="text-base">🛰️</span> Données NASA FIRMS</span>
