@@ -52,6 +52,7 @@ export const translations = {
     // Pipeline
     "pipeline.operational": "Pipeline opérationnel",
     "pipeline.degraded": "Pipeline dégradé",
+    "pipeline.checking": "Vérification du pipeline…",
     // Days / Night
     "daynight.day": "Jour",
     "daynight.night": "Nuit",
@@ -176,7 +177,8 @@ export const translations = {
 
 
     // --- Topbar ---
-    "topbar.platform": "Surveillance Platform",
+    "topbar.platform": "Plateforme de surveillance",
+    "workspace.eyebrow": "Surveillance des feux",
     "topbar.searchPlaceholder": "Rechercher régions, clusters...",
 
     // --- Dashboard ---
@@ -334,6 +336,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Zones Prioritaires",
     "zones.subtitle": "Surveillez des zones géographiques spécifiques de Madagascar",
+    "zones.loading": "Chargement de vos zones de surveillance…",
+    "zones.error.title": "Zones indisponibles",
+    "zones.error.description": "Les zones de surveillance n’ont pas pu être chargées. Vérifiez votre connexion puis réessayez.",
     "zones.addButton": "Nouvelle zone",
     "zones.empty": "Aucune zone définie. Créez votre première zone prioritaire.",
     "zones.card.radius": "Rayon",
@@ -715,6 +720,7 @@ export const translations = {
     // Pipeline
     "pipeline.operational": "Miasa tsara",
     "pipeline.degraded": "Olana amin'ny rafitra",
+    "pipeline.checking": "Manamarina ny rafitra…",
     // Days / Night
     "daynight.day": "Antoandro",
     "daynight.night": "Alina",
@@ -839,6 +845,7 @@ export const translations = {
 
     // --- Topbar ---
     "topbar.platform": "Sehatra Fanaraha-maso",
+    "workspace.eyebrow": "Fanaraha-maso ny doro tanety",
     "topbar.searchPlaceholder": "Tadiavo faritra, vondrom-bahiny...",
 
     // --- Dashboard ---
@@ -996,6 +1003,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Faritra Voamarika",
     "zones.subtitle": "Araho ny faritra manokana eto Madagasikara",
+    "zones.loading": "Eo am-pametrahana ny faritra arahinao…",
+    "zones.error.title": "Tsy hita ny faritra",
+    "zones.error.description": "Tsy voaray ny faritra arahinao. Hamarino ny fifandraisana ary andramo indray.",
     "zones.addButton": "Faritra vaovao",
     "zones.empty": "Tsy misy faritra voafaritra. Mamorona ny faritra voamarika voalohany.",
     "zones.card.radius": "Radi-ora",
@@ -1375,6 +1385,7 @@ export const translations = {
     "risk.unknown": "—",
     "pipeline.operational": "Pipeline operational",
     "pipeline.degraded": "Pipeline degraded",
+    "pipeline.checking": "Checking pipeline…",
     "daynight.day": "Day",
     "daynight.night": "Night",
     "cluster.status.active": "Active",
@@ -1494,7 +1505,8 @@ export const translations = {
 
 
     // --- Topbar ---
-    "topbar.platform": "Surveillance Platform",
+    "topbar.platform": "Wildfire monitoring",
+    "workspace.eyebrow": "Wildfire monitoring",
     "topbar.searchPlaceholder": "Search regions, clusters...",
 
     // --- Dashboard ---
@@ -1652,6 +1664,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Priority Zones",
     "zones.subtitle": "Monitor specific geographic areas of Madagascar",
+    "zones.loading": "Loading your monitored zones…",
+    "zones.error.title": "Zones unavailable",
+    "zones.error.description": "Your monitoring zones could not be loaded. Check your connection and try again.",
     "zones.addButton": "New zone",
     "zones.empty": "No zones defined. Create your first priority zone.",
     "zones.card.radius": "Radius",

@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { User, Building2, Phone, Mail, Shield, AlertTriangle, CheckCircle } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useI18n, LANG_LABELS, type Lang } from "@/hooks/use-i18n";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const LANGS: Lang[] = ["fr", "mg", "en"];
 const profileSchema = z.object({ full_name: z.string().min(2, "Nom requis"), organization: z.string().optional() });
@@ -33,7 +34,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-full w-full bg-background px-4 py-5 sm:px-6 sm:py-7">
-      <header className="border-b border-border/60 pb-5"><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("profile.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("profile.subtitle")}</p></header>
+      <PageHeader title={t("profile.title")} description={t("profile.subtitle")} className="mb-6" />
 
       <div className="jm-card-depth flex flex-col gap-4 rounded-xl border border-border/70 bg-card/65 p-5 shadow-sm sm:flex-row sm:items-start sm:gap-5 sm:p-6">
         <div className="jm-profile-avatar mx-auto flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/20 text-2xl font-heading font-bold text-primary sm:mx-0">{profile?.full_name?.charAt(0) || "U"}</div>

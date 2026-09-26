@@ -154,7 +154,7 @@ export function Sidebar() {
                 JeryMotro
               </div>
               <div className="truncate text-[11px] font-medium text-sidebar-foreground/45">
-                Fire intelligence
+                {t("topbar.platform")}
               </div>
             </div>
           </div>
