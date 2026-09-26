@@ -16,7 +16,7 @@ L'application possède une bonne base visuelle : typographie identifiable, palet
 - [x] Alléger visuellement la Sidebar.
 - [x] Réduire la quantité de séparation visuelle dans la navigation.
 - [x] Rendre les actions de la Topbar plus discrètes.
-- [ ] Vérifier que la recherche de Topbar possède un comportement clairement identifiable.
+- [x] Retirer le champ de recherche inactif de la Topbar tant qu’aucune recherche globale n’est implémentée; conserver les recherches contextuelles dans leurs pages.
 - [x] Réduire les informations institutionnelles dans la navigation principale.
 - [x] Séparer clairement les shells public et authentifié : public = header horizontal ; authentifié = Sidebar + Topbar.
 - [x] Garder langue/thème dans le header public et dans la Topbar authentifiée, jamais dans la Sidebar.

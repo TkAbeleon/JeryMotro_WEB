@@ -179,7 +179,6 @@ export const translations = {
     // --- Topbar ---
     "topbar.platform": "Plateforme de surveillance",
     "workspace.eyebrow": "Surveillance des feux",
-    "topbar.searchPlaceholder": "Rechercher régions, clusters...",
     "topbar.toggleSidebar": "Ouvrir ou fermer le menu",
     "topbar.themeToggle": "Changer de thème",
     "topbar.language": "Choisir la langue",
@@ -855,7 +854,6 @@ export const translations = {
     // --- Topbar ---
     "topbar.platform": "Sehatra Fanaraha-maso",
     "workspace.eyebrow": "Fanaraha-maso ny doro tanety",
-    "topbar.searchPlaceholder": "Tadiavo faritra, vondrom-bahiny...",
     "topbar.toggleSidebar": "Sokafy na akatona ny menio",
     "topbar.themeToggle": "Ovay ny endrika",
     "topbar.language": "Safidio ny fiteny",
@@ -1525,7 +1523,6 @@ export const translations = {
     // --- Topbar ---
     "topbar.platform": "Wildfire monitoring",
     "workspace.eyebrow": "Wildfire monitoring",
-    "topbar.searchPlaceholder": "Search regions, clusters...",
     "topbar.toggleSidebar": "Open or close the menu",
     "topbar.themeToggle": "Change theme",
     "topbar.language": "Choose language",

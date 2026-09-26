@@ -1,4 +1,4 @@
-import { Search, Bell, Globe, Menu, Sun, Moon } from "lucide-react";
+import { Bell, Globe, Menu, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n, LANG_LABELS, type Lang } from "@/hooks/use-i18n";
 import { useSidebar } from "@/hooks/use-sidebar";
@@ -22,11 +22,6 @@ export function Topbar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/65" />
-          <input type="search" placeholder={t("topbar.searchPlaceholder")} className="jm-control-inset h-8 w-44 rounded-2xl border border-transparent bg-muted/65 pl-8 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground/55 focus:ring-0 lg:w-56" aria-label={t("topbar.searchPlaceholder")} />
-        </div>
-
         <div className="jm-topbar-segment flex h-9 items-center gap-0.5 rounded-xl border border-transparent bg-muted/40 px-1" role="group" aria-label={t("topbar.language")}>
           <Globe className="ml-1 mr-0.5 hidden h-3.5 w-3.5 text-muted-foreground/60 sm:block" aria-hidden="true" />
           {LANGS.map((l) => <button key={l} type="button" onClick={() => setLang(l)} title={LANG_LABELS[l]} aria-label={LANG_LABELS[l]} aria-pressed={lang === l} className={`min-h-9 min-w-9 rounded-md px-1.5 text-[9px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${lang === l ? "jm-topbar-segment-active bg-background text-foreground" : "text-muted-foreground/70 hover:bg-background/70 hover:text-foreground"}`}>{l}</button>)}
