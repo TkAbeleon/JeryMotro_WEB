@@ -3,12 +3,13 @@ import { useListDetections } from "@workspace/api-client-react";
 import { Search, Filter, Map, List, X } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { AsyncStateInline } from "@/components/ui/async-state";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const getRiskColor = (score: number | null | undefined) => {
   if (!score) return "bg-muted text-muted-foreground";
   if (score >= 0.7) return "bg-destructive/15 text-destructive";
   if (score >= 0.5) return "bg-primary/15 text-primary";
-  if (score >= 0.3) return "bg-[#f59e0b]/15 text-[#f59e0b]";
+  if (score >= 0.3) return "bg-warning/15 text-warning";
   return "bg-accent/15 text-accent";
 };
 
@@ -53,13 +54,15 @@ export default function DetectionsPage() {
 
   return (
     <div className="min-h-full bg-background px-4 py-5 sm:px-6 sm:py-7 lg:px-8"><div className="mx-auto flex h-full max-w-[1600px] flex-col gap-6">
-      <header className="flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("detections.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{filtered.length} {t("detections.subtitle.count")} · {new Date().toLocaleDateString("fr-FR")}</p></div>
-        <div className="jm-view-toggle inline-flex self-start rounded-xl border border-border/60 bg-card/60 p-0.5 sm:self-auto">
+      <PageHeader
+        title={t("detections.title")}
+        description={<>{filtered.length} {t("detections.subtitle.count")} · {new Date().toLocaleDateString("fr-FR")}</>}
+        className="mb-0"
+        actions={<div className="jm-view-toggle inline-flex rounded-xl border border-border/60 bg-card/60 p-0.5">
           <button onClick={() => setViewMode("list")} aria-label="Liste" className={`flex h-8 w-9 items-center justify-center rounded-md transition-colors ${viewMode === "list" ? "jm-view-toggle-active bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}><List className="h-4 w-4" /></button>
           <button onClick={() => setViewMode("map")} aria-label="Carte" className={`flex h-8 w-9 items-center justify-center rounded-md transition-colors ${viewMode === "map" ? "jm-view-toggle-active bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}><Map className="h-4 w-4" /></button>
-        </div>
-      </header>
+        </div>}
+      />
 
       <section className="jm-filter-shell rounded-2xl border border-border/70 bg-card/55 p-3 shadow-sm sm:p-4"><div className="flex flex-wrap items-center gap-2.5">
         <div className="relative min-w-0 flex-1 sm:min-w-[220px]"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("detections.search.placeholder")} className="jm-control-inset h-9 w-full rounded-2xl border border-input bg-background pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground/60 focus:ring-0" /></div>

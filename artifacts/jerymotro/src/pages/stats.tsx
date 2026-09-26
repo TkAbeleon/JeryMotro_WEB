@@ -30,6 +30,7 @@ import {
   Trees,
 } from "lucide-react";
 import { AsyncStateInline } from "@/components/ui/async-state";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const chartGrid = "hsl(var(--border))";
@@ -447,21 +448,17 @@ export default function StatsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <div className="flex items-center gap-3"><div className="h-2 w-2 rounded-full bg-primary" /><h1 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">{t("stats.title")}</h1></div>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+      <PageHeader
+        title={t("stats.title")}
+        className="mb-0"
+        description={
+          <span className="leading-6">
             {c.currentPeriod} : <span className="font-medium text-foreground">{dateFrom} → {dateTo}</span>
             {advancedQ.dataUpdatedAt ? <span className="ml-2 text-xs text-muted-foreground/70">· {new Date(advancedQ.dataUpdatedAt).toLocaleTimeString(lang === "fr" ? "fr-FR" : lang === "mg" ? "fr-FR" : "en-US", { hour: "2-digit", minute: "2-digit" })}</span> : null}
-          </p>
-        </div>
-        <a
-          href="/export"
-          className="inline-flex h-10 items-center gap-2 self-start rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 lg:self-auto"
-        >
-          <Download className="h-3.5 w-3.5" />{t("export.title")}
-        </a>
-      </header>
+          </span>
+        }
+        actions={<a href="/export" className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"><Download className="h-3.5 w-3.5" />{t("export.title")}</a>}
+      />
 
       <section className="jm-stats-filter sticky top-3 z-30 rounded-2xl border border-border/70 bg-background/90 p-4 shadow-md shadow-black/5 backdrop-blur-xl sm:p-5 lg:top-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

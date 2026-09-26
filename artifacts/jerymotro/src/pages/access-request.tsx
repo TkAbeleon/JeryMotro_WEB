@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import { createAccessRequest, getMyAccessRequests, type AccessFeature, type AccessRequest } from "@/lib/access-requests-api";
 import type { TranslationKey } from "@/lib/i18n";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const FEATURES: Array<[AccessFeature,TranslationKey,TranslationKey]> = [
   ["priority_zones","accessRequest.feature.priorityZones","accessRequest.feature.priorityZonesDesc"],
@@ -38,7 +39,12 @@ export default function AccessRequestPage(){
  const submit=async()=>{const normalizedPhone=normalizeMgPhone(phone);const normalizedWhatsapp=whatsapp.trim()?normalizeMgPhone(whatsapp):"";if(approved||active||!phoneRegex.test(formatMgPhone(normalizedPhone))|| (whatsapp.trim()&&!phoneRegex.test(formatMgPhone(normalizedWhatsapp))) || reason.trim().length<20||purpose.trim().length<20||!selected.length)return;setBusy(true);setError(null);try{await createAccessRequest({reason:reason.trim(),purpose:purpose.trim(),organization:organization.trim()||undefined,position:position.trim()||undefined,contact_phone:formatMgPhone(normalizedPhone),contact_whatsapp:normalizedWhatsapp?formatMgPhone(normalizedWhatsapp):undefined,geographic_area:area.trim()||undefined,project_name:project.trim()||undefined,intended_duration:duration.trim()||undefined,requested_features:selected,additional_information:extra.trim()||undefined});setSuccess(t("accessRequest.success.submit"));setReason("");setPurpose("");setProject("");setDuration("");setExtra("");await load(true)}catch(e){setError(e instanceof Error?e.message:t("accessRequest.error.submit"))}finally{setBusy(false)}};
  if(loading)return <div className="flex min-h-[60vh] items-center justify-center text-sm text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin"/>{t("accessRequest.loading")}</div>;
  return <div className="min-h-full bg-background px-4 py-6 sm:px-6 lg:px-8"><div className="mx-auto max-w-[1120px] space-y-6">
-  <header className="border-b border-border/60 pb-5"><div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary"><ShieldCheck className="h-3 w-3"/>{t("accessRequest.badge")}</div><h1 className="font-heading text-2xl font-semibold">{approved?t("accessRequest.page.activeTitle"):t("accessRequest.page.requestTitle")}</h1><p className="mt-1 max-w-3xl text-sm text-muted-foreground">{approved?t("accessRequest.page.activeSubtitle"):t("accessRequest.page.requestSubtitle")}</p></header>
+  <PageHeader
+   title={approved?t("accessRequest.page.activeTitle"):t("accessRequest.page.requestTitle")}
+   description={approved?t("accessRequest.page.activeSubtitle"):t("accessRequest.page.requestSubtitle")}
+   className="mb-0"
+   meta={<span className="inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary"><ShieldCheck className="h-3 w-3"/>{t("accessRequest.badge")}</span>}
+  />
   {success&&<div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-primary">{success}</div>}{error&&<div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
   {latest&&<StatusCard request={latest} t={t}/>}
   {approved?<section className="jm-standard-card border border-primary/20 bg-primary/5 p-6 shadow-sm"><div className="flex items-start gap-4"><CheckCircle2 className="mt-0.5 h-7 w-7 shrink-0 text-primary"/><div><h2 className="font-heading text-lg font-semibold">{t("accessRequest.activeAccess.title")}</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">{t("accessRequest.activeAccess.description")}</p><p className="mt-3 text-xs font-medium text-primary">{t("accessRequest.activeAccess.hint")}</p></div></div></section>

@@ -52,6 +52,7 @@ export const translations = {
     // Pipeline
     "pipeline.operational": "Pipeline opérationnel",
     "pipeline.degraded": "Pipeline dégradé",
+    "pipeline.checking": "Vérification du pipeline…",
     // Days / Night
     "daynight.day": "Jour",
     "daynight.night": "Nuit",
@@ -176,8 +177,11 @@ export const translations = {
 
 
     // --- Topbar ---
-    "topbar.platform": "Surveillance Platform",
-    "topbar.searchPlaceholder": "Rechercher régions, clusters...",
+    "topbar.platform": "Plateforme de surveillance",
+    "workspace.eyebrow": "Surveillance des feux",
+    "topbar.toggleSidebar": "Ouvrir ou fermer le menu",
+    "topbar.themeToggle": "Changer de thème",
+    "topbar.language": "Choisir la langue",
 
     // --- Dashboard ---
     "dashboard.title": "Vue d'ensemble",
@@ -334,6 +338,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Zones Prioritaires",
     "zones.subtitle": "Surveillez des zones géographiques spécifiques de Madagascar",
+    "zones.loading": "Chargement de vos zones de surveillance…",
+    "zones.error.title": "Zones indisponibles",
+    "zones.error.description": "Les zones de surveillance n’ont pas pu être chargées. Vérifiez votre connexion puis réessayez.",
     "zones.addButton": "Nouvelle zone",
     "zones.empty": "Aucune zone définie. Créez votre première zone prioritaire.",
     "zones.card.radius": "Rayon",
@@ -365,7 +372,11 @@ export const translations = {
     "alerts.subs.risk": "Risque",
     "alerts.subs.frp": "FRP",
     "alerts.history.title": "Historique",
-    "alerts.history.empty": "Aucune alerte correspondant aux filtres.",
+    "alerts.history.empty": "Aucune alerte envoyée pour le moment.",
+    "alerts.history.emptyDescription": "Les alertes envoyées apparaîtront ici.",
+    "alerts.history.noMatches": "Aucune alerte ne correspond aux filtres.",
+    "alerts.history.noMatchesDescription": "Modifiez les filtres ou réinitialisez-les pour afficher l’historique.",
+    "alerts.history.resetFilters": "Réinitialiser les filtres",
     "alerts.history.unknownRegion": "Région inconnue",
     "alerts.form.title": "Nouvel abonnement d'alertes",
     "alerts.form.channel": "Canal",
@@ -375,6 +386,8 @@ export const translations = {
     "alerts.form.adding": "Ajout...",
     "alerts.form.addButton": "Ajouter",
     "alerts.filter.all": "Tous",
+    "alerts.filter.level": "Niveau de risque",
+    "alerts.filter.channel": "Canal",
     "alerts.filter.critical": "Critique",
     "alerts.filter.high": "Élevé",
     "alerts.filter.medium": "Moyen",
@@ -715,6 +728,7 @@ export const translations = {
     // Pipeline
     "pipeline.operational": "Miasa tsara",
     "pipeline.degraded": "Olana amin'ny rafitra",
+    "pipeline.checking": "Manamarina ny rafitra…",
     // Days / Night
     "daynight.day": "Antoandro",
     "daynight.night": "Alina",
@@ -839,7 +853,10 @@ export const translations = {
 
     // --- Topbar ---
     "topbar.platform": "Sehatra Fanaraha-maso",
-    "topbar.searchPlaceholder": "Tadiavo faritra, vondrom-bahiny...",
+    "workspace.eyebrow": "Fanaraha-maso ny doro tanety",
+    "topbar.toggleSidebar": "Sokafy na akatona ny menio",
+    "topbar.themeToggle": "Ovay ny endrika",
+    "topbar.language": "Safidio ny fiteny",
 
     // --- Dashboard ---
     "dashboard.title": "Fijery ankapobe",
@@ -996,6 +1013,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Faritra Voamarika",
     "zones.subtitle": "Araho ny faritra manokana eto Madagasikara",
+    "zones.loading": "Eo am-pametrahana ny faritra arahinao…",
+    "zones.error.title": "Tsy hita ny faritra",
+    "zones.error.description": "Tsy voaray ny faritra arahinao. Hamarino ny fifandraisana ary andramo indray.",
     "zones.addButton": "Faritra vaovao",
     "zones.empty": "Tsy misy faritra voafaritra. Mamorona ny faritra voamarika voalohany.",
     "zones.card.radius": "Radi-ora",
@@ -1027,7 +1047,11 @@ export const translations = {
     "alerts.subs.risk": "Hasarobidina",
     "alerts.subs.frp": "FRP",
     "alerts.history.title": "Tantara",
-    "alerts.history.empty": "Tsy misy fampitandremana mifanaraka amin'ny fisintonana.",
+    "alerts.history.empty": "Mbola tsy misy fampitandremana nalefa.",
+    "alerts.history.emptyDescription": "Hiseho eto ny fampitandremana nalefa.",
+    "alerts.history.noMatches": "Tsy misy fampitandremana mifanaraka amin'ireo sivana.",
+    "alerts.history.noMatchesDescription": "Ovay na avereno amin'ny voalohany ireo sivana mba hahitana ny tantara.",
+    "alerts.history.resetFilters": "Avereno ny sivana",
     "alerts.history.unknownRegion": "Faritra tsy fantatra",
     "alerts.form.title": "Fandaharampandoavana vaovao",
     "alerts.form.channel": "Fandraisana",
@@ -1037,6 +1061,8 @@ export const translations = {
     "alerts.form.adding": "Ampiana...",
     "alerts.form.addButton": "Ampiana",
     "alerts.filter.all": "Rehetra",
+    "alerts.filter.level": "Haavon'ny loza",
+    "alerts.filter.channel": "Fantsona",
     "alerts.filter.critical": "Mampidi-doza",
     "alerts.filter.high": "Avo",
     "alerts.filter.medium": "Antonony",
@@ -1375,6 +1401,7 @@ export const translations = {
     "risk.unknown": "—",
     "pipeline.operational": "Pipeline operational",
     "pipeline.degraded": "Pipeline degraded",
+    "pipeline.checking": "Checking pipeline…",
     "daynight.day": "Day",
     "daynight.night": "Night",
     "cluster.status.active": "Active",
@@ -1494,8 +1521,11 @@ export const translations = {
 
 
     // --- Topbar ---
-    "topbar.platform": "Surveillance Platform",
-    "topbar.searchPlaceholder": "Search regions, clusters...",
+    "topbar.platform": "Wildfire monitoring",
+    "workspace.eyebrow": "Wildfire monitoring",
+    "topbar.toggleSidebar": "Open or close the menu",
+    "topbar.themeToggle": "Change theme",
+    "topbar.language": "Choose language",
 
     // --- Dashboard ---
     "dashboard.title": "Overview",
@@ -1652,6 +1682,9 @@ export const translations = {
     // --- Zones ---
     "zones.title": "Priority Zones",
     "zones.subtitle": "Monitor specific geographic areas of Madagascar",
+    "zones.loading": "Loading your monitored zones…",
+    "zones.error.title": "Zones unavailable",
+    "zones.error.description": "Your monitoring zones could not be loaded. Check your connection and try again.",
     "zones.addButton": "New zone",
     "zones.empty": "No zones defined. Create your first priority zone.",
     "zones.card.radius": "Radius",
@@ -1683,7 +1716,11 @@ export const translations = {
     "alerts.subs.risk": "Risk",
     "alerts.subs.frp": "FRP",
     "alerts.history.title": "History",
-    "alerts.history.empty": "No alerts matching the filters.",
+    "alerts.history.empty": "No alerts have been sent yet.",
+    "alerts.history.emptyDescription": "Sent alerts will appear here.",
+    "alerts.history.noMatches": "No alerts match these filters.",
+    "alerts.history.noMatchesDescription": "Change or reset the filters to view alert history.",
+    "alerts.history.resetFilters": "Reset filters",
     "alerts.history.unknownRegion": "Unknown region",
     "alerts.form.title": "New alert subscription",
     "alerts.form.channel": "Channel",
@@ -1693,6 +1730,8 @@ export const translations = {
     "alerts.form.adding": "Adding...",
     "alerts.form.addButton": "Add",
     "alerts.filter.all": "All",
+    "alerts.filter.level": "Risk level",
+    "alerts.filter.channel": "Channel",
     "alerts.filter.critical": "Critical",
     "alerts.filter.high": "High",
     "alerts.filter.medium": "Medium",

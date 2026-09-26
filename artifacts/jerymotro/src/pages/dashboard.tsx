@@ -1,9 +1,10 @@
-import { getGetEnvironmentalContextStatsQueryKey, useGetDailyStats, useGetEnvironmentalContextStats, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
+import { getGetEnvironmentalContextStatsQueryKey, useGetDailyStats, useGetEnvironmentalContextStats, useHealthCheck, useListDetections, useListClusters, Cluster, Detection } from "@workspace/api-client-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Activity, Flame, Bell, Cpu, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
+import { Activity, Flame, Bell, Cpu, CheckCircle, AlertTriangle, Loader2, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
 import { useI18n } from "@/hooks/use-i18n";
 import { AsyncStateInline } from "@/components/ui/async-state";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const getRiskColor = (score: number | null | undefined) => {
   if (!score) return "text-muted-foreground";
@@ -16,6 +17,7 @@ const getRiskColor = (score: number | null | undefined) => {
 export default function DashboardPage() {
   const { t, lang } = useI18n();
   const dailyQ = useGetDailyStats();
+  const healthQ = useHealthCheck();
   const environmentalParams = { exclude_noise: true };
   const environmentalQ = useGetEnvironmentalContextStats(environmentalParams, { query: { queryKey: getGetEnvironmentalContextStatsQueryKey(environmentalParams), refetchInterval: 60_000, staleTime: 30_000 } });
   const detectionsQ = useListDetections({ limit: 10 });
@@ -33,7 +35,7 @@ export default function DashboardPage() {
     const criticalClusters = clustersData.clusters?.filter(c => c.risk_level === 'CRITICAL').length || 0;
     const activeCritical = clustersData.clusters?.filter(c => c.cluster_status === 'ACTIVE' && c.risk_level === 'CRITICAL').length || 0;
     const regions = Array.from(new Set((detectionsData.detections || []).map(d => d.region).filter(Boolean))) as string[];
-    return { total_detections_today: todayStats?.total_detections || 0, active_clusters: activeClusters, critical_alerts: criticalClusters, active_critical_clusters: activeCritical, xgboost_accuracy: 0.89, ai_response_time_ms: 0, pipeline_status: activeClusters > 0 ? "operational" : "degraded", regions_affected_today: (todayStats?.regions_affected && todayStats.regions_affected.length > 0) ? todayStats.regions_affected : regions };
+    return { total_detections_today: todayStats?.total_detections || 0, active_clusters: activeClusters, critical_alerts: criticalClusters, active_critical_clusters: activeCritical, xgboost_accuracy: 0.89, ai_response_time_ms: 0, regions_affected_today: (todayStats?.regions_affected && todayStats.regions_affected.length > 0) ? todayStats.regions_affected : regions };
   }, [daily, clustersData, detectionsData]);
 
   const chartData = useMemo(() => [...(daily.stats || [])].sort((a, b) => a.date.localeCompare(b.date)).slice(-14).map(d => ({ date: d.date.slice(5), fullDate: d.date, total: d.total_detections ?? 0, high: d.high_risk_count ?? 0 })), [daily]);
@@ -46,11 +48,30 @@ export default function DashboardPage() {
   if (queryError) return <AsyncStateInline type="error" title="Impossible de charger le tableau de bord" description="Certaines données ne sont pas disponibles. Réessayez pour actualiser les informations." onAction={() => { dailyQ.refetch(); detectionsQ.refetch(); clustersQ.refetch(); }} actionLabel="Réessayer" />;
 
   const getRiskLabel = (score: number | null | undefined) => { if (!score) return t("risk.unknown"); if (score >= 0.7) return t("risk.critical"); if (score >= 0.5) return t("risk.high"); if (score >= 0.3) return t("risk.medium"); return t("risk.low"); };
-  const pipelineOk = summary.pipeline_status === "operational";
+  const pipelineStatus = healthQ.isLoading
+    ? "checking"
+    : healthQ.isSuccess
+      ? "operational"
+      : "degraded";
+  const pipelineStatusClasses = pipelineStatus === "operational"
+    ? "bg-accent/10 text-accent"
+    : pipelineStatus === "degraded"
+      ? "bg-destructive/10 text-destructive"
+      : "bg-muted text-muted-foreground";
+  const pipelineStatusLabel = pipelineStatus === "operational"
+    ? t("pipeline.operational")
+    : pipelineStatus === "degraded"
+      ? t("pipeline.degraded")
+      : t("pipeline.checking");
 
   return (
     <div className="min-h-full bg-background px-4 py-5 sm:px-6 sm:py-7 lg:px-8"><div className="mx-auto max-w-[1600px] space-y-8">
-      <header className="jm-dashboard-header flex flex-col gap-4 pb-5 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="font-heading text-2xl font-semibold tracking-tight">{t("dashboard.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("dashboard.subtitle")}</p></div><div className={`jm-dashboard-status inline-flex self-start items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium sm:self-auto ${pipelineOk ? "bg-accent/10 text-accent" : "bg-destructive/10 text-destructive"}`}>{pipelineOk ? <CheckCircle className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}{pipelineOk ? t("pipeline.operational") : t("pipeline.degraded")}</div></header>
+      <PageHeader
+        title={t("dashboard.title")}
+        description={t("dashboard.subtitle")}
+        className="mb-0"
+        meta={<div className={`jm-dashboard-status inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ${pipelineStatusClasses}`}>{pipelineStatus === "operational" ? <CheckCircle className="h-3.5 w-3.5" /> : pipelineStatus === "degraded" ? <AlertTriangle className="h-3.5 w-3.5" /> : <Loader2 className="h-3.5 w-3.5 animate-spin" />}{pipelineStatusLabel}</div>}
+      />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{[
         { label: t("dashboard.kpi.detectionsToday"), value: summary.total_detections_today, sub: t("dashboard.kpi.detectionsSub"), icon: Activity, color: "text-primary", bg: "bg-primary/9" },
         { label: t("dashboard.kpi.activeClusters"), value: summary.active_clusters, sub: `${summary.active_critical_clusters} ${t("dashboard.kpi.critiques")}`, icon: Flame, color: "text-destructive", bg: "bg-destructive/9" },
