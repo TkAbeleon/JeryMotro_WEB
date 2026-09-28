@@ -220,10 +220,6 @@ export default function LoginPage() {
       login(result);
       setLocation("/dashboard");
     } catch (err) {
-      if ((err as { status?: number })?.status === 401) {
-        setLocation("/");
-        return;
-      }
       setError(apiError(err, t("auth.login.error")));
     }
   };
