@@ -220,6 +220,15 @@ export default function LoginPage() {
       login(result);
       setLocation("/dashboard");
     } catch (err) {
+      const status = (err as { status?: number })?.status;
+      if (status === 401) {
+        setError("Email ou mot de passe incorrect.");
+        return;
+      }
+      if (status === 502) {
+        setError("Le service de connexion est momentanément indisponible. Réessayez dans quelques instants.");
+        return;
+      }
       setError(apiError(err, t("auth.login.error")));
     }
   };
