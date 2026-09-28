@@ -65,15 +65,7 @@ const queryClient = new QueryClient({
       refetchInterval: BACKGROUND_REFRESH_INTERVAL_MS,
       refetchIntervalInBackground: true,
     },
-    mutations: {
-      onError: (error: unknown) => {
-        if ((error as { status?: number })?.status === 401) {
-          localStorage.removeItem("jerymotro_token");
-          localStorage.removeItem("jerymotro_user");
-          window.location.href = "/";
-        }
-      },
-    },
+    mutations: {},
   },
 });
 
