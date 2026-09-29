@@ -33,8 +33,10 @@ function inRange(value:Date|null,range:Range){if(!value)return false;return valu
 function MapRecenter({target}:{target:{lat:number;lng:number;zoom?:number}|null}){const map=useMap();useEffect(()=>{if(target)map.flyTo([target.lat,target.lng],target.zoom??12,{duration:1});},[map,target]);return null;}
 function BoundsTracker({onChange}:{onChange:(b:L.LatLngBounds)=>void}){const map=useMapEvents({moveend(){onChange(map.getBounds())},zoomend(){onChange(map.getBounds())}});useEffect(()=>onChange(map.getBounds()),[map,onChange]);return null;}
 const googleMapsApiKey=import.meta.env.VITE_GOOGLE_MAPS_API_KEY||"";
+const mapProvider=googleMapsApiKey?"Google Maps (satellite)":"OpenStreetMap (fallback)";
 export default function MapPage(){
  const {t}=useI18n();const {toast}=useToast();
+ useEffect(()=>{console.info(\"[JeryMotro][Map] Fournisseur cartographique utilisé :\",mapProvider);},[]);
  const [period,setPeriod]=useState<Period>("7d");const [selectedRisks,setSelectedRisks]=useState<Set<RiskLevel>>(new Set(["critical","high","medium","low"]));
  const [selectedRegion,setSelectedRegion]=useState("all");const [selectedSource,setSelectedSource]=useState("all");const [filterOpen,setFilterOpen]=useState(true);const [limitEnabled,setLimitEnabled]=useState(true);
  const [dateRange,setDateRange]=useState<Range>(()=>getPeriodRange("7d"));const [appliedDateRange,setAppliedDateRange]=useState<Range>(()=>getPeriodRange("7d"));const [showCalendar,setShowCalendar]=useState(false);const [bounds,setBounds]=useState<L.LatLngBounds|null>(null);
