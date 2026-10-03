@@ -32,8 +32,6 @@ const messages = {
 const HEALTH_CHECK_INTERVAL_MS = 30_000;
 const HEALTH_CHECK_TIMEOUT_MS = 8_000;
 
-const DEFAULT_BACKEND_OFFLINE =
-  String(import.meta.env.VITE_BACKEND_DEFAULT_OFFLINE ?? "true").toLowerCase() !== "false";
 
 function getApiUrl(): string | null {
   const envUrl = import.meta.env.VITE_API_URL;
@@ -86,9 +84,7 @@ async function checkBackendHealth(signal: AbortSignal): Promise<boolean> {
 export function BackendUnavailableBanner() {
   const { lang } = useI18n();
   const message = messages[lang];
-  const [status, setStatus] = useState<"checking" | "online" | "offline">(
-    DEFAULT_BACKEND_OFFLINE ? "offline" : "checking",
-  );
+  const [status, setStatus] = useState<"checking" | "online" | "offline">("checking");
   const [isRetrying, setIsRetrying] = useState(false);
 
   const runCheck = useCallback(async () => {
@@ -140,26 +136,26 @@ export function BackendUnavailableBanner() {
 
   return (
     <aside
-      role="alert"
-      aria-live="assertive"
-      className="pointer-events-none fixed inset-x-0 top-[70px] z-[100] flex justify-center px-3 sm:px-4"
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-3 top-[76px] z-[100] flex justify-center sm:inset-x-5 sm:justify-end"
     >
-      <div className="pointer-events-auto flex w-full max-w-[620px] items-center gap-3 rounded-2xl border border-red-200/90 bg-red-50/95 px-3 py-2.5 text-red-950 shadow-lg shadow-red-950/10 backdrop-blur-md dark:border-red-900/80 dark:bg-red-950/95 dark:text-red-50 sm:gap-3.5 sm:px-4 sm:py-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm shadow-red-600/25 dark:bg-red-500">
-          <ServerOff className="h-4.5 w-4.5" aria-hidden="true" />
+      <div className="pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-2xl bg-background/95 px-3.5 py-3 text-foreground shadow-[9px_9px_16px_rgb(163,177,198,0.45),-9px_-9px_16px_rgba(255,255,255,0.45)] backdrop-blur-md sm:px-4 sm:py-3.5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background text-destructive shadow-[inset_6px_6px_10px_rgb(163,177,198,0.5),inset_-6px_-6px_10px_rgba(255,255,255,0.45)]">
+          <ServerOff className="h-4 w-4" aria-hidden="true" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <CircleAlert className="h-3.5 w-3.5 shrink-0 text-red-600 dark:text-red-400" aria-hidden="true" />
-            <span className="truncate text-[10px] font-extrabold tracking-[0.1em] text-red-700 dark:text-red-300">
+            <CircleAlert className="h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden="true" />
+            <span className="truncate text-[10px] font-extrabold tracking-[0.1em] text-destructive">
               {message.badge}
             </span>
           </div>
-          <p className="mt-0.5 truncate text-sm font-bold leading-tight text-red-950 dark:text-red-50">
+          <p className="mt-0.5 text-sm font-bold leading-tight">
             {message.title}
           </p>
-          <p className="mt-0.5 hidden truncate text-xs text-red-800/80 dark:text-red-100/75 sm:block">
+          <p className="mt-1 hidden text-xs leading-relaxed text-muted-foreground sm:block">
             {message.description}
           </p>
         </div>
@@ -168,10 +164,10 @@ export function BackendUnavailableBanner() {
           type="button"
           onClick={() => void runCheck()}
           disabled={isRetrying}
-          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-red-300 bg-white/90 px-3 text-xs font-bold text-red-700 shadow-sm transition hover:border-red-400 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-700 dark:bg-red-900/70 dark:text-red-50 dark:hover:bg-red-900"
+          aria-label={isRetrying ? message.checking : message.retry}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background text-destructive shadow-[5px_5px_10px_rgb(163,177,198,0.45),-5px_-5px_10px_rgba(255,255,255,0.45)] transition-all duration-300 ease-out hover:-translate-y-px hover:shadow-[7px_7px_14px_rgb(163,177,198,0.5),-7px_-7px_14px_rgba(255,255,255,0.5)] active:translate-y-px active:shadow-[inset_3px_3px_6px_rgb(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRetrying ? "animate-spin" : ""}`} aria-hidden="true" />
-          <span className="hidden sm:inline">{isRetrying ? message.checking : message.retry}</span>
+          <RefreshCw className={`h-4 w-4 ${isRetrying ? "animate-spin" : ""}`} aria-hidden="true" />
         </button>
       </div>
     </aside>
