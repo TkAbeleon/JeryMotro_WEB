@@ -39,8 +39,8 @@ jobs:
         working-directory: artifacts/jerymotro
         run: pnpm run build
         env:
-          PRERENDER_BASE_URL: https://jerymotro.duckdns.org
-          VITE_SITE_URL: https://jerymotro.duckdns.org
+          PRERENDER_BASE_URL: https://jerymotro.randriamanantenatsikynyantsa.workers.dev
+          VITE_SITE_URL: https://jerymotro.randriamanantenatsikynyantsa.workers.dev
           VITE_API_URL: https://rtsikynyantsa-n8n-tk.hf.space
 
       - name: Checkout redirect-jeridmotro
@@ -68,42 +68,13 @@ jobs:
 
             printf '%s\n' \
               '{' \
-              '  "rewrites": [' \
-              '    {' \
-              '      "source": "/((?!assets/|.*\\.(?:js|mjs|css|map|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|json)$).*)",' \
-              '      "destination": "/index.html"' \
-              '    }' \
-              '  ],' \
-              '  "headers": [' \
-              '    {' \
-              '      "source": "/assets/(.*)",' \
-              '      "headers": [' \
-              '        {' \
-              '          "key": "Cache-Control",' \
-              '          "value": "public, max-age=31536000, immutable"' \
-              '        }' \
-              '      ]' \
-              '    },' \
-              '    {' \
-              '      "source": "/index.html",' \
-              '      "headers": [' \
-              '        {' \
-              '          "key": "Cache-Control",' \
-              '          "value": "no-store, no-cache, must-revalidate"' \
-              '        }' \
-              '      ]' \
-              '    }' \
-              '  ]' \
-              '}' > vercel.json
-
-            printf '%s\n' \
-              '{' \
               '  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",' \
               '  "name": "jerymotro",' \
               '  "compatibility_date": "2026-09-03",' \
               '  "assets": {' \
               '    "directory": ".", ' \
-              '    "not_found_handling": "single-page-application"' \
+              '    "not_found_handling": "404-page",' \
+              '    "html_handling": "auto-trailing-slash"' \
               '  }' \
               '}' > wrangler.jsonc
 
