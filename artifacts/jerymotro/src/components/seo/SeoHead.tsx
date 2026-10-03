@@ -4,9 +4,10 @@
  * Composant purement additif — injecte les balises <head> SEO pour les pages
  * PUBLIQUES uniquement (/  /login  /register).
  *
- * Utilise la fonctionnalité native de hoisting de React 19 (pas besoin de react-helmet-async).
+ * Les balises sont rendues par React puis placées dans le <head> par le
+ * pré-rendu SSG. En navigation côté client, elles restent gérées par React 19.
  *
- * Balises injectées et hissées dans le <head> :
+ * Balises SEO produites :
  *   <title>  <meta description>  <link canonical>
  *   og:*         twitter:*  <link hreflang> (fr / mg / en / x-default)
  *
@@ -194,6 +195,7 @@ export function SeoHead() {
     <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
+      <meta name="robots" content="index, follow" />
       <link rel="canonical" href={canonical} />
 
       {/* ── Open Graph ── */}
