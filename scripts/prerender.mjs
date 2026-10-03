@@ -35,7 +35,7 @@ const DIST_DIR  = join(ROOT_DIR, 'dist', 'public');
 
 // ─── Configuration ─────────────────────────────────────────────────────────────
 
-const BASE_URL = process.env.PRERENDER_BASE_URL || 'https://jerymotro.duckdns.org';
+const BASE_URL = (process.env.PRERENDER_BASE_URL || 'https://jerymotro.randriamanantenatsikynyantsa.workers.dev').replace(/\/$/, '');
 
 const LANGS = [
   { key: 'fr', bcp47: 'fr-MG', label: 'Français' },
@@ -104,61 +104,46 @@ function writeHtml(html, lang, slug) {
 function generateSitemap() {
   const today = new Date().toISOString().split('T')[0];
 
+  // Le sitemap ne publie que les URLs localisées qui correspondent réellement
+  // aux fichiers SSG générés. Les alias racine (/map, /login, etc.) sont
+  // redirigés vers /fr/... par Cloudflare et ne sont donc pas des URLs canoniques.
   const urlEntries = ALL_ROUTES.flatMap(route => {
     const isHigh = (route.slug === '' || route.slug === 'map' || route.slug === 'dashboard');
-    const priority = isHigh ? '1.0' : '0.8';
+    const priority = isHigh ? '0.9' : '0.7';
     const changefreq = isHigh ? 'daily' : 'weekly';
 
-    // 1. Version racine canonique sans langue
-    const rootCanonical = `${BASE_URL}${route.slug ? '/' + route.slug : ''}`;
-    const alternatesForRoot = LANGS.map(l => {
-      const altPath = `/${l.key}${route.slug ? '/' + route.slug : ''}`;
-      return `    <xhtml:link rel="alternate" hreflang="${l.bcp47}" href="${BASE_URL}${altPath}/"/>`;
-    }).join('\n');
-    const defaultPath = `/fr${route.slug ? '/' + route.slug : ''}`;
-    const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${defaultPath}/"/>`;
-
-    const rootEntry = `  <url>
-    <loc>${rootCanonical}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-${alternatesForRoot}
-${xDefault}
-  </url>`;
-
-    // 2. Versions spécifiques par langue
-    const langEntries = LANGS.map(lang => {
-      const langPath = `/${lang.key}${route.slug ? '/' + route.slug : ''}`;
-      const canonical = `${BASE_URL}${langPath}/`;
+    return LANGS.map(lang => {
+      const langPath = `/${lang.key}${route.slug ? '/' + route.slug : ''}/`;
+      const canonical = `${BASE_URL}${langPath}`;
 
       const alternates = LANGS.map(l => {
-        const altPath = `/${l.key}${route.slug ? '/' + route.slug : ''}`;
-        return `    <xhtml:link rel="alternate" hreflang="${l.bcp47}" href="${BASE_URL}${altPath}/"/>`;
-      }).join('\n');
+        const altPath = `/${l.key}${route.slug ? '/' + route.slug : ''}/`;
+        return `    <xhtml:link rel="alternate" hreflang="${l.bcp47}" href="${BASE_URL}${altPath}"/>`;
+      }).join('\\n');
+
+      const defaultPath = `/fr${route.slug ? '/' + route.slug : ''}/`;
+      const xDefault = `    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}${defaultPath}"/>`;
 
       return `  <url>
     <loc>${canonical}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${changefreq}</changefreq>
-    <priority>${isHigh ? '0.9' : '0.7'}</priority>
+    <priority>${priority}</priority>
 ${alternates}
 ${xDefault}
   </url>`;
     });
-
-    return [rootEntry, ...langEntries];
   });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${urlEntries.join('\n')}
+${urlEntries.join('\\n')}
 </urlset>
 `;
   const sitemapPath = join(DIST_DIR, 'sitemap.xml');
   writeFileSync(sitemapPath, xml, 'utf-8');
-  ok(`Sitemap généré : dist/public/sitemap.xml (${LANGS.length * ALL_ROUTES.length} URLs)`);
+  ok(`Sitemap généré : dist/public/sitemap.xml (${LANGS.length * ALL_ROUTES.length} URLs localisées)`);
 }
 
 // ─── HTML statique léger pour pages Leaflet ──────────────────────────────────
