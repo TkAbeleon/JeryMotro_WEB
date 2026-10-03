@@ -79,17 +79,38 @@ const header  = (msg) => console.log(`\n${BOLD}${CYAN}━━━ ${msg}${RESET}`)
 
 function auditSeoTags(html, { path, lang }) {
   const checks = [
-    { name: '<title>',           regex: /<title>[^<]{1,}/i },
-    { name: 'meta description',  regex: /<meta[^>]+name=["']description["'][^>]+content=["'][^"']{1,}/i },
-    { name: 'og:title',          regex: /<meta[^>]+property=["']og:title["']/i },
-    { name: '<h1>',              regex: /<h1[\s>]/i },
+    { name: '<title>', regex: /<title>[^<]{1,}/i },
+    { name: 'meta description', regex: /<meta[^>]+name=["']description["']/i },
+    { name: 'meta robots', regex: /<meta[^>]+name=["']robots["'][^>]+content=["']index, ?follow["']/i },
+    { name: 'canonical', regex: /<link[^>]+rel=["']canonical["'][^>]+href=["']https:\/\//i },
+    { name: 'og:url', regex: /<meta[^>]+property=["']og:url["']/i },
+    { name: 'hreflang', regex: /<link[^>]+rel=["']alternate["'][^>]+hrefLang=/i },
+    { name: '<h1>', regex: /<h1[\s>]/i },
   ];
   const missing = checks.filter(c => !c.regex.test(html)).map(c => c.name);
-  if (missing.length > 0) {
-    warn(`[${lang}${path}] Balises SEO ABSENTES : ${missing.join(', ')}`);
-  } else {
-    ok(`[${lang}${path}] SEO Audit : OK`);
-  }
+  const canonicalCount = (html.match(/<link[^>]+rel=["']canonical["']/gi) || []).length;
+  const titleCount = (html.match(/<title>/gi) || []).length;
+  if (canonicalCount !== 1) missing.push(`exactly one canonical (found ${canonicalCount})`);
+  if (titleCount !== 1) missing.push(`exactly one title (found ${titleCount})`);
+  const expectedHost = BASE_URL.replace(/^https?:\/\//, '');
+  if (!html.includes(expectedHost)) missing.push(`canonical host ${expectedHost}`);
+  if (missing.length > 0) warn(`[${lang}${path}] Balises SEO INVALIDES : ${missing.join(', ')}`);
+  else ok(`[${lang}${path}] SEO Audit : OK`);
+}
+
+function extractSeoHead(html) {
+  const tags = [];
+  const tagRegex = /<(?:title\b[^>]*>[\s\S]*?<\/title>|meta\b[^>]*>|link\b[^>]*>)/gi;
+  const cleanHtml = html.replace(tagRegex, (tag) => {
+    const isSeo =
+      /^<title\b/i.test(tag) ||
+      (/^<meta\b/i.test(tag) && /(name|property)=["'](?:description|robots|twitter:[^"']+|og:[^"']+)["']/i.test(tag)) ||
+      (/^<link\b/i.test(tag) && /rel=["'](?:canonical|alternate)["']/i.test(tag));
+    if (!isSeo) return tag;
+    tags.push(tag);
+    return '';
+  });
+  return { head: tags.join('\n    '), body: cleanHtml };
 }
 
 function writeHtml(html, lang, slug) {
@@ -361,8 +382,13 @@ async function main() {
       const label = `[${lang.key}] ${route.title} (${route.path})`;
       try {
         const rendered = render(route.path, lang.key);
-        let pageHtml = template.replace('<div id="root"></div>', `<div id="root">${rendered}</div>`);
-        pageHtml = pageHtml.replace('<html lang="en">', `<html lang="${lang.key}">`);
+        const extracted = extractSeoHead(rendered);
+        if (!template.includes('<!-- SEO_HEAD -->')) {
+          throw new Error('Placeholder <!-- SEO_HEAD --> introuvable dans index.html');
+        }
+        let pageHtml = template.replace('<!-- SEO_HEAD -->', extracted.head);
+        pageHtml = pageHtml.replace('<div id="root"></div>', `<div id="root">${extracted.body}</div>`);
+        pageHtml = pageHtml.replace('<html lang="fr-MG">', `<html lang="${lang.key}">`);
         writeHtml(pageHtml, lang.key, route.slug);
         auditSeoTags(pageHtml, { path: route.path, lang: lang.key });
         successCount++;
