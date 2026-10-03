@@ -1,0 +1,11 @@
+# Cloudflare canonical routing: only localized SSG pages are indexable.
+# Keep non-localized application aliases usable without creating duplicate SEO URLs.
+/ /fr/ 302
+/login /fr/login/ 302
+/register /fr/register/ 302
+/map /fr/map/ 302
+/dashboard /fr/dashboard/ 302
+/about /fr/about/ 302
+/legal /fr/legal/ 302
+/privacy /fr/privacy/ 302
+/cv /fr/cv/ 302
