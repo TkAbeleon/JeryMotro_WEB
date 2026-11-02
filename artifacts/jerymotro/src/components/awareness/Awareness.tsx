@@ -81,7 +81,7 @@ export function AwarenessFloatingCard() {
     if (sessionStorage.getItem("jm-awareness-dismissed") === new Date().toDateString()) return;
     const lastShown = Number(sessionStorage.getItem("jm-awareness-last-shown") || 0);
     const remaining = Math.max(0, 15 * 60 * 1000 - (Date.now() - lastShown));
-    const timer = window.setTimeout(() => { setVisible(true); sessionStorage.setItem("jm-awareness-last-shown", String(Date.now())); }, Math.max(55000, remaining));
+    const timer = window.setTimeout(() => { setVisible(true); sessionStorage.setItem("jm-awareness-last-shown", String(Date.now())); }, lastShown ? Math.max(55000, remaining) : 55000);
     return () => window.clearTimeout(timer);
   }, []);
   useEffect(() => { loadItems(lang).then(data => { if (data.length) setItem(data[0]); }).catch(() => setItem((fallback[lang] || fallback.fr)[0])); }, [lang]);
