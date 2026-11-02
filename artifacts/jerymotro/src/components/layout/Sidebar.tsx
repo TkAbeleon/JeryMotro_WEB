@@ -19,6 +19,7 @@ import {
   Download,
   Sparkles,
   ShieldCheck,
+  Lightbulb,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -84,6 +85,7 @@ const navGroups: NavGroup[] = [
   {
     sectionKey: "nav.section.resources",
     items: [
+      { labelKey: "nav.awareness", href: "/sensibilisation", icon: Lightbulb },
       { labelKey: "nav.about", href: "/about", icon: BookOpen },
       { labelKey: "nav.cv", href: "/cv", icon: FileText },
       { labelKey: "nav.legal", href: "/legal", icon: FileText },
