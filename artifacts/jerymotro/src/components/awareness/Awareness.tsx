@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, ChevronLeft, ChevronRight, Flame, Lightbulb, X } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
