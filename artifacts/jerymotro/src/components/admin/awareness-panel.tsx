@@ -2,15 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2, Plus, RefreshCw, Send, Archive } from "lucide-react";
 
 type AwarenessItem = { id:number; slug:string; title:string; summary:string; body:string; content_type:string; language:string; source_url:string|null; status:string };
-const api=(import.meta.env.VITE_API_URL||"").replace(/\/$/,"");
+const configuredApi=import.meta.env.VITE_API_URL;
+const api=(configuredApi&&(configuredApi.startsWith("http://")||configuredApi.startsWith("https://")||configuredApi.startsWith("/"))?configuredApi:typeof window!=="undefined"?window.location.protocol+"//"+window.location.hostname+":"+(import.meta.env.VITE_API_BACKEND_PORT||"8081"):"http://localhost:8081").replace(/\/$/,"");
 function auth(){return {Accept:"application/json","Content-Type":"application/json",Authorization:"Bearer "+(localStorage.getItem("jerymotro_token")||"")};}
 export function AwarenessAdminPanel(){
  const [items,setItems]=useState<AwarenessItem[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState("");const [busy,setBusy]=useState(false);
  const [form,setForm]=useState({slug:"",title:"",summary:"",body:"",content_type:"scientific_fact",language:"fr",source_title:"",source_url:""});
- const load=useCallback(async()=>{setLoading(true);try{const r=await fetch(api+"/admin/awareness/contents",{headers:auth()});if(!r.ok)throw new Error("Impossible de charger les contenus.");setItems(await r.json());setError("");}catch(e){setError(e instanceof Error?e.message:"Erreur API");}finally{setLoading(false);}},[]);
+ const load=useCallback(async()=>{setLoading(true);try{const r=await fetch(api+"/admin/awareness/contents",{headers:auth()});if(!r.ok){const data=await r.json().catch(()=>null);throw new Error(data?.detail||"Impossible de charger les contenus.");}setItems(await r.json());setError("");}catch(e){setError(e instanceof Error?e.message:"Erreur API");}finally{setLoading(false);}},[]);
  useEffect(()=>{void load();},[load]);
  const create=async(e:React.FormEvent)=>{e.preventDefault();setBusy(true);setError("");try{const r=await fetch(api+"/admin/awareness/contents",{method:"POST",headers:auth(),body:JSON.stringify(form)});const data=await r.json().catch(()=>null);if(!r.ok)throw new Error(data?.detail||"Création impossible");setForm({slug:"",title:"",summary:"",body:"",content_type:"scientific_fact",language:"fr",source_title:"",source_url:""});await load();}catch(e){setError(e instanceof Error?e.message:"Erreur API");}finally{setBusy(false);}};
- const action=async(id:number,kind:"publish"|"archive")=>{setBusy(true);try{const r=await fetch(api+`/admin/awareness/contents/${id}/${kind}`,{method:"POST",headers:auth()});if(!r.ok)throw new Error("Action impossible");await load();}catch(e){setError(e instanceof Error?e.message:"Erreur API");}finally{setBusy(false);}};
+ const action=async(id:number,kind:"publish"|"archive")=>{setBusy(true);setError("");try{const r=await fetch(api+`/admin/awareness/contents/${id}/${kind}`,{method:"POST",headers:auth()});const data=await r.json().catch(()=>null);if(!r.ok)throw new Error(data?.detail||"Action impossible");await load();}catch(e){setError(e instanceof Error?e.message:"Erreur API");}finally{setBusy(false);}};
  return <section className="space-y-5">{error&&<div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
  <form onSubmit={create} className="grid gap-3 rounded-2xl border border-border p-4 sm:grid-cols-2">
  <h2 className="font-semibold sm:col-span-2">Créer un contenu de sensibilisation</h2>
