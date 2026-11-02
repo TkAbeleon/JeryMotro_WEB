@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { I18nProvider, useI18n } from "@/hooks/use-i18n";
 import { AppShell } from "@/components/layout/AppShell";
+import AwarenessPage from "@/components/awareness/Awareness";
 import { BackendUnavailableBanner } from "@/components/system/BackendUnavailableBanner";
 import { SeoHead } from "@/components/seo/SeoHead";
 import LoadingPage from "@/components/ui/loading";
@@ -143,6 +144,7 @@ function Router() {
         <Route path="/legal">{() => <PublicRoute component={LegalPage} />}</Route>
         <Route path="/privacy">{() => <PublicRoute component={PrivacyPage} />}</Route>
         <Route path="/about">{() => <PublicRoute component={AboutPage} />}</Route>
+        <Route path="/sensibilisation">{() => <PublicRoute component={AwarenessPage} />}</Route>
         <Route path="/cv">{() => <PublicRoute component={CvPage} />}</Route>
         <Route path="/detections">{() => <AuthedRoute component={DetectionsPage} />}</Route>
         <Route path="/clusters">{() => <AuthedRoute component={ClustersPage} />}</Route>
