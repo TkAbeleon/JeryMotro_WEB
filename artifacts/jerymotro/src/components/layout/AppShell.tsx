@@ -39,6 +39,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             <span className="hidden truncate font-heading text-base font-bold sm:inline sm:text-lg">JeryMotro</span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
+            <Link href="/sensibilisation" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-emerald-700 transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{lang === "mg" ? "Fanentanana" : lang === "en" ? "Awareness" : "Sensibilisation"}</Link>
             <Link href="/about" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("landing.nav.about")}</Link>
             <Link href="/map" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.map")}</Link>
             <Link href="/dashboard" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.dashboard")}</Link>
