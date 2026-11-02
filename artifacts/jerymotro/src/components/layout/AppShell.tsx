@@ -4,9 +4,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
-import { Sun, Moon, Languages, LogIn } from "lucide-react";
+import { Sun, Moon, Languages, LogIn, Lightbulb } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
+import { AwarenessBanner, AwarenessFloatingCard } from "@/components/awareness/Awareness";
 
 function AuthenticatedShell({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobile } = useSidebar();
@@ -17,6 +18,7 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col" style={{ marginLeft }}>
         <Topbar />
         <main className="min-h-screen flex-1 overflow-auto pt-[58px]">{children}</main>
+        <AwarenessFloatingCard />
       </div>
     </div>
   );
@@ -37,6 +39,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
             <span className="hidden truncate font-heading text-base font-bold sm:inline sm:text-lg">JeryMotro</span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
+            <Link href="/sensibilisation" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-emerald-700 transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{lang === "mg" ? "Fanentanana" : lang === "en" ? "Awareness" : "Sensibilisation"}</Link>
             <Link href="/about" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("landing.nav.about")}</Link>
             <Link href="/map" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.map")}</Link>
             <Link href="/dashboard" className="jm-public-nav-link whitespace-nowrap rounded-xl px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground xl:rounded-2xl xl:px-3 xl:text-sm">{t("nav.dashboard")}</Link>
@@ -44,6 +47,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <Link href="/sensibilisation" className="inline-flex min-h-9 items-center gap-1 rounded-lg px-1.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-500/10 sm:px-2 lg:hidden"><Lightbulb className="h-3.5 w-3.5" /><span className="hidden min-[380px]:inline">Sensibilisation</span><span className="min-[380px]:hidden">Info</span></Link>
           <label htmlFor="public-language-select" className="sr-only">Langue</label>
           <select
             id="public-language-select"
@@ -71,7 +75,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <main className="flex-1 overflow-auto pt-[64px]">{children}</main>
+      <main className="flex-1 overflow-auto pt-[64px]"><AwarenessBanner />{children}</main>
     </div>
   );
 }
