@@ -68,7 +68,7 @@ export function AwarenessFloatingCard() {
   }, []);
   useEffect(() => { loadItems(lang).then(data => { if (data.length) setItem(data[0]); }).catch(() => setItem((fallback[lang] || fallback.fr)[0])); }, [lang]);
   if (!visible || dismissed) return null;
-  return <aside aria-label="Message de sensibilisation" className="fixed bottom-4 right-4 z-40 hidden w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-border bg-card p-4 shadow-xl md:block">
+  return <aside aria-label="Message de sensibilisation" className="fixed bottom-3 right-3 z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border border-border bg-card p-4 shadow-xl md:block">
     <div className="mb-2 flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400"><Lightbulb className="h-4 w-4" /> Le saviez-vous ?</span><button aria-label="Fermer" onClick={() => { setDismissed(true); sessionStorage.setItem("jm-awareness-dismissed", new Date().toDateString()); }} className="rounded-lg p-1 hover:bg-muted"><X className="h-4 w-4" /></button></div>
     <h3 className="text-sm font-semibold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.summary}</p>
     <Link href="/sensibilisation" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">Découvrir <ArrowRight className="h-3.5 w-3.5" /></Link>
