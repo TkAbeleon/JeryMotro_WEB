@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
 import { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
-import { Sun, Moon, Languages, LogIn } from "lucide-react";
+import { Sun, Moon, Languages, LogIn, Lightbulb } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
 import { AwarenessBanner, AwarenessFloatingCard } from "@/components/awareness/Awareness";
@@ -47,6 +47,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <Link href="/sensibilisation" className="inline-flex min-h-9 items-center gap-1 rounded-lg px-1.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-500/10 sm:px-2 lg:hidden"><Lightbulb className="h-3.5 w-3.5" /><span className="hidden min-[380px]:inline">Sensibilisation</span><span className="min-[380px]:hidden">Info</span></Link>
           <label htmlFor="public-language-select" className="sr-only">Langue</label>
           <select
             id="public-language-select"
