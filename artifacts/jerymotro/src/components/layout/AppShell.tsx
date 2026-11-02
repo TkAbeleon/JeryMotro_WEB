@@ -7,6 +7,7 @@ import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 import { Sun, Moon, Languages, LogIn } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
+import { AwarenessBanner, AwarenessFloatingCard } from "@/components/awareness/Awareness";
 
 function AuthenticatedShell({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobile } = useSidebar();
@@ -17,6 +18,7 @@ function AuthenticatedShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col" style={{ marginLeft }}>
         <Topbar />
         <main className="min-h-screen flex-1 overflow-auto pt-[58px]">{children}</main>
+        <AwarenessFloatingCard />
       </div>
     </div>
   );
@@ -71,7 +73,7 @@ function PublicShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </header>
-      <main className="flex-1 overflow-auto pt-[64px]">{children}</main>
+      <main className="flex-1 overflow-auto pt-[64px]"><AwarenessBanner />{children}</main>
     </div>
   );
 }
