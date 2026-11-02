@@ -75,14 +75,23 @@ export function AwarenessFloatingCard() {
   const { lang } = useI18n();
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [item, setItem] = useState<Item>((fallback[lang] || fallback.fr)[0]);
   useEffect(() => {
     if (sessionStorage.getItem("jm-awareness-dismissed") === new Date().toDateString()) return;
-    const timer = window.setTimeout(() => setVisible(true), 55000);
+    const lastShown = Number(sessionStorage.getItem("jm-awareness-last-shown") || 0);
+    const remaining = Math.max(0, 15 * 60 * 1000 - (Date.now() - lastShown));
+    const timer = window.setTimeout(() => { setVisible(true); sessionStorage.setItem("jm-awareness-last-shown", String(Date.now())); }, Math.max(55000, remaining));
     return () => window.clearTimeout(timer);
   }, []);
   useEffect(() => { loadItems(lang).then(data => { if (data.length) setItem(data[0]); }).catch(() => setItem((fallback[lang] || fallback.fr)[0])); }, [lang]);
+  useEffect(() => {
+    if (!visible || collapsed) return;
+    const timer = window.setTimeout(() => setCollapsed(true), 12000);
+    return () => window.clearTimeout(timer);
+  }, [visible, collapsed]);
   if (!visible || dismissed) return null;
+  if (collapsed) return <button type="button" onClick={() => setCollapsed(false)} className="fixed bottom-3 right-3 z-40 inline-flex min-h-10 items-center gap-2 rounded-full border border-emerald-500/30 bg-card px-3 text-xs font-semibold shadow-lg" aria-label="Ouvrir le conseil de sensibilisation"><Lightbulb className="h-4 w-4 text-emerald-600" />Sensibilisation</button>;
   return <aside aria-label="Message de sensibilisation" className="fixed bottom-3 right-3 z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border border-border bg-card p-4 shadow-xl md:block">
     <div className="mb-2 flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400"><Lightbulb className="h-4 w-4" /> Le saviez-vous ?</span><button aria-label="Fermer" onClick={() => { setDismissed(true); sessionStorage.setItem("jm-awareness-dismissed", new Date().toDateString()); }} className="rounded-lg p-1 hover:bg-muted"><X className="h-4 w-4" /></button></div>
     <h3 className="text-sm font-semibold leading-snug">{item.title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.summary}</p>
