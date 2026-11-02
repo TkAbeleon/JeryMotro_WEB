@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
+import { AwarenessBanner } from "@/components/awareness/Awareness";
 
 export default function LandingPage() {
   const { t, lang, setLang } = useI18n();
@@ -80,7 +81,7 @@ export default function LandingPage() {
             <Link href="/register" className="jm-landing-primary-button inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-primary px-2.5 py-2 text-xs font-semibold text-primary-foreground sm:min-h-11 sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-sm">{t("auth.register.title")}</Link>
           </div>
         </nav>
-      </header>
+      </header>\n      <div className="pt-[64px]"><AwarenessBanner /></div>
 
       <main>
         <section aria-labelledby="hero-title" className="jm-landing-hero relative overflow-hidden pt-[64px]">
