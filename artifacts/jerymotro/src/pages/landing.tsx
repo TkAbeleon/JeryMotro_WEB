@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Activity, Brain, Bell, Shield, ChevronRight, Map, Bot, Zap, Globe, Sun, Moon, Languages, Mail } from "lucide-react";
 import { useI18n, LANG_LABELS } from "@/hooks/use-i18n";
 import { useTheme } from "@/hooks/use-theme";
+import { AwarenessBanner } from "@/components/awareness/Awareness";
 
 export default function LandingPage() {
   const { t, lang, setLang } = useI18n();
@@ -84,6 +85,7 @@ export default function LandingPage() {
       </header>
 
       <main>
+        <div className="pt-2"><AwarenessBanner /></div>
         <section aria-labelledby="hero-title" className="jm-landing-hero relative overflow-hidden pt-[64px]">
           <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 text-center relative sm:px-8 sm:pb-20 sm:pt-20">
             <div className="jm-landing-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-primary mb-7"><Zap className="w-3 h-3" /><span>{t("landing.tagline")}</span></div>
