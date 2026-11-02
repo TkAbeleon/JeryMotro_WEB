@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock3, Database, Flame, Loader2, RefreshCw, Send, ShieldCheck, UsersRound as UsersIcon, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, Database, Flame, Lightbulb, Loader2, RefreshCw, Send, ShieldCheck, UsersRound as UsersIcon, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/hooks/use-i18n";
 import type { TranslationKey } from "@/lib/i18n";
 import { AsyncStateInline } from "@/components/ui/async-state";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { UsersPanel } from "@/components/admin/users-panel";
+import { AwarenessAdminPanel } from "@/components/admin/awareness-panel";
 import { approveAccessRequest, contactAccessRequest, getAdminAccessRequests, rejectAccessRequest, reviewAccessRequest, type AdminAccessRequest, type AccessRequestStatus } from "@/lib/access-requests-api";
 
 type Translate = ReturnType<typeof useI18n>["t"];
@@ -23,7 +24,7 @@ function Operations({t}:{t:Translate}){const actions=[[ "collect","admin.operati
 export default function AdminPage() {
   const { user, isAdmin } = useAuth();
   const { t } = useI18n();
-  const [tab, setTab] = useState<"access" | "users" | "detections" | "operations">("access");
+  const [tab, setTab] = useState<"access" | "users" | "detections" | "operations" | "awareness">("access");
 
   if (!isAdmin) {
     return <AsyncStateInline type="error" title={t("admin.forbidden.title")} description={t("admin.forbidden.description")} />;
@@ -34,6 +35,7 @@ export default function AdminPage() {
     ["users", "admin.tab.users", UsersIcon, true],
     ["detections", "admin.tab.detections", Flame, false],
     ["operations", "admin.tab.operations", Database, true],
+    ["awareness", "admin.tab.awareness", Lightbulb, true],
   ] as const;
 
   return (
@@ -55,7 +57,7 @@ export default function AdminPage() {
             </>
           }
         />
-        <nav className="grid grid-cols-2 gap-2 rounded-xl border bg-card/45 p-2 sm:grid-cols-4">
+        <nav className="grid grid-cols-2 gap-2 rounded-xl border bg-card/45 p-2 sm:grid-cols-5">
           {tabs.map(([key, label, Icon, enabled]) => (
             <button
               key={key}
@@ -73,6 +75,7 @@ export default function AdminPage() {
         {tab === "users" && <UsersPanel />}
         {tab === "detections" && <AsyncStateInline type="empty" title={t("admin.detections.title")} description={t("admin.module.nextStep")} />}
         {tab === "operations" && <Operations t={t} />}
+        {tab === "awareness" && <AwarenessAdminPanel />}
       </div>
     </div>
   );
