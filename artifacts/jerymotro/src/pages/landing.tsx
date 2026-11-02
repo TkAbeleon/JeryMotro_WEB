@@ -64,6 +64,7 @@ export default function LandingPage() {
               <a href="#features" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("landing.nav.features")}</a>
               <Link href="/map" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("nav.map")}</Link>
               <Link href="/dashboard" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("nav.dashboard")}</Link>
+              <Link href="/sensibilisation" className="text-xs xl:text-sm text-emerald-700 hover:text-foreground transition-colors whitespace-nowrap">{lang === "mg" ? "Fanentanana" : lang === "en" ? "Awareness" : "Sensibilisation"}</Link>
               <Link href="/about" className="text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap">{t("landing.nav.about")}</Link>
             </div>
             <div className="hidden xl:block w-px h-5 bg-border" />
